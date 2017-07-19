@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html style="padding:20px">
+<head>
+  <meta charset="utf-8">
+  <title>PyOutputTool</title>
+
+	<script type="text/javascript">
+		document.write('<link rel="import" href="' + window.Alteryx.LibDir + '2/lib/includes.html">');
+	</script>
+</head>
+<body>
+	<form>
+    <fieldset>
+        <legend class='blueTitle'>XMSG("Python Output Tool Example")</legend>
+          <label>XMSG("File Output Path")</label>
+          <ayx data-props="{type: 'TextBox', dataName: 'TextBox1'}"></ayx>
+    </fieldset>
+	</form>
+  <script type="text/javascript"></script>
+  <style>
+    /*This styling needs to be here. Is due to file loading. Otherwise, will not get proper styling on dropdowns*/
+    .Select, .Select div, .Select input, .Select span {
+      box-sizing: content-box;
+      -webkit-box-sizing: content-box;
+    }
+  </style>
+</body>
+</html>

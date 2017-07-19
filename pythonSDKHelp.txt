@@ -1,0 +1,1539 @@
+>>> help(AlteryxPythonSDK)
+>>> import os, sys
+>>> os.environ['PATH'] = r'C:\Program Files\Alteryx\bin;' + os.environ['PATH']
+>>> sys.path.insert(0, r'C:\Program Files\Alteryx\bin\Plugins')
+>>> import AlteryxPythonSDK
+>>> help(AlteryxPythonSDK)
+
+NAME
+    AlteryxPythonSDK
+
+CLASSES
+    Boost.Python.enum(builtins.int)
+        EngineMessageType
+        FieldType
+        Status
+    Boost.Python.instance(builtins.object)
+        AlteryxEngine
+        Field
+        GenericEngine
+        OutputAnchor
+        OutputAnchorManager
+        RecordCopier
+        RecordCreator
+        RecordInfo
+        RecordRef
+
+    class AlteryxEngine(Boost.Python.instance)
+     |  Method resolution order:
+     |      AlteryxEngine
+     |      Boost.Python.instance
+     |      builtins.object
+     |
+     |  Methods defined here:
+     |
+     |  __init__(...)
+     |      Raises an exception
+     |      This class cannot be instantiated from Python
+     |
+     |  __reduce__ = <unnamed Boost.Python function>(...)
+     |
+     |  create_temp_file_name(...)
+     |      create_temp_file_name( (AlteryxEngine)arg1, (str)arg2) -> str :
+     |
+     |          C++ signature :
+     |              class boost::python::str create_temp_file_name(class SRC::Python::AlteryxEngine {lvalue},char const
+* __ptr64)
+     |
+     |  create_temp_file_name2(...)
+     |      create_temp_file_name2( (AlteryxEngine)arg1, (str)arg2, (int)arg3) -> str :
+     |
+     |          C++ signature :
+     |              class boost::python::str create_temp_file_name2(class SRC::Python::AlteryxEngine {lvalue},char const
+ * __ptr64,int)
+     |
+     |  get_constant(...)
+     |      get_constant( (AlteryxEngine)arg1, (int)arg2, (int)arg3) -> tuple :
+     |
+     |          C++ signature :
+     |              class boost::python::tuple get_constant(class SRC::Python::AlteryxEngine {lvalue},int,int)
+     |
+     |  get_constant2(...)
+     |      get_constant2( (AlteryxEngine)arg1, (int)arg2, (int)arg3) -> tuple :
+     |
+     |          C++ signature :
+     |              class boost::python::tuple get_constant2(class SRC::Python::AlteryxEngine {lvalue},int,int)
+     |
+     |  get_init_var(...)
+     |      get_init_var( (AlteryxEngine)arg1, (str)arg2) -> str :
+     |
+     |          C++ signature :
+     |              class boost::python::str get_init_var(class SRC::Python::AlteryxEngine {lvalue},char const * __ptr64
+)
+     |
+     |  get_init_var2(...)
+     |      get_init_var2( (AlteryxEngine)arg1, (int)arg2, (str)arg3) -> str :
+     |
+     |          C++ signature :
+     |              class boost::python::str get_init_var2(class SRC::Python::AlteryxEngine {lvalue},int,char const * __
+ptr64)
+     |
+     |  output_message(...)
+     |      output_message( (AlteryxEngine)arg1, (int)arg2, (int)arg3, (str)arg4) -> int :
+     |
+     |          C++ signature :
+     |              int output_message(class SRC::Python::AlteryxEngine {lvalue},int,int,char const * __ptr64)
+     |
+     |  output_tool_progress(...)
+     |      output_tool_progress( (AlteryxEngine)arg1, (int)arg2, (float)arg3) -> int :
+     |
+     |          C++ signature :
+     |              int output_tool_progress(class SRC::Python::AlteryxEngine {lvalue},int,double)
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from Boost.Python.instance:
+     |
+     |  __new__(*args, **kwargs) from Boost.Python.class
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from Boost.Python.instance:
+     |
+     |  __dict__
+     |
+     |  __weakref__
+
+    class EngineMessageType(Boost.Python.enum)
+     |  int(x=0) -> integer
+     |  int(x, base=10) -> integer
+     |
+     |  Convert a number or string to an integer, or return 0 if no arguments
+     |  are given.  If x is a number, return x.__int__().  For floating point
+     |  numbers, this truncates towards zero.
+     |
+     |  If x is not a number or if base is given, then x must be a string,
+     |  bytes, or bytearray instance representing an integer literal in the
+     |  given base.  The literal can be preceded by '+' or '-' and be surrounded
+     |  by whitespace.  The base defaults to 10.  Valid bases are 0 and 2-36.
+     |  Base 0 means to interpret the base from the string as an integer literal.
+     |  >>> int('0b100', base=0)
+     |  4
+     |
+     |  Method resolution order:
+     |      EngineMessageType
+     |      Boost.Python.enum
+     |      builtins.int
+     |      builtins.object
+     |
+     |  Data and other attributes defined here:
+     |
+     |  error = AlteryxPythonSDK.EngineMessageType.error
+     |
+     |  field_conversion_error = AlteryxPythonSDK.EngineMessageType.field_conv...
+     |
+     |  field_conversion_limit_reached = AlteryxPythonSDK.EngineMessageType.fi...
+     |
+     |  info = AlteryxPythonSDK.EngineMessageType.info
+     |
+     |  names = {'error': AlteryxPythonSDK.EngineMessageType.error, 'field_con...
+     |
+     |  safe_mode_error = AlteryxPythonSDK.EngineMessageType.safe_mode_error
+     |
+     |  values = {1: AlteryxPythonSDK.EngineMessageType.info, 2: AlteryxPython...
+     |
+     |  warning = AlteryxPythonSDK.EngineMessageType.warning
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from Boost.Python.enum:
+     |
+     |  __repr__(self, /)
+     |      Return repr(self).
+     |
+     |  __str__(self, /)
+     |      Return str(self).
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from Boost.Python.enum:
+     |
+     |  name
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from builtins.int:
+     |
+     |  __abs__(self, /)
+     |      abs(self)
+     |
+     |  __add__(self, value, /)
+     |      Return self+value.
+     |
+     |  __and__(self, value, /)
+     |      Return self&value.
+     |
+     |  __bool__(self, /)
+     |      self != 0
+     |
+     |  __ceil__(...)
+     |      Ceiling of an Integral returns itself.
+     |
+     |  __divmod__(self, value, /)
+     |      Return divmod(self, value).
+     |
+     |  __eq__(self, value, /)
+     |      Return self==value.
+     |
+     |  __float__(self, /)
+     |      float(self)
+     |
+     |  __floor__(...)
+     |      Flooring an Integral returns itself.
+     |
+     |  __floordiv__(self, value, /)
+     |      Return self//value.
+     |
+     |  __format__(...)
+     |      default object formatter
+     |
+     |  __ge__(self, value, /)
+     |      Return self>=value.
+     |
+     |  __getattribute__(self, name, /)
+     |      Return getattr(self, name).
+     |
+     |  __getnewargs__(...)
+     |
+     |  __gt__(self, value, /)
+     |      Return self>value.
+     |
+     |  __hash__(self, /)
+     |      Return hash(self).
+     |
+     |  __index__(self, /)
+     |      Return self converted to an integer, if self is suitable for use as an index into a list.
+     |
+     |  __int__(self, /)
+     |      int(self)
+     |
+     |  __invert__(self, /)
+     |      ~self
+     |
+     |  __le__(self, value, /)
+     |      Return self<=value.
+     |
+     |  __lshift__(self, value, /)
+     |      Return self<<value.
+     |
+     |  __lt__(self, value, /)
+     |      Return self<value.
+     |
+     |  __mod__(self, value, /)
+     |      Return self%value.
+     |
+     |  __mul__(self, value, /)
+     |      Return self*value.
+     |
+     |  __ne__(self, value, /)
+     |      Return self!=value.
+     |
+     |  __neg__(self, /)
+     |      -self
+     |
+     |  __new__(*args, **kwargs) from builtins.type
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  __or__(self, value, /)
+     |      Return self|value.
+     |
+     |  __pos__(self, /)
+     |      +self
+     |
+     |  __pow__(self, value, mod=None, /)
+     |      Return pow(self, value, mod).
+     |
+     |  __radd__(self, value, /)
+     |      Return value+self.
+     |
+     |  __rand__(self, value, /)
+     |      Return value&self.
+     |
+     |  __rdivmod__(self, value, /)
+     |      Return divmod(value, self).
+     |
+     |  __rfloordiv__(self, value, /)
+     |      Return value//self.
+     |
+     |  __rlshift__(self, value, /)
+     |      Return value<<self.
+     |
+     |  __rmod__(self, value, /)
+     |      Return value%self.
+     |
+     |  __rmul__(self, value, /)
+     |      Return value*self.
+     |
+     |  __ror__(self, value, /)
+     |      Return value|self.
+     |
+     |  __round__(...)
+     |      Rounding an Integral returns itself.
+     |      Rounding with an ndigits argument also returns an integer.
+     |
+     |  __rpow__(self, value, mod=None, /)
+     |      Return pow(value, self, mod).
+     |
+     |  __rrshift__(self, value, /)
+     |      Return value>>self.
+     |
+     |  __rshift__(self, value, /)
+     |      Return self>>value.
+     |
+     |  __rsub__(self, value, /)
+     |      Return value-self.
+     |
+     |  __rtruediv__(self, value, /)
+     |      Return value/self.
+     |
+     |  __rxor__(self, value, /)
+     |      Return value^self.
+     |
+     |  __sizeof__(...)
+     |      Returns size in memory, in bytes
+     |
+     |  __sub__(self, value, /)
+     |      Return self-value.
+     |
+     |  __truediv__(self, value, /)
+     |      Return self/value.
+     |
+     |  __trunc__(...)
+     |      Truncating an Integral returns itself.
+     |
+     |  __xor__(self, value, /)
+     |      Return self^value.
+     |
+     |  bit_length(...)
+     |      int.bit_length() -> int
+     |
+     |      Number of bits necessary to represent self in binary.
+     |      >>> bin(37)
+     |      '0b100101'
+     |      >>> (37).bit_length()
+     |      6
+     |
+     |  conjugate(...)
+     |      Returns self, the complex conjugate of any int.
+     |
+     |  from_bytes(...) from builtins.type
+     |      int.from_bytes(bytes, byteorder, *, signed=False) -> int
+     |
+     |      Return the integer represented by the given array of bytes.
+     |
+     |      The bytes argument must be a bytes-like object (e.g. bytes or bytearray).
+     |
+     |      The byteorder argument determines the byte order used to represent the
+     |      integer.  If byteorder is 'big', the most significant byte is at the
+     |      beginning of the byte array.  If byteorder is 'little', the most
+     |      significant byte is at the end of the byte array.  To request the native
+     |      byte order of the host system, use `sys.byteorder' as the byte order value.
+     |
+     |      The signed keyword-only argument indicates whether two's complement is
+     |      used to represent the integer.
+     |
+     |  to_bytes(...)
+     |      int.to_bytes(length, byteorder, *, signed=False) -> bytes
+     |
+     |      Return an array of bytes representing an integer.
+     |
+     |      The integer is represented using length bytes.  An OverflowError is
+     |      raised if the integer is not representable with the given number of
+     |      bytes.
+     |
+     |      The byteorder argument determines the byte order used to represent the
+     |      integer.  If byteorder is 'big', the most significant byte is at the
+     |      beginning of the byte array.  If byteorder is 'little', the most
+     |      significant byte is at the end of the byte array.  To request the native
+     |      byte order of the host system, use `sys.byteorder' as the byte order value.
+     |
+     |      The signed keyword-only argument determines whether two's complement is
+     |      used to represent the integer.  If signed is False and a negative integer
+     |      is given, an OverflowError is raised.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from builtins.int:
+     |
+     |  denominator
+     |      the denominator of a rational number in lowest terms
+     |
+     |  imag
+     |      the imaginary part of a complex number
+     |
+     |  numerator
+     |      the numerator of a rational number in lowest terms
+     |
+     |  real
+     |      the real part of a complex number
+
+    class Field(Boost.Python.instance)
+     |  Method resolution order:
+     |      Field
+     |      Boost.Python.instance
+     |      builtins.object
+     |
+     |  Methods defined here:
+     |
+     |  __init__(...)
+     |      Raises an exception
+     |      This class cannot be instantiated from Python
+     |
+     |  __reduce__ = <unnamed Boost.Python function>(...)
+     |
+     |  equal_type(...)
+     |      equal_type( (Field)arg1, (Field)arg2) -> bool :
+     |
+     |          C++ signature :
+     |              bool equal_type(class SRC::Python::ConstField {lvalue},class SRC::Python::ConstField)
+     |
+     |  get_as_bool(...)
+     |      get_as_bool( (Field)arg1, (RecordRef)arg2) -> object :
+     |
+     |          C++ signature :
+     |
+     |  get_as_double(...)
+     |      get_as_double( (Field)arg1, (RecordRef)arg2) -> object :
+     |
+     |          C++ signature :
+     |
+     |  get_as_int32(...)
+     |      get_as_int32( (Field)arg1, (RecordRef)arg2) -> object :
+     |
+     |          C++ signature :
+     |
+     |  get_as_int64(...)
+     |      get_as_int64( (Field)arg1, (RecordRef)arg2) -> object :
+     |
+     |          C++ signature :
+     |
+     |  get_as_string(...)
+     |      get_as_string( (Field)arg1, (RecordRef)arg2) -> object :
+     |
+     |          C++ signature :
+     |
+     |  get_null(...)
+     |      get_null( (Field)arg1, (RecordRef)arg2) -> bool :
+     |
+     |          C++ signature :
+     |
+     |  set_from_bool(...)
+     |      set_from_bool( (Field)arg1, (RecordCreator)arg2, (bool)arg3) -> None :
+     |
+     |          C++ signature :
+     |
+     |  set_from_double(...)
+     |      set_from_double( (Field)arg1, (RecordCreator)arg2, (float)arg3) -> None :
+     |
+     |          C++ signature :
+     |
+     |  set_from_int32(...)
+     |      set_from_int32( (Field)arg1, (RecordCreator)arg2, (int)arg3) -> None :
+     |
+     |          C++ signature :
+     |
+     |  set_from_int64(...)
+     |      set_from_int64( (Field)arg1, (RecordCreator)arg2, (int)arg3) -> None :
+     |
+     |          C++ signature :
+     |
+     |  set_from_string(...)
+     |      set_from_string( (Field)arg1, (RecordCreator)arg2, (str)arg3) -> None :
+     |
+     |          C++ signature :
+     |
+     |  set_null(...)
+     |      set_null( (Field)arg1, (RecordCreator)arg2) -> None :
+     |
+     |          C++ signature :
+     |              void set_null(class SRC::Python::ConstField {lvalue},struct SRC::Python::RecordCreator {lvalue})
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  description
+     |
+     |  max_bytes
+     |
+     |  name
+     |
+     |  offset
+     |
+     |  position
+     |
+     |  scale
+     |
+     |  size
+     |
+     |  source
+     |
+     |  type
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from Boost.Python.instance:
+     |
+     |  __new__(*args, **kwargs) from Boost.Python.class
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from Boost.Python.instance:
+     |
+     |  __dict__
+     |
+     |  __weakref__
+
+    class FieldType(Boost.Python.enum)
+     |  int(x=0) -> integer
+     |  int(x, base=10) -> integer
+     |
+     |  Convert a number or string to an integer, or return 0 if no arguments
+     |  are given.  If x is a number, return x.__int__().  For floating point
+     |  numbers, this truncates towards zero.
+     |
+     |  If x is not a number or if base is given, then x must be a string,
+     |  bytes, or bytearray instance representing an integer literal in the
+     |  given base.  The literal can be preceded by '+' or '-' and be surrounded
+     |  by whitespace.  The base defaults to 10.  Valid bases are 0 and 2-36.
+     |  Base 0 means to interpret the base from the string as an integer literal.
+     |  >>> int('0b100', base=0)
+     |  4
+     |
+     |  Method resolution order:
+     |      FieldType
+     |      Boost.Python.enum
+     |      builtins.int
+     |      builtins.object
+     |
+     |  Data and other attributes defined here:
+     |
+     |  blob = AlteryxPythonSDK.FieldType.blob
+     |
+     |  bool = AlteryxPythonSDK.FieldType.bool
+     |
+     |  byte = AlteryxPythonSDK.FieldType.byte
+     |
+     |  date = AlteryxPythonSDK.FieldType.date
+     |
+     |  datetime = AlteryxPythonSDK.FieldType.datetime
+     |
+     |  double = AlteryxPythonSDK.FieldType.double
+     |
+     |  fixeddecimal = AlteryxPythonSDK.FieldType.fixeddecimal
+     |
+     |  float = AlteryxPythonSDK.FieldType.float
+     |
+     |  int16 = AlteryxPythonSDK.FieldType.int16
+     |
+     |  int32 = AlteryxPythonSDK.FieldType.int32
+     |
+     |  int64 = AlteryxPythonSDK.FieldType.int64
+     |
+     |  names = {'blob': AlteryxPythonSDK.FieldType.blob, 'bool': AlteryxPytho...
+     |
+     |  spatialobj = AlteryxPythonSDK.FieldType.spatialobj
+     |
+     |  string = AlteryxPythonSDK.FieldType.string
+     |
+     |  time = AlteryxPythonSDK.FieldType.time
+     |
+     |  unknown = AlteryxPythonSDK.FieldType.unknown
+     |
+     |  v_string = AlteryxPythonSDK.FieldType.v_string
+     |
+     |  v_wstring = AlteryxPythonSDK.FieldType.v_wstring
+     |
+     |  values = {0: AlteryxPythonSDK.FieldType.unknown, 1: AlteryxPythonSDK.F...
+     |
+     |  wstring = AlteryxPythonSDK.FieldType.wstring
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from Boost.Python.enum:
+     |
+     |  __repr__(self, /)
+     |      Return repr(self).
+     |
+     |  __str__(self, /)
+     |      Return str(self).
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from Boost.Python.enum:
+     |
+     |  name
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from builtins.int:
+     |
+     |  __abs__(self, /)
+     |      abs(self)
+     |
+     |  __add__(self, value, /)
+     |      Return self+value.
+     |
+     |  __and__(self, value, /)
+     |      Return self&value.
+     |
+     |  __bool__(self, /)
+     |      self != 0
+     |
+     |  __ceil__(...)
+     |      Ceiling of an Integral returns itself.
+     |
+     |  __divmod__(self, value, /)
+     |      Return divmod(self, value).
+     |
+     |  __eq__(self, value, /)
+     |      Return self==value.
+     |
+     |  __float__(self, /)
+     |      float(self)
+     |
+     |  __floor__(...)
+     |      Flooring an Integral returns itself.
+     |
+     |  __floordiv__(self, value, /)
+     |      Return self//value.
+     |
+     |  __format__(...)
+     |      default object formatter
+     |
+     |  __ge__(self, value, /)
+     |      Return self>=value.
+     |
+     |  __getattribute__(self, name, /)
+     |      Return getattr(self, name).
+     |
+     |  __getnewargs__(...)
+     |
+     |  __gt__(self, value, /)
+     |      Return self>value.
+     |
+     |  __hash__(self, /)
+     |      Return hash(self).
+     |
+     |  __index__(self, /)
+     |      Return self converted to an integer, if self is suitable for use as an index into a list.
+     |
+     |  __int__(self, /)
+     |      int(self)
+     |
+     |  __invert__(self, /)
+     |      ~self
+     |
+     |  __le__(self, value, /)
+     |      Return self<=value.
+     |
+     |  __lshift__(self, value, /)
+     |      Return self<<value.
+     |
+     |  __lt__(self, value, /)
+     |      Return self<value.
+     |
+     |  __mod__(self, value, /)
+     |      Return self%value.
+     |
+     |  __mul__(self, value, /)
+     |      Return self*value.
+     |
+     |  __ne__(self, value, /)
+     |      Return self!=value.
+     |
+     |  __neg__(self, /)
+     |      -self
+     |
+     |  __new__(*args, **kwargs) from builtins.type
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  __or__(self, value, /)
+     |      Return self|value.
+     |
+     |  __pos__(self, /)
+     |      +self
+     |
+     |  __pow__(self, value, mod=None, /)
+     |      Return pow(self, value, mod).
+     |
+     |  __radd__(self, value, /)
+     |      Return value+self.
+     |
+     |  __rand__(self, value, /)
+     |      Return value&self.
+     |
+     |  __rdivmod__(self, value, /)
+     |      Return divmod(value, self).
+     |
+     |  __rfloordiv__(self, value, /)
+     |      Return value//self.
+     |
+     |  __rlshift__(self, value, /)
+     |      Return value<<self.
+     |
+     |  __rmod__(self, value, /)
+     |      Return value%self.
+     |
+     |  __rmul__(self, value, /)
+     |      Return value*self.
+     |
+     |  __ror__(self, value, /)
+     |      Return value|self.
+     |
+     |  __round__(...)
+     |      Rounding an Integral returns itself.
+     |      Rounding with an ndigits argument also returns an integer.
+     |
+     |  __rpow__(self, value, mod=None, /)
+     |      Return pow(value, self, mod).
+     |
+     |  __rrshift__(self, value, /)
+     |      Return value>>self.
+     |
+     |  __rshift__(self, value, /)
+     |      Return self>>value.
+     |
+     |  __rsub__(self, value, /)
+     |      Return value-self.
+     |
+     |  __rtruediv__(self, value, /)
+     |      Return value/self.
+     |
+     |  __rxor__(self, value, /)
+     |      Return value^self.
+     |
+     |  __sizeof__(...)
+     |      Returns size in memory, in bytes
+     |
+     |  __sub__(self, value, /)
+     |      Return self-value.
+     |
+     |  __truediv__(self, value, /)
+     |      Return self/value.
+     |
+     |  __trunc__(...)
+     |      Truncating an Integral returns itself.
+     |
+     |  __xor__(self, value, /)
+     |      Return self^value.
+     |
+     |  bit_length(...)
+     |      int.bit_length() -> int
+     |
+     |      Number of bits necessary to represent self in binary.
+     |      >>> bin(37)
+     |      '0b100101'
+     |      >>> (37).bit_length()
+     |      6
+     |
+     |  conjugate(...)
+     |      Returns self, the complex conjugate of any int.
+     |
+     |  from_bytes(...) from builtins.type
+     |      int.from_bytes(bytes, byteorder, *, signed=False) -> int
+     |
+     |      Return the integer represented by the given array of bytes.
+     |
+     |      The bytes argument must be a bytes-like object (e.g. bytes or bytearray).
+     |
+     |      The byteorder argument determines the byte order used to represent the
+     |      integer.  If byteorder is 'big', the most significant byte is at the
+     |      beginning of the byte array.  If byteorder is 'little', the most
+     |      significant byte is at the end of the byte array.  To request the native
+     |      byte order of the host system, use `sys.byteorder' as the byte order value.
+     |
+     |      The signed keyword-only argument indicates whether two's complement is
+     |      used to represent the integer.
+     |
+     |  to_bytes(...)
+     |      int.to_bytes(length, byteorder, *, signed=False) -> bytes
+     |
+     |      Return an array of bytes representing an integer.
+     |
+     |      The integer is represented using length bytes.  An OverflowError is
+     |      raised if the integer is not representable with the given number of
+     |      bytes.
+     |
+     |      The byteorder argument determines the byte order used to represent the
+     |      integer.  If byteorder is 'big', the most significant byte is at the
+     |      beginning of the byte array.  If byteorder is 'little', the most
+     |      significant byte is at the end of the byte array.  To request the native
+     |      byte order of the host system, use `sys.byteorder' as the byte order value.
+     |
+     |      The signed keyword-only argument determines whether two's complement is
+     |      used to represent the integer.  If signed is False and a negative integer
+     |      is given, an OverflowError is raised.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from builtins.int:
+     |
+     |  denominator
+     |      the denominator of a rational number in lowest terms
+     |
+     |  imag
+     |      the imaginary part of a complex number
+     |
+     |  numerator
+     |      the numerator of a rational number in lowest terms
+     |
+     |  real
+     |      the real part of a complex number
+
+    class GenericEngine(Boost.Python.instance)
+     |  Method resolution order:
+     |      GenericEngine
+     |      Boost.Python.instance
+     |      builtins.object
+     |
+     |  Methods defined here:
+     |
+     |  __init__(...)
+     |      Raises an exception
+     |      This class cannot be instantiated from Python
+     |
+     |  __reduce__ = <unnamed Boost.Python function>(...)
+     |
+     |  get_init_var(...)
+     |      get_init_var( (GenericEngine)arg1, (int)arg2, (str)arg3) -> str :
+     |
+     |          C++ signature :
+     |
+     |  output_message(...)
+     |      output_message( (GenericEngine)arg1, (EngineMessageType)arg2, (str)arg3) -> int :
+     |
+     |          C++ signature :
+     |
+     |  ping(...)
+     |      ping( (GenericEngine)arg1) -> bool :
+	      |          C++ signature :
+     |              bool ping(class SRC::Python::GenericEngine {lvalue})
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  field_conversion_error_limit
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from Boost.Python.instance:
+     |
+     |  __new__(*args, **kwargs) from Boost.Python.class
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from Boost.Python.instance:
+     |
+     |  __dict__
+     |
+     |  __weakref__
+
+    class OutputAnchor(Boost.Python.instance)
+     |  Method resolution order:
+     |      OutputAnchor
+     |      Boost.Python.instance
+     |      builtins.object
+     |
+     |  Methods defined here:
+     |
+     |  __init__(...)
+     |      Raises an exception
+     |      This class cannot be instantiated from Python
+     |
+     |  __reduce__ = <unnamed Boost.Python function>(...)
+     |
+     |  assert_close(...)
+     |      assert_close( (OutputAnchor)arg1) -> None :
+     |
+     |          C++ signature :
+     |              void assert_close(class SRC::Python::OutputAnchor {lvalue})
+     |
+     |  close(...)
+     |      close( (OutputAnchor)arg1) -> None :
+     |
+     |          C++ signature :
+     |              void close(class SRC::Python::OutputAnchor {lvalue})
+     |
+     |  init(...)
+     |      init( (OutputAnchor)arg1, (RecordInfo)arg2, (str)arg3) -> bool :
+     |
+     |          C++ signature :
+     |
+     |  output_record_count(...)
+     |      output_record_count( (OutputAnchor)arg1, (bool)arg2) -> None :
+     |
+     |          C++ signature :
+     |              void output_record_count(class SRC::Python::OutputAnchor {lvalue},bool)
+     |
+     |  push_record(...)
+     |      push_record( (OutputAnchor)arg1, (RecordRef)arg2, (bool)arg3) -> bool :
+     |
+     |          C++ signature :
+     |
+     |  update_progress(...)
+     |      update_progress( (OutputAnchor)arg1, (float)arg2) -> None :
+     |
+     |          C++ signature :
+     |              void update_progress(class SRC::Python::OutputAnchor {lvalue},double)
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  is_closed
+     |
+     |  is_initialized
+     |
+     |  is_valid
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from Boost.Python.instance:
+     |
+     |  __new__(*args, **kwargs) from Boost.Python.class
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from Boost.Python.instance:
+     |
+     |  __dict__
+     |
+     |  __weakref__
+
+    class OutputAnchorManager(Boost.Python.instance)
+     |  Method resolution order:
+     |      OutputAnchorManager
+     |      Boost.Python.instance
+     |      builtins.object
+     |
+     |  Methods defined here:
+     |
+     |  __init__(...)
+     |      Raises an exception
+     |      This class cannot be instantiated from Python
+     |
+     |  __reduce__ = <unnamed Boost.Python function>(...)
+     |
+     |  get_output_anchor(...)
+     |      get_output_anchor( (OutputAnchorManager)arg1, (str)arg2) -> OutputAnchor :
+     |
+     |          C++ signature :
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from Boost.Python.instance:
+     |
+     |  __new__(*args, **kwargs) from Boost.Python.class
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from Boost.Python.instance:
+     |
+     |  __dict__
+     |
+     |  __weakref__
+
+    class RecordCopier(Boost.Python.instance)
+     |  Method resolution order:
+     |      RecordCopier
+     |      Boost.Python.instance
+     |      builtins.object
+     |
+     |  Methods defined here:
+     |
+     |  __init__(...)
+     |      __init__( (object)arg1, (RecordInfo)arg2, (RecordInfo)arg3) -> None :
+     |
+     |          C++ signature :
+     |
+     |      __init__( (object)arg1, (RecordInfo)arg2, (RecordInfo)arg3, (bool)arg4) -> None :
+     |
+     |          C++ signature :
+     |
+     |      __init__( (object)arg1, (RecordInfo)arg2, (RecordInfo)arg3, (bool)arg4, (str)arg5) -> None :
+     |
+     |          C++ signature :
+     |
+     |  __reduce__ = <unnamed Boost.Python function>(...)
+     |
+     |  add(...)
+     |      add( (RecordCopier)arg1, (int)arg2, (int)arg3) -> None :
+     |
+     |          C++ signature :
+     |              void add(class SRC::Python::RecordCopier {lvalue},int,int)
+     |
+     |  copy(...)
+     |      copy( (RecordCopier)arg1, (RecordCreator)arg2, (RecordRef)arg3) -> None :
+     |
+     |          C++ signature :
+     |
+     |  done_adding(...)
+     |      done_adding( (RecordCopier)arg1) -> None :
+     |
+     |          C++ signature :
+     |              void done_adding(class SRC::Python::RecordCopier {lvalue})
+     |
+     |  set_dest_to_null(...)
+     |      set_dest_to_null( (RecordCopier)arg1, (RecordCreator)arg2) -> None :
+     |
+     |          C++ signature :
+     |              void set_dest_to_null(class SRC::Python::RecordCopier {lvalue},struct SRC::Python::RecordCreator)
+     |
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |
+     |  __instance_size__ = 56
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from Boost.Python.instance:
+     |
+     |  __new__(*args, **kwargs) from Boost.Python.class
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from Boost.Python.instance:
+     |
+     |  __dict__
+     |
+     |  __weakref__
+
+    class RecordCreator(Boost.Python.instance)
+     |  Method resolution order:
+     |      RecordCreator
+     |      Boost.Python.instance
+     |      builtins.object
+     |
+     |  Methods defined here:
+     |
+     |  __init__(...)
+     |      Raises an exception
+     |      This class cannot be instantiated from Python
+     |
+     |  __reduce__ = <unnamed Boost.Python function>(...)
+     |
+     |  finalize_record(...)
+     |      finalize_record( (RecordCreator)arg1) -> RecordRef :
+     |          C++ signature :
+     |
+     |  reset(...)
+     |      reset( (RecordCreator)arg1, (int)arg2) -> None :
+     |
+     |          C++ signature :
+     |              void reset(struct SRC::Python::RecordCreator {lvalue},int)
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  var_data_size
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from Boost.Python.instance:
+     |
+     |  __new__(*args, **kwargs) from Boost.Python.class
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from Boost.Python.instance:
+     |
+     |  __dict__
+     |
+     |  __weakref__
+
+    class RecordInfo(Boost.Python.instance)
+     |  Method resolution order:
+     |      RecordInfo
+     |      Boost.Python.instance
+     |      builtins.object
+     |
+     |  Methods defined here:
+     |
+     |  __getitem__(...)
+     |      __getitem__( (RecordInfo)arg1, (int)arg2) -> Field :
+     |
+     |          C++ signature :
+     |              class SRC::Python::ConstField __getitem__(class SRC::Python::RecordInfo {lvalue},unsigned int)
+     |
+     |  __init__(...)
+     |      __init__( (object)arg1) -> None :
+     |
+     |          C++ signature :
+     |              void __init__(struct _object * __ptr64)
+     |
+     |      __init__( (object)arg1, (int)arg2 [, (bool)arg3 [, (GenericEngine)arg4]]) -> None :
+     |
+     |          C++ signature :
+     |              void __init__(struct _object * __ptr64,unsigned int [,bool [,class SRC::Python::GenericEngine]])
+     |
+     |      __init__( (object)arg1, (GenericEngine)arg2) -> None :
+     |
+     |          C++ signature :
+     |              void __init__(struct _object * __ptr64,class SRC::Python::GenericEngine)
+     |
+     |  __len__(...)
+     |      __len__( (RecordInfo)arg1) -> int :
+     |
+     |          C++ signature :
+     |              unsigned int __len__(class SRC::Python::RecordInfo {lvalue})
+     |
+     |  __reduce__ = <unnamed Boost.Python function>(...)
+     |
+     |  add_field(...)
+     |
+     |          C++ signature :
+     |              class SRC::Python::ConstField add_field(class SRC::Python::RecordInfo {lvalue},char const * __ptr64,enum SRC::E_FieldType,int,int,char const * __ptr64,char const * __ptr64)-- Mor
+     |
+     |  add_field_from_xml(...)
+     |      add_field_from_xml( (RecordInfo)arg1, (str)arg2, (str)arg3) -> Field :
+     |
+     |          C++ signature :
+     |
+     |  clone(...)
+     |      clone( (RecordInfo)arg1) -> RecordInfo :
+     |
+     |          C++ signature :
+     |
+     |  construct_record_creator(...)
+     |      construct_record_creator( (RecordInfo)arg1) -> RecordCreator :
+     |
+     |          C++ signature :
+     |              struct SRC::Python::RecordCreator construct_record_creator(class SRC::Python::RecordInfo {lvalue})
+     |
+     |  equal_types(...)
+     |      equal_types( (RecordInfo)arg1, (RecordInfo)arg2, (bool)arg3) -> bool :
+     |
+     |          C++ signature :
+     |              bool equal_types(class SRC::Python::RecordInfo {lvalue},class SRC::Python::RecordInfo,bool)
+     |
+     |  get_field_and_index_by_type(...)
+     |      get_field_and_index_by_type( (RecordInfo)arg1, (FieldType)arg2, (bool)arg3, (int)arg4) -> tuple :
+     |
+     |          C++ signature :
+     |
+     |  get_field_by_name(...)
+     |      get_field_by_name( (RecordInfo)arg1, (str)arg2, (bool)arg3) -> Field :
+     |
+     |          C++ signature :
+     |
+     |  get_field_by_type(...)
+     |      get_field_by_type( (RecordInfo)arg1, (FieldType)arg2, (bool)arg3) -> Field :
+     |
+     |          C++ signature :
+     |
+     |  get_field_num(...)
+     |      get_field_num( (RecordInfo)arg1, (str)arg2, (bool)arg3) -> int :
+     |
+     |          C++ signature :
+     |              int get_field_num(class SRC::Python::RecordInfo {lvalue},char const * __ptr64,bool)
+     |
+     |  get_field_num_by_type(...)
+     |      get_field_num_by_type( (RecordInfo)arg1, (FieldType)arg2, (bool)arg3) -> int :
+     |
+     |          C++ signature :
+     |
+     |  get_hash(...)
+     |      get_hash( (RecordInfo)arg1) -> int :
+     |
+     |          C++ signature :
+     |              unsigned int get_hash(class SRC::Python::RecordInfo {lvalue})
+     |
+     |  get_num_fields_by_type(...)
+     |      get_num_fields_by_type( (RecordInfo)arg1, (FieldType)arg2) -> int :
+     |
+     |          C++ signature :
+     |              unsigned int get_num_fields_by_type(class SRC::Python::RecordInfo {lvalue},enum SRC::E_FieldType)
+     |
+     |  get_record_xml_meta_data(...)
+     |      get_record_xml_meta_data( (RecordInfo)arg1, (bool)arg2) -> str :
+     |
+     |          C++ signature :
+     |              class boost::python::str get_record_xml_meta_data(class SRC::Python::RecordInfo {lvalue},bool)
+     |
+     |  init_from_xml(...)
+     |      init_from_xml( (RecordInfo)arg1, (str)arg2, (str)arg3, (bool)arg4) -> None :
+     |
+     |          C++ signature :
+     |
+     |  rename_field_by_index(...)
+     |      rename_field_by_index( (RecordInfo)arg1, (int)arg2, (str)arg3) -> Field :
+     |
+     |          C++ signature :
+     |
+     |  rename_field_by_name(...)
+     |      rename_field_by_name( (RecordInfo)arg1, (str)arg2, (str)arg3) -> Field :
+     |
+     |          C++ signature :
+     |
+     |  set_generic_engine(...)
+     |      set_generic_engine( (RecordInfo)arg1, (GenericEngine)arg2) -> None :
+     |
+     |          C++ signature :
+     |              void set_generic_engine(class SRC::Python::RecordInfo {lvalue},class SRC::Python::GenericEngine)
+     |
+     |  swap_field_names(...)
+     |      swap_field_names( (RecordInfo)arg1, (int)arg2, (int)arg3) -> None :
+     |
+     |          C++ signature :
+     |              void swap_field_names(class SRC::Python::RecordInfo {lvalue},int,int)
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |
+     |  num_fields
+     |
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |
+     |  __instance_size__ = 32
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from Boost.Python.instance:
+     |
+     |  __new__(*args, **kwargs) from Boost.Python.class
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from Boost.Python.instance:
+     |
+     |  __dict__
+     |
+     |  __weakref__
+
+    class RecordRef(Boost.Python.instance)
+     |  Method resolution order:
+     |      RecordRef
+     |      Boost.Python.instance
+     |      builtins.object
+     |
+     |  Methods defined here:
+     |
+     |  __init__(...)
+     |      Raises an exception
+     |      This class cannot be instantiated from Python
+     |
+     |  __reduce__ = <unnamed Boost.Python function>(...)
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from Boost.Python.instance:
+     |
+     |  __new__(*args, **kwargs) from Boost.Python.class
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from Boost.Python.instance:
+     |
+     |  __dict__
+     |
+     |  __weakref__
+
+    class Status(Boost.Python.enum)
+     |  int(x=0) -> integer
+     |  int(x, base=10) -> integer
+     |
+     |  Convert a number or string to an integer, or return 0 if no arguments
+     |  are given.  If x is a number, return x.__int__().  For floating point
+     |  numbers, this truncates towards zero.
+     |
+     |  If x is not a number or if base is given, then x must be a string,
+     |  bytes, or bytearray instance representing an integer literal in the
+     |  given base.  The literal can be preceded by '+' or '-' and be surrounded
+     |  by whitespace.  The base defaults to 10.  Valid bases are 0 and 2-36.
+     |  Base 0 means to interpret the base from the string as an integer literal.
+     |  >>> int('0b100', base=0)
+     |  4
+     |
+     |  Method resolution order:
+     |      Status
+     |      Boost.Python.enum
+     |      builtins.int
+     |      builtins.object
+     |
+     |  Data and other attributes defined here:
+     |
+     |  browse_everywhere_file_name = AlteryxPythonSDK.Status.browse_everywher...
+     |
+     |  cache_temp_file = AlteryxPythonSDK.Status.cache_temp_file
+     |
+     |  choose_from_multiple = AlteryxPythonSDK.Status.choose_from_multiple
+     |
+     |  complete = AlteryxPythonSDK.Status.complete
+     |
+     |  data_profiling = AlteryxPythonSDK.Status.data_profiling
+     |
+     |  disabled = AlteryxPythonSDK.Status.disabled
+     |
+     |  document_temp_file = AlteryxPythonSDK.Status.document_temp_file
+     |
+     |  error = AlteryxPythonSDK.Status.error
+     |
+     |  field_conversion_error = AlteryxPythonSDK.Status.field_conversion_erro...
+     |
+     |  field_conversion_limit_reached = AlteryxPythonSDK.Status.field_convers...
+     |
+     |  file_dependency = AlteryxPythonSDK.Status.file_dependency
+     |
+     |  file_input = AlteryxPythonSDK.Status.file_input
+     |
+     |  file_output = AlteryxPythonSDK.Status.file_output
+     |
+     |  info = AlteryxPythonSDK.Status.info
+     |
+     |  low_disk_warning = AlteryxPythonSDK.Status.low_disk_warning
+     |
+     |  names = {'browse_everywhere_file_name': AlteryxPythonSDK.Status.browse...
+     |
+     |  output_field_names = AlteryxPythonSDK.Status.output_field_names
+     |
+     |  output_record = AlteryxPythonSDK.Status.output_record
+     |
+     |  preview_fail = AlteryxPythonSDK.Status.preview_fail
+     |
+     |  record_count_string = AlteryxPythonSDK.Status.record_count_string
+     |
+     |  request_auto_config_refresh = AlteryxPythonSDK.Status.request_auto_con...
+     |
+     |  restricted_data_set_error = AlteryxPythonSDK.Status.restricted_data_se...
+     |
+     |  safe_mode_error = AlteryxPythonSDK.Status.safe_mode_error
+     |
+     |  simultaneous_too_many = AlteryxPythonSDK.Status.simultaneous_too_many
+     |
+     |  temp_directory = AlteryxPythonSDK.Status.temp_directory
+     |
+     |  update_output_config_xml = AlteryxPythonSDK.Status.update_output_confi...
+     |
+     |  update_output_meta_info_xml = AlteryxPythonSDK.Status.update_output_me...
+     |
+     |  values = {1: AlteryxPythonSDK.Status.info, 2: AlteryxPythonSDK.Status....
+     |
+     |  warning = AlteryxPythonSDK.Status.warning
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from Boost.Python.enum:
+     |
+     |  __repr__(self, /)
+     |      Return repr(self).
+     |
+     |  __str__(self, /)
+     |      Return str(self).
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from Boost.Python.enum:
+     |
+     |  name
+     |
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from builtins.int:
+     |
+     |  __abs__(self, /)
+     |      abs(self)
+     |
+     |  __add__(self, value, /)
+     |      Return self+value.
+     |
+     |  __and__(self, value, /)
+     |      Return self&value.
+     |
+     |  __bool__(self, /)
+     |      self != 0
+     |
+     |  __ceil__(...)
+     |      Ceiling of an Integral returns itself.
+     |
+     |  __divmod__(self, value, /)
+     |      Return divmod(self, value).
+     |
+     |  __eq__(self, value, /)
+     |      Return self==value.
+     |
+     |  __float__(self, /)
+     |      float(self)
+     |
+     |  __floor__(...)
+     |      Flooring an Integral returns itself.
+     |
+     |  __floordiv__(self, value, /)
+     |      Return self//value.
+     |
+     |  __format__(...)
+     |      default object formatter
+     |
+     |  __ge__(self, value, /)
+     |      Return self>=value.
+     |
+     |  __getattribute__(self, name, /)
+     |      Return getattr(self, name).
+     |
+     |  __getnewargs__(...)
+     |
+     |  __gt__(self, value, /)
+     |      Return self>value.
+     |
+     |  __hash__(self, /)
+     |      Return hash(self).
+     |
+     |  __index__(self, /)
+     |      Return self converted to an integer, if self is suitable for use as an index into a list.
+     |
+     |  __int__(self, /)
+     |      int(self)
+     |
+     |  __invert__(self, /)
+     |      ~self
+     |
+     |  __le__(self, value, /)
+     |      Return self<=value.
+     |
+     |  __lshift__(self, value, /)
+     |      Return self<<value.
+     |
+     |  __lt__(self, value, /)
+     |      Return self<value.
+     |
+     |  __mod__(self, value, /)
+     |      Return self%value.
+     |
+     |  __mul__(self, value, /)
+     |      Return self*value.
+     |
+     |  __ne__(self, value, /)
+     |      Return self!=value.
+     |
+     |  __neg__(self, /)
+     |      -self
+     |
+     |  __new__(*args, **kwargs) from builtins.type
+     |      Create and return a new object.  See help(type) for accurate signature.
+     |
+     |  __or__(self, value, /)
+     |      Return self|value.
+     |
+     |  __pos__(self, /)
+     |      +self
+     |
+     |  __pow__(self, value, mod=None, /)
+     |      Return pow(self, value, mod).
+     |
+     |  __radd__(self, value, /)
+     |      Return value+self.
+     |
+     |  __rand__(self, value, /)
+     |      Return value&self.
+     |
+     |  __rdivmod__(self, value, /)
+     |      Return divmod(value, self).
+     |
+     |  __rfloordiv__(self, value, /)
+     |      Return value//self.
+     |
+     |  __rlshift__(self, value, /)
+     |      Return value<<self.
+     |
+     |  __rmod__(self, value, /)
+     |      Return value%self.
+     |
+     |  __rmul__(self, value, /)
+     |      Return value*self.
+     |
+     |  __ror__(self, value, /)
+     |      Return value|self.
+     |
+     |  __round__(...)
+     |      Rounding an Integral returns itself.
+     |      Rounding with an ndigits argument also returns an integer.
+     |
+     |  __rpow__(self, value, mod=None, /)
+     |      Return pow(value, self, mod).
+     |
+     |  __rrshift__(self, value, /)
+     |      Return value>>self.
+     |
+     |  __rshift__(self, value, /)
+     |      Return self>>value.
+     |
+     |  __rsub__(self, value, /)
+     |      Return value-self.
+     |
+     |  __rtruediv__(self, value, /)
+     |      Return value/self.
+     |
+     |  __rxor__(self, value, /)
+     |      Return value^self.
+     |
+     |  __sizeof__(...)
+     |      Returns size in memory, in bytes
+     |
+     |  __sub__(self, value, /)
+     |      Return self-value.
+     |
+     |  __truediv__(self, value, /)
+     |      Return self/value.
+     |
+     |  __trunc__(...)
+     |      Truncating an Integral returns itself.
+     |
+     |  __xor__(self, value, /)
+     |      Return self^value.
+     |
+     |  bit_length(...)
+     |      int.bit_length() -> int
+     |
+     |      Number of bits necessary to represent self in binary.
+     |      >>> bin(37)
+     |      '0b100101'
+     |      >>> (37).bit_length()
+     |      6
+     |
+     |  conjugate(...)
+     |      Returns self, the complex conjugate of any int.
+     |
+     |  from_bytes(...) from builtins.type
+     |      int.from_bytes(bytes, byteorder, *, signed=False) -> int
+     |
+     |      Return the integer represented by the given array of bytes.
+     |
+     |      The bytes argument must be a bytes-like object (e.g. bytes or bytearray).
+     |
+     |      The byteorder argument determines the byte order used to represent the
+     |      integer.  If byteorder is 'big', the most significant byte is at the
+     |      beginning of the byte array.  If byteorder is 'little', the most
+     |      significant byte is at the end of the byte array.  To request the native
+     |      byte order of the host system, use `sys.byteorder' as the byte order value.
+     |
+     |      The signed keyword-only argument indicates whether two's complement is
+     |      used to represent the integer.
+     |
+     |  to_bytes(...)
+     |      int.to_bytes(length, byteorder, *, signed=False) -> bytes
+     |
+     |      Return an array of bytes representing an integer.
+     |
+     |      The integer is represented using length bytes.  An OverflowError is
+     |      raised if the integer is not representable with the given number of
+     |      bytes.
+     |
+     |      The byteorder argument determines the byte order used to represent the
+     |      integer.  If byteorder is 'big', the most significant byte is at the
+     |      beginning of the byte array.  If byteorder is 'little', the most
+     |      significant byte is at the end of the byte array.  To request the native
+     |      byte order of the host system, use `sys.byteorder' as the byte order value.
+     |
+     |      The signed keyword-only argument determines whether two's complement is
+     |      used to represent the integer.  If signed is False and a negative integer
+     |      is given, an OverflowError is raised.
+     |
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from builtins.int:
+     |
+     |  denominator
+     |      the denominator of a rational number in lowest terms
+     |
+     |  imag
+     |      the imaginary part of a complex number
+     |
+     |  numerator
+     |      the numerator of a rational number in lowest terms
+     |
+     |  real
+     |      the real part of a complex number
+
+FILE
+    c:\program files\alteryx\bin\plugins\alteryxpythonsdk.pyd
+
+FILE
+    c:\program files\alteryx\bin\plugins\alteryxpythonsdk.pyd
