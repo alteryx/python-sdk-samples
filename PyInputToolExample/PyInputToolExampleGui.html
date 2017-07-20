@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html style="padding:20px">
+<head>
+  <meta charset="utf-8">
+  <title>PyInputToolExample</title>
+
+	<script type="text/javascript">
+		document.write('<link rel="import" href="' + window.Alteryx.LibDir + '1/lib/alteryx/gui/includes.html">');
+	</script>
+</head>
+<body>
+	<form>
+    <fieldset>
+        <legend>XMSG("File Browse")</legend>
+        <alteryx-pluginwidget data-props='{type:"FileBrowse", id:"FileBrowse", dataName:"browseFiles", browseType: "File", isWorkflowDependency: true}' ></alteryx-pluginwidget>
+    </fieldset>
+	</form>
+
+  <!-- <script type="text/javascript">
+    Alteryx.Gui.BeforeLoad = function(manager, AlteryxDataItems, json) {
+      manager.getDataItem('FieldName').setValue('NewColumn')
+
+      var fieldType = manager.getDataItem('FieldType')
+      fieldType.setOptionList([
+        {value: 'Int16', label: 'Int16'}
+        , {value: 'Int32', label: 'Int32'}
+        , {value: 'Int64', label: 'Int64'}
+      ])
+      fieldType.setValue('Int16')
+
+      manager.getDataItem('StartValue').setValue('NewColumn')
+      manager.getDataItem('NumberOfRows').setValue(128)
+    }
+  </script> -->
+
+  <style>
+    /*This styling needs to be here. Is due to file loading. Otherwise, will not get proper styling on dropdowns*/
+
+    .Select, .Select div, .Select input, .Select span {
+      box-sizing: content-box;
+      -webkit-box-sizing: content-box;
+    }
+  </style>
+</body>
+</html>
