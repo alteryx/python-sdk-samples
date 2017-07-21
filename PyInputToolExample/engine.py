@@ -30,8 +30,8 @@ class AyxPlugin:
         # create your custom members here and give them default values
         #
         self.file_input_name = 'C:\\Users\\username\\Desktop\\PythonInputTest.csv'
-        self.file_out = 'file object'
-        self.file_reader = 'mapped file object'
+        self.file_out = None
+        self.file_reader = None
         #
         # END custom members
         #
@@ -115,6 +115,7 @@ class AyxPlugin:
             self.output_message('Error', AlteryxPythonSDK.EngineMessageType.error, 'This tool only accepts csv files')
             return False
 
+        # Save a reference to the RecordInfo passed into this function in the global namespace, so we can access it later
         self.record_info_out = AlteryxPythonSDK.RecordInfo()
         # create a read-only file object
         self.file_out = open(self.file_input_name, 'r')
@@ -146,14 +147,17 @@ class AyxPlugin:
         rownum = 0
 
         #
-        # map values in file to the tool output
+        # Loop through each record (or row) of data that has been passed into this function
         #
         for row in self.file_reader:
             rownum += 1
+            # Iterate through the fields in this row and add them in order to the output row
             for index, value in enumerate(row.items()):
                 self.record_info_out[index].set_from_string(self.record_creator, value[1])
             out_record = self.record_creator.finalize_record()
+            # Push this row onto the end of the output anchor
             self.output_anchor.push_record(out_record, False)
+            # Reset the record creator in order to begin looping through the next row
             self.record_creator.reset(0)
 
         # self.rownum = sum(1 for row in self.file_reader)
