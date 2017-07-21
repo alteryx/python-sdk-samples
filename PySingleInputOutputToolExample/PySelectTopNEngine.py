@@ -75,9 +75,9 @@ class AyxPlugin(Constants):
         if not self.initialized:
             return False
         self.record_cnt += 1
-        self.record_creator.reset()
-        self.record_copier.copy(self.record_creator, in_record)
         if self.record_cnt <= int(self.n_record_select):
+            self.record_creator.reset()
+            self.record_copier.copy(self.record_creator, in_record)
             out_record = self.record_creator.finalize_record()
             if self.output_anchor.push_record(out_record) is False:
                 return False
