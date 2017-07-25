@@ -91,6 +91,7 @@ class AyxPlugin:
         return True
 
     def set_key_set_previous_len(self, key_set_current):
+        """Updates previous set"""
         self.key_set_previous = key_set_current
         self.key_set_previous_len = len(self.key_set_previous)
         pass
