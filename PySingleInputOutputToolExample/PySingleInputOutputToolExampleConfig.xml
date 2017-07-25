@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <AlteryxJavaScriptPlugin>
-  <EngineSettings EngineDll="Python" EngineDllEntryPoint="PySelectTopNEngine.py" SDKVersion="10.1" />
-  <GuiSettings Html="PySelectTopNGui.html" Icon="PySelectTopNIcon.png" Help="PySelectTopN.htm" SDKVersion="10.1">
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="PySingleInputOutputToolExampleEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="PySingleInputOutputToolExampleGui.html" Icon="PySingleInputOutputToolExampleIcon.png" Help="PySingleInputOutputToolExample.htm" SDKVersion="10.1">
     <InputConnections>
       <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
     </InputConnections>
@@ -12,9 +12,9 @@
   <Properties>
     <MetaInfo>
       <Name>PySelectTopN</Name>
-      <Description>Returns top records</Description>
+      <Description>Returns top N records</Description>
       <CategoryName>Laboratory</CategoryName>
-      <SearchTags>python, sdk, select, sample, python sdk</SearchTags>
+      <SearchTags>python, sdk, select, sample, top, records, python sdk</SearchTags>
     </MetaInfo>
   </Properties>
 </AlteryxJavaScriptPlugin>
