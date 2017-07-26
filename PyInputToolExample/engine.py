@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 import csv
 import os
 
+
 class AyxPlugin:
     def __init__(self, n_tool_id, engine_interface, generic_engine, output_anchor_mgr):
         # initialize *all* members that will be used (for PEP8 compliance)
@@ -41,7 +42,7 @@ class AyxPlugin:
     # helper for determining if the file is csv, used for error messaging later
     def is_csv(self):
         filename, file_extension = os.path.splitext(self.file_input_name)
-        if file_extension == '.csv':
+        if file_extension == '.csv' or file_extension == '.CSV':
             return True
         return False
 
@@ -118,7 +119,7 @@ class AyxPlugin:
         # Save a reference to the RecordInfo passed into this function in the global namespace, so we can access it later
         self.record_info_out = AlteryxPythonSDK.RecordInfo()
         # create a read-only file object
-        self.file_out = open(self.file_input_name, 'r')
+        self.file_out = open(self.file_input_name, 'r', errors = 'ignore')
         # map the information read into a dict where the fieldnames are the keys
         self.file_reader = csv.DictReader(self.file_out)
 
