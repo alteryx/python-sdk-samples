@@ -34,7 +34,7 @@ class AyxPlugin:
     def pi_init(self, str_xml):
         try:
             root = ET.fromstring(str_xml)
-            self.str_file_path = root.find('TextBox1').text # Getting the dataName data property from the GUI configuration
+            self.str_file_path = root.find('fileOutputPath').text # Getting the dataName data property from the GUI configuration
         except AttributeError:
             self.output_message('pi_init', AlteryxPythonSDK.EngineMessageType.error, 'Invalid XML: ' + str_xml)
             raise
