@@ -3,7 +3,6 @@
 <head>
   <meta charset="utf-8">
   <title>PySelectTopN</title>
-
   <script type="text/javascript">
     document.write('<link rel="import" href="' + window.Alteryx.LibDir + '2/lib/includes.html">');
   </script>
@@ -12,12 +11,19 @@
   <form>
     <fieldset>
       <legend class='blueTitle'>XMSG("Top N Records")</legend>
-      <div class='leftCon'>
+      <div class=''>
         <label>XMSG("Number of Records")</label>
-        <ayx data-ui-props="{type: 'NumericSpinner'}" data-item-props="{dataName: 'NRecords'}"></ayx>
+        <ayx data-ui-props="{type: 'NumericSpinner', widgetId: 'ns'}" data-item-props="{dataName: 'NRecords'}"></ayx>
       </div>
     </fieldset>
   </form>
+  <script type="text/javascript">
+    Alteryx.Gui.BeforeLoad = (manager, AlteryxDataItems, json) => {
+      const constrainedNumberDataItem = new AlteryxDataItems.ConstrainedInt('NRecords', {max: undefined, min: 0, step: undefined})
+      manager.addDataItem(constrainedNumberDataItem)
+      manager.bindDataItemToWidget(constrainedNumberDataItem, 'ns')
+    }
+  </script>
   <style>
   </style>
 </body>
