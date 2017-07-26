@@ -80,7 +80,7 @@ class AyxPlugin():
             self.record_copier.copy(self.record_creator, in_record)  # Copy the data from the incoming record into the outgoing record
             out_record = self.record_creator.finalize_record()  # Ask the record_creator helper to give us a record we can pass downstream
             # Push the record downstream and quit if there's a downstream error
-            if self.output_anchor.push_record(out_record) is False:
+            if not self.output_anchor.push_record(out_record):
                 return False
         return True
 
