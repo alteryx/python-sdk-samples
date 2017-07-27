@@ -40,7 +40,6 @@ class AyxPlugin:
             raise
 
         self.initialized = True
-
         return
 
     # pi_add_incoming_connection will be called when the Alteryx engine is attempting to add an incoming data connection.
@@ -73,6 +72,7 @@ class AyxPlugin:
     def ii_init(self, record_info_in):
         self.record_info_in = record_info_in # Storing the argument being passed to record_info_in parameter
         self.field_names = ','.join([field.name for field in record_info_in]) # extracting all the field names from record_info_in to a list in self.field_names
+        self.field_names = self.field_names.replace('\n', '') # replace the newline characters in field names if they exist
         self.initialized = True
         return True
 
@@ -84,11 +84,10 @@ class AyxPlugin:
         def null_to_str(field, in_record):
             ret = field.get_as_string(in_record)
             if ret is None:
-                return '[Null]'
+                return ''
             return ret
 
         all_records = ','.join([null_to_str(field, in_record) for field in self.record_info_in]) # looping through null_to_str for each field in record_info_in to get a list of data points for the nth record
-
         self.all_records += all_records + ' \n' # Appending each record in csv format to self.all_records
 
         return True
@@ -104,13 +103,16 @@ class AyxPlugin:
     # ii_close will be called when the incoming connection has finished passing all of its records
 
     def ii_close(self):
-        if (self.all_records != ''):
-            if os.access(self.str_file_path, os.F_OK):
-                self.output_message('Error ', AlteryxPythonSDK.EngineMessageType.error, self.str_file_path + ' already exists. Please enter a different path.')
-            else:
-                with open(self.str_file_path, 'a') as testfile:
-                    testfile.write(self.field_names + '\n' + self.all_records)
-                    testfile.close()
-                    message = self.str_file_path + ' was written.'
-                    self.output_message('Output ', AlteryxPythonSDK.EngineMessageType.info, message)
+        if (self.str_file_path == None):
+            self.output_message('Error ', AlteryxPythonSDK.EngineMessageType.error, 'Please enter a file path.')
+        else:
+            if (self.all_records != ''):
+                if os.access(self.str_file_path, os.F_OK):
+                    self.output_message('Error ', AlteryxPythonSDK.EngineMessageType.error, self.str_file_path + ' already exists. Please enter a different path.')
+                else:
+                    with open(self.str_file_path, 'a') as testfile:
+                        testfile.write(self.field_names + '\n' + self.all_records)
+                        testfile.close()
+                        message = self.str_file_path + ' was written.'
+                        self.output_message('Output ', AlteryxPythonSDK.EngineMessageType.info, message)
         return
