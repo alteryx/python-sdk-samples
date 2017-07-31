@@ -119,7 +119,7 @@ class AyxPlugin:
         # Save a reference to the RecordInfo passed into this function in the global namespace, so we can access it later
         self.record_info_out = AlteryxPythonSDK.RecordInfo()
         # create a read-only file object
-        self.file_out = open(self.file_input_name, 'r', errors = 'ignore')
+        self.file_out = open(self.file_input_name, 'r', errors = 'replace')
         # map the information read into a dict where the fieldnames are the keys
         self.file_reader = csv.DictReader(self.file_out)
 

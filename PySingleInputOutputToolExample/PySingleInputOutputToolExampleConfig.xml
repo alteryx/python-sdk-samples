@@ -11,7 +11,7 @@
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>PySelectTopN</Name>
+      <Name>PySingleInputOutputToolExample</Name>
       <Description>Returns top N records</Description>
       <CategoryName>Laboratory</CategoryName>
       <SearchTags>python, sdk, select, sample, top, records, python sdk</SearchTags>
