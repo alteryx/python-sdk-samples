@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="PyOptionalOutputToolExampleEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="PyOptionalOutputToolExampleGui.html" Icon="PyOptionalOutputToolExampleIcon.png" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Output" AllowMultiple="False" Optional="True" Type="Connection" Label=""/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>PyMessage</Name>
+      <Description>blah blah</Description>
+      <CategoryName>Laboratory</CategoryName>
+      <SearchTags>python, sdk, python sdk, message</SearchTags>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>
