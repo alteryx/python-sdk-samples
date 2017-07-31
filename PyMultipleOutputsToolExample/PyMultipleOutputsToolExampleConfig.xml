@@ -12,8 +12,8 @@
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>PyUnique</Name>
-      <Description>Split the input between unique and duplicate values</Description>
+      <Name>PyMultipleOutputsToolExample</Name>
+      <Description>Split the input between unique and duplicate values, similar to the unique tool</Description>
       <CategoryName>Laboratory</CategoryName>
       <SearchTags>python, sdk, distinct, unique, record, like, a, snowflake, python sdk</SearchTags>
     </MetaInfo>

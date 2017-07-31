@@ -8,7 +8,7 @@ class AyxPlugin:
 
         # Miscellaneous properties
         self.n_tool_id = n_tool_id
-        self.name = str('PySelectTopN_') + str(self.n_tool_id)
+        self.name = str('PySingleInputOutputToolExample_') + str(self.n_tool_id)
         self.initialized = False
 
         # Engine handles

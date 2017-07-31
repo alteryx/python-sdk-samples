@@ -8,7 +8,7 @@ class AyxPlugin:
 
         # miscellaneous variables
         self.n_tool_id = n_tool_id
-        self.name = str('PyUnique_') + str(self.n_tool_id)
+        self.name = str('PyMultipleOutputsToolExample_') + str(self.n_tool_id)
         self.initialized = False
         self.field_selection = None
         self.field_index = 0

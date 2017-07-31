@@ -2,7 +2,7 @@
 <html style="padding:20px">
 <head>
   <meta charset="utf-8">
-  <title>PySelectTopN</title>
+  <title>PySingleInputOutputToolExample</title>
   <script type="text/javascript">
     document.write('<link rel="import" href="' + window.Alteryx.LibDir + '2/lib/includes.html">');
   </script>
@@ -19,7 +19,7 @@
   </form>
   <script type="text/javascript">
     Alteryx.Gui.BeforeLoad = (manager, AlteryxDataItems, json) => {
-      const constrainedNumberDataItem = new AlteryxDataItems.ConstrainedInt('NRecords', {max: undefined, min: 0, step: undefined})
+      const constrainedNumberDataItem = new AlteryxDataItems.ConstrainedInt('NRecords', {min: 0})
       manager.addDataItem(constrainedNumberDataItem)
       manager.bindDataItemToWidget(constrainedNumberDataItem, 'ns')
     }
