@@ -8,7 +8,7 @@ class AyxPlugin:
 
         # Miscellaneous properties
         self.n_tool_id = n_tool_id
-        self.name = str('PyOptionalOutputToolExample_') + str(self.n_tool_id)  # change name
+        self.name = str('PyOptionalOutputToolExample_') + str(self.n_tool_id)
         self.initialized = False
 
         # Engine handles
@@ -88,7 +88,7 @@ class AyxPlugin:
         """
         Called when the incoming connection's record metadata is available or has changed, and
         has let the Alteryx engine know what its output will look like.
-        :param record_info_in: XML representation for the incoming connection's field and sort properties.
+        :param record_info_in: A RecordInfo object containing the XML representation for the incoming connection's field and sort properties.
         :return: True
         """
         self.record_info_in = record_info_in
@@ -106,6 +106,7 @@ class AyxPlugin:
 
     def display_message(self, message_type, message_string):
         """
+        A non-interface method.
         Responsible for outputting the message based on the message type input.
         :param message_type: The type of message the tool writes.
         :param message_string: The type of message that will be displayed.
@@ -123,7 +124,7 @@ class AyxPlugin:
 
     def ii_push_record(self, in_record):
         """
-        Responsible for pushing records out, under a count limit set by the user in n_record_select.
+        Responsible for pushing records out, and outputting the user-selected message before the first record push.
         Called when an input record is being sent to the plugin.
         :param in_record: The data for the incoming record.
         :return: Will return False if:
@@ -157,6 +158,7 @@ class AyxPlugin:
 
     def ii_close(self):
         """
+        Responsible for outputting the user-selected message before closing the anchor.
         Called when the incoming connection has finished passing all of its records.
         :return: Void
         """
