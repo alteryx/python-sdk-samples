@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html style="padding:20px">
+<head>
+  <meta charset="utf-8">
+  <title>PyOptionalOutputToolExample</title>
+  <script type="text/javascript">
+    document.write('<link rel="import" href="' + window.Alteryx.LibDir + '2/lib/includes.html">');
+  </script>
+</head>
+<body>
+  <form>
+    <fieldset>
+      <legend class='blueTitle'>XMSG("Configuration")</legend>
+      <div class=''>
+        <label>XMSG("When To Send Message:")</label>
+        <ayx data-ui-props="{type: 'RadioGroup', widgetId: 'RadioGroup1'}" data-item-props="{dataName: 'messageTiming'}"></ayx>
+      </div>
+      <div class=''>
+        <label>XMSG("Message Type:")</label>
+        <ayx data-ui-props="{type: 'DropDown', widgetId: 'DropDown1'}" data-item-props="{dataName: 'messageType'}"></ayx>
+      </div>
+      <div class=''>
+        <label>XMSG("Message String:")</label>
+        <ayx data-ui-props="{type: 'TextBox', widgetId: 'TextBox1'}" data-item-props="{dataName: 'messageString'}"></ayx>
+      </div> 
+    </fieldset>
+  </form>
+  <script type="text/javascript">
+    Alteryx.Gui.BeforeLoad = (manager, AlteryxDataItems, json) => {
+
+      const messageTimingRadioGroup = new AlteryxDataItems.StringSelector('messageTiming', {
+        optionList: [
+          {label: 'Before First Record', value: 'beforeFirstRecord'},
+          {label: 'After Last Record', value: 'afterLastRecord'}
+        ]
+      })
+
+      const messageTypeSelector = new AlteryxDataItems.StringSelector('messageType', {
+        optionList: [
+          {label: 'Message', value: 'info'},
+          {label: 'Warning', value: 'warning'},
+          {label: 'Field Conversion Error', value: 'field_conversion_error'},
+          {label: 'Error', value: 'error'}
+        ]
+      })
+
+      const messageStringTextBox = new AlteryxDataItems.SimpleString('messageString')
+
+      manager.addDataItem(messageTimingRadioGroup)
+      manager.addDataItem(messageTypeSelector)
+      manager.addDataItem(messageStringTextBox)
+
+      manager.bindDataItemToWidget(messageTimingRadioGroup, 'RadioGroup1')
+      manager.bindDataItemToWidget(messageTypeSelector, 'DropDown1')
+      manager.bindDataItemToWidget(messageStringTextBox, 'TextBox1')
+
+    }
+  </script>
+  <style>
+  </style>
+</body>
+</html>
