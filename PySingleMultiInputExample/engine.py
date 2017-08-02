@@ -1,6 +1,6 @@
 import AlteryxPythonSDK
 import xml.etree.ElementTree as ET
-
+import re
 
 class Input:
     def __init__(self, parent, type_, name):
@@ -173,70 +173,73 @@ class AyxPlugin:
 
         return False
 
-    # a helper for setting up a child record copier
-    def init_child_record_copier(self, child, start_idx):
-        # setup the record_copier for copying data from the input records into our new output records
-        child.record_copier = AlteryxPythonSDK.RecordCopier(self.record_info_out, child.record_info_in)
-        # map each column of the input to where we want it to be in the output
-        for idx in range(len(child.record_info_in)):
-            child.record_copier.add(start_idx+idx, idx)
-        child.record_copier.done_adding()
-        return
-
-    def init(self):
-        if len(self.inputs) == 0:
-            self.output_message('init', AlteryxPythonSDK.EngineMessageType.error, 'At least one input is required')
-            return
-
-        # construct a RecordInfo that has the fields from each of the inputs
-        inputs_reversed = []
-        for input_ in reversed(self.inputs):
-            inputs_reversed.append(input_)
-        print(inputs_reversed[0].name)
-        print(inputs_reversed[1].name)
-        self.inputs = inputs_reversed
-        # if len(self.inputs) > 1:
-        #     for idx in range(0,len(self.inputs)):
-        #         inputs_reversed.append(self.inputs[])
-
-
-        self.record_info_out = AlteryxPythonSDK.RecordInfo(self.generic_engine)
-        field_count = 0
-        for input_ in self.inputs:
-            if not input_.initialized:
-                self.output_message(
-                    'init'
-                    , AlteryxPythonSDK.EngineMessageType.error
-                    , 'An incoming connection is not initialized'
-                )
-                return
-            """change everything below in this function get the metadata to match. TEST BY CREATING record_info_out2 """
-            # add the fields from this input to record_info_out
-            self.record_info_out.init_from_xml(
-                input_.record_info_in.get_record_xml_meta_data()
-                , input_.type + input_.name
-            )
-            # setup the record_copier for copying data from this input record into our new output records
-            self.init_child_record_copier(input_, field_count)
-            print(input_.name)
-            field_count += len(input_.record_info_in)
-
-        # tell the downstream tools what our records will look likeS
-        self.output_anchor.init(self.record_info_out)
-
-        # create the helper for constructing records to pass downstream
-        self.record_creator = self.record_info_out.construct_record_creator()
-
-        return
+    # # a helper for setting up a child record copier
+    # def init_child_record_copier(self, child, start_idx):
+    #     # setup the record_copier for copying data from the input records into our new output records
+    #     child.record_copier = AlteryxPythonSDK.RecordCopier(self.record_info_out, child.record_info_in)
+    #     # map each column of the input to where we want it to be in the output
+    #     for idx in range(len(child.record_info_in)):
+    #         child.record_copier.add(start_idx+idx, idx)
+    #     child.record_copier.done_adding()
+    #     return
+    #
+    # def init(self):
+    #     if len(self.inputs) == 0:
+    #         self.output_message('init', AlteryxPythonSDK.EngineMessageType.error, 'At least one input is required')
+    #         return
+    #
+    #     # construct a RecordInfo that has the fields from each of the inputs
+    #     inputs_reversed = []
+    #     for input_ in reversed(self.inputs):
+    #         inputs_reversed.append(input_)
+    #     print(inputs_reversed[0].name)
+    #     print(inputs_reversed[1].name)
+    #     self.inputs = inputs_reversed
+    #     # if len(self.inputs) > 1:
+    #     #     for idx in range(0,len(self.inputs)):
+    #     #         inputs_reversed.append(self.inputs[])
+    #
+    #
+    #     self.record_info_out = AlteryxPythonSDK.RecordInfo(self.generic_engine)
+    #     field_count = 0
+    #     for input_ in self.inputs:
+    #         if not input_.initialized:
+    #             self.output_message(
+    #                 'init'
+    #                 , AlteryxPythonSDK.EngineMessageType.error
+    #                 , 'An incoming connection is not initialized'
+    #             )
+    #             return
+    #         """change everything below in this function get the metadata to match. TEST BY CREATING record_info_out2 """
+    #         # add the fields from this input to record_info_out
+    #         self.record_info_out.init_from_xml(
+    #             input_.record_info_in.get_record_xml_meta_data()
+    #             , input_.type + input_.name
+    #         )
+    #         # setup the record_copier for copying data from this input record into our new output records
+    #         self.init_child_record_copier(input_, field_count)
+    #         print(input_.name)
+    #         field_count += len(input_.record_info_in)
+    #
+    #     # tell the downstream tools what our records will look like
+    #     self.output_anchor.init(self.record_info_out)
+    #
+    #     # create the helper for constructing records to pass downstream
+    #     self.record_creator = self.record_info_out.construct_record_creator()
+    #
+    #     return
 
     """TEST FUNCTIONS BELOW """
     # a helper for setting up a child record copier
-    def init_child_record_copier_two(self, child, start_idx):
+    def init_child_record_copier_two(self, child):
+        # print(child.record_info_in, start_idx, len(child.record_info_in), len(self.record_info_out_two))
         # setup the record_copier for copying data from the input records into our new output records
         child.record_copier = AlteryxPythonSDK.RecordCopier(self.record_info_out_two, child.record_info_in)
         # map each column of the input to where we want it to be in the output
-        for idx in range(len(child.record_info_in)):
-            child.record_copier.add(start_idx+idx, idx)
+        for input_idx in range(len(child.record_info_in)):
+            output_idx = self.primary_field_names.index(child.record_info_in[input_idx].name)
+            child.record_copier.add(output_idx, input_idx)
+            print(output_idx, input_idx)
         child.record_copier.done_adding()
         return
 
@@ -245,15 +248,13 @@ class AyxPlugin:
             self.output_message('init', AlteryxPythonSDK.EngineMessageType.error, 'At least one input is required')
             return
 
-        inputs_reversed = []
-        for input_ in reversed(self.inputs):
-            inputs_reversed.append(input_)
-        self.inputs = inputs_reversed
+        self.inputs.sort(key=lambda inputObj: int(re.findall('[\d+]' , inputObj.name)[-1])) # Sorts by connection name
+        for idx in range(len(self.inputs)):
+            print(self.inputs[idx].name)
 
         # construct a RecordInfo that has the fields from each of the inputs
         self.record_info_out_two = AlteryxPythonSDK.RecordInfo(self.generic_engine)
         # print(self.record_info_out_two)
-        field_count = 0
         for input_ in self.inputs:
             if not input_.initialized:
                 self.output_message(
@@ -262,31 +263,32 @@ class AyxPlugin:
                     , 'An incoming connection is not initialized'
                 )
                 return
-            """change everything below in this function get the metadata to match. TEST BY CREATING record_info_out2 """
             # add the fields from this input to record_info_out
             if (len(self.primary_field_names) == 0):
                 self.record_info_out_two.init_from_xml(input_.record_info_in.get_record_xml_meta_data())
-                self.primary_field_names = ','.join([field.name for field in self.record_info_out_two])
+                self.primary_field_names = [field.name for field in self.record_info_out_two]
+                print(self.primary_field_names)
+                print(len(self.primary_field_names))
 
             else:
                 secondary_field_names = [field.name for field in input_.record_info_in]
                 new_fields = [items for items in secondary_field_names if items not in self.primary_field_names]
                 print(new_fields)
-
-            print(self.record_info_out_two[1].name)
-            # print(input_.record_info_in.get_record_xml_meta_data())
-            print(len(self.record_info_out_two))
-
-            print(input_.record_info_in.get_field_by_name('test'))
-            print(input_.record_info_in.get_field_by_name('test'))
-
-
-
+                new_field_obj = [input_.record_info_in.get_field_by_name(name) for name in new_fields]
+                for field in new_field_obj:
+                    self.record_info_out_two.add_field(
+                        field.name # name
+                        , field.type  # type (string, int, etc.)
+                        , field.size  # size (only relevant for string, blob, and spatial)
+                        , field.scale  # scale (if you don't know what this means, just use 0)
+                        , field.source  # source metadata
+                        , field.description  # description metadata
+                    )
+                self.primary_field_names += new_fields
+                print(len(self.record_info_out_two))
+                print(self.primary_field_names)
             # setup the record_copier for copying data from this input record into our new output records
-            self.init_child_record_copier_two(input_, field_count)
-
-            field_count += len(input_.record_info_in)
-
+            self.init_child_record_copier_two(input_)
         # tell the downstream tools what our records will look like
         self.output_anchor.init(self.record_info_out_two)
 
