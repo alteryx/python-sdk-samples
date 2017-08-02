@@ -3,7 +3,6 @@ import xml.etree.ElementTree as ET
 import csv
 import os
 
-
 class AyxPlugin:
     def __init__(self, n_tool_id, engine_interface, generic_engine, output_anchor_mgr):
         # initialize *all* members that will be used (for PEP8 compliance)
@@ -119,7 +118,7 @@ class AyxPlugin:
         # Save a reference to the RecordInfo passed into this function in the global namespace, so we can access it later
         self.record_info_out = AlteryxPythonSDK.RecordInfo()
         # create a read-only file object
-        self.file_out = open(self.file_input_name, 'r', errors = 'replace')
+        self.file_out = open(self.file_input_name, 'r', encoding='utf-8')
         # map the information read into a dict where the fieldnames are the keys
         self.file_reader = csv.DictReader(self.file_out)
 
@@ -129,7 +128,7 @@ class AyxPlugin:
         for field in self.file_reader.fieldnames:
             self.record_info_out.add_field(
                 field
-                , AlteryxPythonSDK.FieldType.v_string
+                , AlteryxPythonSDK.FieldType.v_wstring
                 , 254
                 , 0
                 , self.name
