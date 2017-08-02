@@ -76,10 +76,11 @@ class AyxPlugin:
         """
         return True
 
-    def pi_push_all_records(self):
+    def pi_push_all_records(self, n_record_limit):
         """
         Called when the Alteryx engine when it's expecting the plugin to provide all of its data.
         Only pertinent to tools which have no upstream connections, like the Input tool.
+        :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
         :return: False
         """
         self.output_message('pi_push_all_records', Sdk.EngineMessageType.error, 'Missing Incoming Connection')
@@ -97,7 +98,7 @@ class AyxPlugin:
         """
         Called when the incoming connection's record metadata is available or has changed, and
         has let the Alteryx engine know what its output will look like.
-        :param record_info_in: XML representation for the incoming connection's field and sort properties.
+        :param record_info_in: A RecordInfo object containing the XML representation for the incoming connection's field and sort properties.
         :return: True
         """
         self.record_info_in = record_info_in
@@ -121,6 +122,7 @@ class AyxPlugin:
 
     def set_key_set_previous_len(self, key_set_current):
         """
+        A non-interface method.
         Sets the previous set to be the current set.
         :param key_set_current: The current set with the new record data.
         :return: Void
@@ -131,6 +133,7 @@ class AyxPlugin:
 
     def set_output_direction(self, key_set_current):
         """
+        A non-interface method.
         Evaluates incremental changes in set lengths, to decide
         which output anchor to have the incoming record be pushed to
         :param key_set_current: The current set with the new record data.
