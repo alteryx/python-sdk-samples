@@ -20,7 +20,6 @@ class AyxPlugin:
         self.str_xml_sort_info = ""
         self.field_index = 0
         self.field_selection = None
-        self.field_sum = 0
         # Record management properties
         self.record_info_in = None
         self.record_info_out = None
