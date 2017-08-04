@@ -25,7 +25,6 @@ class AyxPlugin:
         self.record_info_out = None
         self.record_creator = None
         self.record_copier = None
-        self.record_cnt = 0
         pass
 
     def set_str_xml_sort_info(self, element: str, subelement: property, order: str):
@@ -57,7 +56,7 @@ class AyxPlugin:
         xml_meta_data = record_info_in.get_record_xml_meta_data(False)  # False = do not return source attribute
         dict = Et.fromstring(xml_meta_data).findall('Field')[0].attrib  # To access field name and type
         list_of_dict_values = list(dict.values())  # Turn to list from dict to access index
-        return list_of_dict_values
+        return list_of_dict_values[len(list_of_dict_values)-1]  # Extract and return last index for field's data type
 
     def output_message(self, method, status, message):
         """
@@ -136,9 +135,8 @@ class AyxPlugin:
         :param record_info_in: A RecordInfo object containing the XML representation for the incoming connection's field and sort properties.
         :return: False if type validation fails.
         """
-        #  Evaluate field type of selected field to make sure only numeric field types are selected
-        if 'String' in str(self.get_single_field_type(record_info_in))\
-                or 'Bool' in str(self.get_single_field_type(record_info_in)):
+        if (self.get_single_field_type(record_info_in)) not in\
+                {'Byte', 'Int16', 'Int32', 'Int64', 'FixedDecimal', 'Float', 'Double'}:
             self.output_message('pi_push_all_records', Sdk.EngineMessageType.error, 'Selected A Non-Numeric Field')
             return False
         else:
@@ -166,24 +164,13 @@ class AyxPlugin:
         Responsible for pushing the first record out - either the highest or lowest numeric value of the field.
         Called when an input record is being sent to the plugin.
         :param in_record: The data for the incoming record.
-        :return: Will return False if:
-          1. ii_init has not been initialized
-          2. ii_push_record calling limit has been reached.
-          3. If record_cnt > 1
+        :return: False
         """
-        if not self.initialized:
-            return False
-        self.record_cnt += 1
-        if self.record_cnt == 1:
-            self.record_creator.reset()
-            self.record_copier.copy(self.record_creator, in_record)
-            out_record = self.record_creator.finalize_record()
-            # Push the record and quit if there's a downstream error
-            if not self.output_anchor.push_record(out_record):
-                return False
-        else:
-            return False
-        return True
+        self.record_creator.reset()
+        self.record_copier.copy(self.record_creator, in_record)
+        out_record = self.record_creator.finalize_record()
+        self.output_anchor.push_record(out_record)
+        return False
 
     def ii_update_progress(self, d_percent):
         """
