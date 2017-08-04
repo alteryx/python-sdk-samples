@@ -20,7 +20,6 @@ class AyxPlugin:
         self.output_anchor = None
 
         # Default configuration setting
-        self.message = Sdk.EngineMessageType
         self.message_timing = None
         self.message_type = None
         self.message_string = None
@@ -73,7 +72,7 @@ class AyxPlugin:
         :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
         :return: False, prevent sending all data downstream.
         """
-        self.alteryx_engine.output_message(self.n_tool_id, self.message.error, 'Missing Incoming Connection')
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, 'Missing Incoming Connection')
         return False
 
     def pi_close(self, b_has_errors):
@@ -113,13 +112,13 @@ class AyxPlugin:
         :return: Void
         """
         if message_type == 'info':
-            self.alteryx_engine.output_message(self.n_tool_id, self.message.info, message_string)
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.info, message_string)
         elif message_type == 'warning':
-            self.alteryx_engine.output_message(self.n_tool_id, self.message.warning, message_string)
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.warning, message_string)
         elif message_type == 'field_conversion_error':
-            self.alteryx_engine.output_message(self.n_tool_id, self.message.field_conversion_error, message_string)
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.field_conversion_error, message_string)
         elif message_type == 'error':
-            self.alteryx_engine.output_message(self.n_tool_id, self.message.error, message_string)
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, message_string)
         pass
 
     def ii_push_record(self, in_record):

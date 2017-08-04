@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html style="padding:20px">
+<head>
+  <meta charset="utf-8">
+  <title>PySortedInputToolExample</title>
+  <script type="text/javascript">
+    document.write('<link rel="import" href="' + window.Alteryx.LibDir + '2/lib/includes.html">');
+  </script>
+</head>
+<body>
+  <form>
+    <fieldset>
+      <legend class='blueTitle'>XMSG("Configuration")</legend>
+
+      <div>
+        <label>XMSG("Choose to return min or max:")</label>
+        <ayx
+          data-ui-props =
+            "{
+              type: 'RadioGroup',
+              widgetId: 'RadioGroup1'
+            }"
+          data-item-props =
+            "{
+              dataName: 'operationSelect'
+            }"
+        >
+        </ayx>
+      </div>
+
+      <div>
+        <label>XMSG("Select a field:")</label>
+        <ayx
+          data-ui-props =
+            "{
+              type: 'DropDown'
+            }"
+          data-item-props =
+            "{
+              dataName: 'FieldSelect',
+              dataType: 'FieldSelector',
+              anchorIndex:'0',
+              connectionIndex:'0'
+            }"
+        >
+        </ayx>
+      </div>
+        
+    </fieldset>
+  </form>
+  <script type="text/javascript">
+
+    Alteryx.Gui.BeforeLoad = (manager, AlteryxDataItems, json) => {
+      const operationSelectRadioGroup = new AlteryxDataItems.StringSelector('operationSelect', {
+        optionList: [
+          {label: 'Maximum', value: 'max'},
+          {label: 'Minimum', value: 'min'}
+        ]
+      })
+      manager.addDataItem(operationSelectRadioGroup)
+      manager.bindDataItemToWidget(operationSelectRadioGroup, 'RadioGroup1')
+    }
+
+  </script>
+  <style>
+  </style>
+</body>
+</html>
+
