@@ -2,6 +2,24 @@ import AlteryxPythonSDK as Sdk
 import xml.etree.ElementTree as Et
 
 
+def display_message(self, message_type, message_string):
+    """
+    A non-interface method.
+    Responsible for outputting the message based on the message type input.
+    :param message_type: The type of message the tool writes.
+    :param message_string: The type of message that will be displayed.
+    :return: Void
+    """
+    if message_type == 'info':
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.info, message_string)
+    elif message_type == 'warning':
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.warning, message_string)
+    elif message_type == 'field_conversion_error':
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.field_conversion_error, message_string)
+    elif message_type == 'error':
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, message_string)
+    pass
+
 class AyxPlugin:
     def __init__(self, n_tool_id, alteryx_engine, generic_engine, output_anchor_mgr):
         """Initializing members that will be used."""
@@ -102,24 +120,6 @@ class AyxPlugin:
         self.record_copier.done_adding()
         self.initialized = True
         return True
-
-    def display_message(self, message_type, message_string):
-        """
-        A non-interface method.
-        Responsible for outputting the message based on the message type input.
-        :param message_type: The type of message the tool writes.
-        :param message_string: The type of message that will be displayed.
-        :return: Void
-        """
-        if message_type == 'info':
-            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.info, message_string)
-        elif message_type == 'warning':
-            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.warning, message_string)
-        elif message_type == 'field_conversion_error':
-            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.field_conversion_error, message_string)
-        elif message_type == 'error':
-            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, message_string)
-        pass
 
     def ii_push_record(self, in_record):
         """
