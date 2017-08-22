@@ -131,7 +131,7 @@ class AyxPlugin(NonInterface):
             self.alteryx_engine.output_message(
                 self.n_tool_id,
                 Sdk.EngineMessageType.error,
-                'Selected A Non-Numeric Field'
+                'Selected a non-numeric field. Please select a numeric field.'
             )
             return False
         else:
