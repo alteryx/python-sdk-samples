@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+  The name of this file must be the name of the plugin folder + "Config"
+-->
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="PySortedOutputExampleEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="PySortedOutputExampleGui.html" Icon="PySortedOutputExampleIcon.png" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Output" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>PySortedOutputExample</Name>
+      <Description>An example Python plugin tool</Description>
+      <CategoryName>Laboratory</CategoryName>
+      <SearchTags>python, sdk, python sdk</SearchTags>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>
