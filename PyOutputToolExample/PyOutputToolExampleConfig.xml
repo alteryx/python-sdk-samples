@@ -15,7 +15,7 @@
     <MetaInfo>
       <Name>PyOutputToolExample</Name>
       <Description>An example Python output tool by Ozzie</Description>
-      <CategoryName>Laboratory</CategoryName>
+      <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, python sdk, output</SearchTags>
     </MetaInfo>
   </Properties>

@@ -16,7 +16,7 @@
     <MetaInfo>
       <Name>PySortedOutputExample</Name>
       <Description>An example Python plugin tool</Description>
-      <CategoryName>Laboratory</CategoryName>
+      <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, python sdk</SearchTags>
     </MetaInfo>
   </Properties>

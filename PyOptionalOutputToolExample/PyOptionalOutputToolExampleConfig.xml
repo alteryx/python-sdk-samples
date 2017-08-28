@@ -13,7 +13,7 @@
     <MetaInfo>
       <Name>PyOptionalOutputToolExample</Name>
       <Description>Write log messages to output window.</Description>
-      <CategoryName>Laboratory</CategoryName>
+      <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, python sdk, message</SearchTags>
     </MetaInfo>
   </Properties>

@@ -13,7 +13,7 @@
     <MetaInfo>
       <Name>PySingleInputOutputToolExample</Name>
       <Description>Returns top N records</Description>
-      <CategoryName>Laboratory</CategoryName>
+      <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, select, sample, top, records, python sdk</SearchTags>
     </MetaInfo>
   </Properties>

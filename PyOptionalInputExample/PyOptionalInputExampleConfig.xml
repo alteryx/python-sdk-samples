@@ -13,7 +13,7 @@
     <MetaInfo>
       <Name>PyOptionalInputExample</Name>
       <Description>Adds a field that counts as specified or if no input is present, creates a field. This is an example tool that was created using the HTML GUI SDK and the Python SDK.</Description>
-      <CategoryName>Laboratory</CategoryName>
+      <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, recordid, record, id, python sdk</SearchTags>
     </MetaInfo>
   </Properties>

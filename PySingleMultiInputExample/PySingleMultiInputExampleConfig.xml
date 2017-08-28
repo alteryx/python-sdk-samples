@@ -16,7 +16,7 @@
     <MetaInfo>
       <Name>Python Single Multi-Input</Name>
       <Description>An example Python plugin tool that supports an input with AllowMultiple=True</Description>
-      <CategoryName>Laboratory</CategoryName>
+      <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, python sdk</SearchTags>
     </MetaInfo>
   </Properties>

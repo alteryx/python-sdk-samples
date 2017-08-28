@@ -13,7 +13,7 @@
     <MetaInfo>
       <Name>PySortedInputToolExample</Name>
       <Description>Returns the maximum or minimum numeric value of the selected field.</Description>
-      <CategoryName>Laboratory</CategoryName>
+      <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, sample, min, max, sort, python sdk</SearchTags>
     </MetaInfo>
   </Properties>

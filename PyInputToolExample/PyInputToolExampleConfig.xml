@@ -15,7 +15,7 @@
     <MetaInfo>
       <Name>PyInputToolExample</Name>
       <Description>An example Python input tool</Description>
-      <CategoryName>Laboratory</CategoryName>
+      <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, python sdk, input</SearchTags>
     </MetaInfo>
   </Properties>
