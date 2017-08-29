@@ -116,7 +116,7 @@ class AyxPlugin:
             return False
 
         # Save a reference to the RecordInfo passed into this function in the global namespace, so we can access it later
-        self.record_info_out = AlteryxPythonSDK.RecordInfo()
+        self.record_info_out = AlteryxPythonSDK.RecordInfo(self.generic_engine)
         # create a read-only file object
         self.file_out = open(self.file_input_name, 'r', encoding='utf-8')
         # map the information read into a dict where the fieldnames are the keys

@@ -3,7 +3,7 @@
   The name of this file must be the name of the plugin folder + "Config"
 -->
 <AlteryxJavaScriptPlugin>
-  <EngineSettings EngineDll="Python" EngineDllEntryPoint="engine.py" SDKVersion="10.1" />
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="PyOutputToolExampleEngine.py" SDKVersion="10.1" />
   <GuiSettings Html="PyOutputToolExampleGui.html" Icon="PyOutputToolExampleIcon.png" SDKVersion="10.1">
     <InputConnections>
       <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
