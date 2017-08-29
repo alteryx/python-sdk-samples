@@ -12,7 +12,7 @@
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>PyMultipleOutputsToolExample</Name>
+      <Name>MultipleOutputsToolExample</Name>
       <Description>Split the input between unique and duplicate values, similar to the unique tool</Description>
       <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, distinct, unique, record, like, a, snowflake, python sdk</SearchTags>

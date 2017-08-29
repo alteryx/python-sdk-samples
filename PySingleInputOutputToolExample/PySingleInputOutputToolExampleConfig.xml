@@ -11,7 +11,7 @@
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>PySingleInputOutputToolExample</Name>
+      <Name>SingleInputOutputToolExample</Name>
       <Description>Returns top N records</Description>
       <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, select, sample, top, records, python sdk</SearchTags>

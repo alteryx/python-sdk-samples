@@ -11,7 +11,7 @@
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>PyOptionalOutputToolExample</Name>
+      <Name>OptionalOutputToolExample</Name>
       <Description>Write log messages to output window.</Description>
       <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, python sdk, message</SearchTags>
