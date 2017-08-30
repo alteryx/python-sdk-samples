@@ -1,10 +1,7 @@
 <?xml version="1.0"?>
-<!--
-  The name of this file must be the name of the plugin folder + "Config"
--->
 <AlteryxJavaScriptPlugin>
-  <EngineSettings EngineDll="Python" EngineDllEntryPoint="engine.py" SDKVersion="10.1" />
-  <GuiSettings Html="PySingleMultiInputExampleGui.html" Icon="PySingleMultiInputExampleIcon.png" SDKVersion="10.1">
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="PySingleMultiInputToolExampleEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="PySingleMultiInputToolExampleGui.html" Icon="PySingleMultiInputToolExampleIcon.png" SDKVersion="10.1">
     <InputConnections>
       <Connection Name="Input" AllowMultiple="True" Optional="False" Type="Connection" Label=""/>
     </InputConnections>
@@ -14,9 +11,9 @@
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>Python Single Multi-Input</Name>
+      <Name>SingleMultiInputToolExample</Name>
       <Description>An example Python plugin tool that supports an input with AllowMultiple=True</Description>
-      <CategoryName>Laboratory</CategoryName>
+      <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, python sdk</SearchTags>
     </MetaInfo>
   </Properties>

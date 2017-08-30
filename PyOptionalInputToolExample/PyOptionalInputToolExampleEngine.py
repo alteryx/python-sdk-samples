@@ -94,7 +94,7 @@ class AyxPlugin:
     #
     def pi_push_all_records(self, n_record_limit):
 
-        self.record_info_out = AlteryxPythonSDK.RecordInfo()
+        self.record_info_out = AlteryxPythonSDK.RecordInfo(self.generic_engine)
 
         #
         # add the new field we'll be writing to in the output stream
