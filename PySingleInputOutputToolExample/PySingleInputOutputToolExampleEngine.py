@@ -3,13 +3,25 @@ import xml.etree.ElementTree as Et
 
 
 class AyxPlugin:
-    def __init__(self, n_tool_id, alteryx_engine, generic_engine, output_anchor_mgr):
-        """Initializing members that will be used."""
+    """
+    Implements the plugin interface methods, to be utilized by the Alteryx engine to communicate with a plugin.
+    Prefixed with "pi_", the Alteryx engine will expect the below five interface methods to be defined.
+
+    """
+    def __init__(self, n_tool_id: int, alteryx_engine: object, generic_engine: object, output_anchor_mgr: object):
+        """
+        Acts as the constructor for AyxPlugin.
+        :param n_tool_id: The assigned unique identification for a tool instance.
+        :param alteryx_engine: Provides an interface into the Alteryx engine.
+        :param generic_engine: An abstraction of alteryx_engine.
+        :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
+        """
 
         # Miscellaneous properties
         self.n_tool_id = n_tool_id
         self.name = str('PySingleInputOutputToolExample_') + str(self.n_tool_id)
-        self.initialized = False
+        self.single_input = None
+        self.n_record_select = None
 
         # Engine handles
         self.alteryx_engine = alteryx_engine
@@ -19,130 +31,157 @@ class AyxPlugin:
         self.output_anchor_mgr = output_anchor_mgr
         self.output_anchor = None
 
-        # Default configuration setting
-        self.n_record_select = None
-
-        # Record management properties
-        self.record_info_in = None
-        self.record_info_out = None
-        self.record_creator = None
-        self.record_copier = None
-        self.record_cnt = 0
-        pass
-
-    def pi_init(self, str_xml):
+    def pi_init(self, str_xml: str):
         """
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
         :param str_xml: The raw XML from the GUI.
-        :return: True
         """
         root = Et.fromstring(str_xml)
 
-        # Getting the dataName data property from the GUI config
+        # Getting the dataName data property from the Gui.html
         self.n_record_select = root.find('NRecords').text
 
         # Getting the output anchor from Config.xml by the output connection name
         self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
-        return True
 
-    def pi_add_incoming_connection(self, str_type, str_name):
+    def pi_add_incoming_connection(self, str_type: str, str_name: str):
         """
+        The IncomingInterface objects are instantiated here, one object per incoming connection.
         Called when the Alteryx engine is attempting to add an incoming data connection.
-        :param str_type: The type of each input connection.
-        :param str_name: A unique name for each input connection.
-        :return: Self, and a reference to an object.
+        :param str_type: The name of the input connection anchor, defined in the Config.xml file.
+        :param str_name: The name of the wire, defined by the workflow author.
+        :return: The IncomingInterface object(s).
         """
-        return self
+        self.single_input = IncomingInterface(self)
+        return self.single_input
 
-    def pi_add_outgoing_connection(self, str_name):
+    def pi_add_outgoing_connection(self, str_name: str):
         """
         Called when the Alteryx engine is attempting to add an outgoing data connection.
-        :param str_name: A unique name for each output connection.
-        :return: Boolean, where True signifies that the connection is accepted.
+        :param str_name: The name of the output connection anchor, defined in the Config.xml file.
+        :return: True signifies that the connection is accepted.
         """
         return True
 
-    def pi_push_all_records(self, n_record_limit):
+    def pi_push_all_records(self, n_record_limit: int):
         """
-        Called when the Alteryx engine when it's expecting the plugin to provide all of its data.
+        Called by the Alteryx engine for tools that have no incoming connection connected.
         Only pertinent to tools which have no upstream connections, like the Input tool.
         :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
-        :return: False
+        :return: True for success, False for failure.
         """
         self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, 'Missing Incoming Connection')
         return False
 
-    def pi_close(self, b_has_errors):
+    def pi_close(self, b_has_errors: bool):
         """
-        Called after all data has finished flowing through all the fields.
-        :param b_has_errors: Boolean; set to true to not do the final processing.
-        :return: Void
+        Called after all records have been processed..
+        :param b_has_errors: Set to true to not do the final processing.
         """
-        pass
 
-    def ii_init(self, record_info_in):
+        # Checks whether connections were properly closed.
+        self.output_anchor.assert_close()
+
+
+class IncomingInterface:
+    """
+    This class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be
+    utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
+    Prefixed with "ii_", the Alteryx engine will expect the below four interface methods to be defined.
+    """
+
+    def __init__(self, parent: object):
+        """
+        Acts as the constructor for AyxPlugin. Instance variable initializations should happen here for PEP8 compliance.
+        :param parent: AyxPlugin
+        """
+
+        # Miscellaneous properties
+        self.parent = parent
+
+        # Record management
+        self.record_info_in = None
+        self.record_info_out = None
+        self.record_cnt = 0
+        self.record_copier = None
+        self.record_creator = None
+
+    def ii_init(self, record_info_in: object):
         """
         Called when the incoming connection's record metadata is available or has changed, and
         has let the Alteryx engine know what its output will look like.
-        :param record_info_in: A RecordInfo object containing the XML representation for the incoming connection's field and sort properties.
-        :return: True
+        :param record_info_in: A RecordInfo object for the incoming connection's fields.
+        :return: True for success, otherwise False.
         """
+        # Storing for later use
         self.record_info_in = record_info_in
-        self.record_info_out = self.record_info_in
-        self.output_anchor.init(self.record_info_out)
+
+        # Returns a new, empty RecordCreator object that is identical to record_info_in.
+        self.record_info_out = self.record_info_in.clone()
+
+        # Lets the downstream tools know what the outgoing record metadata will look like, based on record_info_out.
+        self.parent.output_anchor.init(self.record_info_out)
+
+        # Creating a new, empty record creator based on record_info_out's record layout.
         self.record_creator = self.record_info_out.construct_record_creator()
+
+        # Instantiate a new instance of the RecordCopier class.
         self.record_copier = Sdk.RecordCopier(self.record_info_out, self.record_info_in)
 
         # Map each column of the input to where we want in the output
-        for idx in range(len(self.record_info_in)):
-            self.record_copier.add(idx, idx)
+        for index in range(self.record_info_in.num_fields):
+
+            # Adding a field index mapping.
+            self.record_copier.add(index, index)
+
+        # Let record copier know that all field mappings have been added.
         self.record_copier.done_adding()
-        self.initialized = True
         return True
 
-    def ii_push_record(self, in_record):
+    def ii_push_record(self, in_record: object):
         """
         Responsible for pushing records out, under a count limit set by the user in n_record_select.
         Called when an input record is being sent to the plugin.
         :param in_record: The data for the incoming record.
-        :return: Will return False if:
-          1. ii_init has not been initialized
-          2. ii_push_record calling limit has been reached.
-          3. There's a downstream error
+        :return: False if method calling limit (record_cnt) is hit.
         """
-        if not self.initialized:
-            return False
+
+        # Keeping track of the push record calls.
         self.record_cnt += 1
 
-        # Quit once n_record_select limit is reached
-        if self.record_cnt <= int(self.n_record_select):
-            self.record_creator.reset()
-            self.record_copier.copy(self.record_creator, in_record)
-            out_record = self.record_creator.finalize_record()
+        # Quit calling ii_push_record going forward once n_record_select limit is reached.
+        if self.record_cnt <= int(self.parent.n_record_select):
 
-            # Push the record and quit if there's a downstream error
-            if not self.output_anchor.push_record(out_record):
-                return False
+            # Push the record downstream
+            self.parent.output_anchor.push_record(in_record)
+
+            # Let the Alteryx engine know of the record count
+            self.parent.output_anchor.output_record_count(False)
         else:
             return False
         return True
 
-    def ii_update_progress(self, d_percent):
+    def ii_update_progress(self, d_percent: float):
         """
-        Called when the incoming connection is requesting that the plugin update its progress.
-        :param d_percent: Value between 0 and 1
-        :return: Void
+        Called when by the upstream tool to report what percentage of records have been pushed.
+        :param d_percent: Value between 0.0 and 1.0.
         """
-        self.alteryx_engine.output_tool_progress(self.n_tool_id, d_percent)
-        self.output_anchor.update_progress(d_percent)
-        pass
+
+        # Inform the Alteryx engine of the tool's progress.
+        self.parent.alteryx_engine.output_tool_progress(self.parent.n_tool_id, d_percent)
+
+        # Inform the outgoing connections of the tool's progress.
+        self.parent.output_anchor.update_progress(d_percent)
 
     def ii_close(self):
         """
         Called when the incoming connection has finished passing all of its records.
-        :return: Void
         """
-        self.output_anchor.close()
-        pass
+
+        # Let Alteryx engine know that all records have been sent downstream.
+        self.parent.output_anchor.output_record_count(True)
+
+        # Close outgoing connections.
+        self.parent.output_anchor.close()
 
 
