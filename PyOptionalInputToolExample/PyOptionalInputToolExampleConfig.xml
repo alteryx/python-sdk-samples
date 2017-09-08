@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <AlteryxJavaScriptPlugin>
-  <EngineSettings EngineDll="Python" EngineDllEntryPoint="PyOptionalInputExample.py" SDKVersion="10.1" />
-  <GuiSettings Html="PyOptionalInputExampleGui.html" Icon="PyOptionalInputExample.png" Help="PythonSDKExample.htm" SDKVersion="10.1">
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="PyOptionalInputToolExampleEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="PyOptionalInputToolExampleGui.html" Icon="PyOptionalInputToolExampleIcon.png" Help="PythonSDKExampleToolExample.htm" SDKVersion="10.1">
     <InputConnections>
       <Connection Name="Input" AllowMultiple="False" Optional="True" Type="Connection" Label=""/>
     </InputConnections>
@@ -11,9 +11,9 @@
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>PyOptionalInputExample</Name>
+      <Name>OptionalInputToolExample</Name>
       <Description>Adds a field that counts as specified or if no input is present, creates a field. This is an example tool that was created using the HTML GUI SDK and the Python SDK.</Description>
-      <CategoryName>Laboratory</CategoryName>
+      <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, recordid, record, id, python sdk</SearchTags>
     </MetaInfo>
   </Properties>

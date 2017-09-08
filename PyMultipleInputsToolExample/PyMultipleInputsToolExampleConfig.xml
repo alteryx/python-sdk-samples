@@ -12,9 +12,9 @@
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>Python Multi-Input</Name>
+      <Name>MultipleInputsToolExample</Name>
       <Description>An example Python plugin tool that supports multiple inputs. This tool checks to see if the data in the input streams are binary compatible, and also checks whether each pair index has the same type, size, and scale.</Description>
-      <CategoryName>Laboratory</CategoryName>
+      <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, python sdk</SearchTags>
     </MetaInfo>
   </Properties>
