@@ -8,6 +8,7 @@ class AyxPlugin:
     Prefixed with "pi_", the Alteryx engine will expect the below five interface methods to be defined.
 
     """
+
     def __init__(self, n_tool_id: int, alteryx_engine: object, generic_engine: object, output_anchor_mgr: object):
         """
         Acts as the constructor for AyxPlugin.
@@ -22,6 +23,9 @@ class AyxPlugin:
         self.name = str('PySingleInputOutputToolExample_') + str(self.n_tool_id)
         self.single_input = None
         self.n_record_select = None
+        self.field_selection = None
+        self.order_selection = None
+        self.xml_sort_info = ''
 
         # Engine handles
         self.alteryx_engine = alteryx_engine
@@ -36,10 +40,27 @@ class AyxPlugin:
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
         :param str_xml: The raw XML from the GUI.
         """
-        root = Et.fromstring(str_xml)
 
-        # Getting the dataName data property from the Gui.html
-        self.n_record_select = root.find('NRecords').text
+        try:  # Getting the dataName data property from the Gui.html
+            self.n_record_select = Et.fromstring(str_xml).find('NRecords').text
+            self.field_selection = Et.fromstring(str_xml).find('FieldSelect').text
+            self.order_selection = Et.fromstring(str_xml).find('OrderType').text
+        except AttributeError:
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, xmsg('Invalid XML: ' + str_xml))
+            raise
+
+        # In order to sort by a field, an XML string will need to be built to pass into pre_sort(), as such:
+        #
+        # <SortInfo>
+        #   <Field field = "SortField1" order = "Asc" />
+        # </SortInfo>
+        #
+
+        # Building out the <SortInfo>
+        if self.order_selection == "asc":
+            self.build_sort_info("SortInfo", self.field_selection, "Asc")
+        elif self.order_selection == "desc":
+            self.build_sort_info("SortInfo", self.field_selection, "Desc")
 
         # Getting the output anchor from Config.xml by the output connection name
         self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
@@ -52,6 +73,8 @@ class AyxPlugin:
         :param str_name: The name of the wire, defined by the workflow author.
         :return: The IncomingInterface object(s).
         """
+
+        self.alteryx_engine.pre_sort(str_type, str_name, self.xml_sort_info)
         self.single_input = IncomingInterface(self)
         return self.single_input
 
@@ -61,6 +84,7 @@ class AyxPlugin:
         :param str_name: The name of the output connection anchor, defined in the Config.xml file.
         :return: True signifies that the connection is accepted.
         """
+
         return True
 
     def pi_push_all_records(self, n_record_limit: int):
@@ -70,7 +94,8 @@ class AyxPlugin:
         :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
         :return: True for success, False for failure.
         """
-        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, 'Missing Incoming Connection')
+
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, xmsg('Missing Incoming Connection'))
         return False
 
     def pi_close(self, b_has_errors: bool):
@@ -82,6 +107,33 @@ class AyxPlugin:
         # Checks whether connections were properly closed.
         self.output_anchor.assert_close()
 
+    def build_sort_info(self, element: str, subelement: property, order: str):
+        """
+        A non-interface method.
+        Responsible for building out the proper XML string format for pre_sort.
+        :param element: SortInfo or FieldFilterList
+        :param subelement: The user selected field
+        :param order: Asc or Desc
+        """
+
+        # Building the XML string to pass as an argument to pre_sort's sort info parameter.
+        root = Et.Element(element)
+        sub_element = 'Field field="{0}" order="{1}"' if order != "" else 'Field field="{0}"'
+        Et.SubElement(root, sub_element.format(subelement, order))
+        xml_string = Et.tostring(root, encoding='utf8', method='xml')
+        # Decode to string and remove the excess xml info
+        self.xml_sort_info += xml_string.decode('utf8').replace("<?xml version='1.0' encoding='utf8'?>\n", "")
+
+    @staticmethod
+    def xmsg(msg_string: str):
+        """
+        A non-interface, non-operational placeholder for the eventual localization of predefined user-facing strings.
+        :param msg_string: The user-facing string.
+        :return: msg_string
+        """
+
+        return msg_string
+
 
 class IncomingInterface:
     """
@@ -92,7 +144,7 @@ class IncomingInterface:
 
     def __init__(self, parent: object):
         """
-        Acts as the constructor for AyxPlugin. Instance variable initializations should happen here for PEP8 compliance.
+        Acts as the constructor for IncomingInterface. Instance variable initializations should happen here for PEP8 compliance.
         :param parent: AyxPlugin
         """
 
@@ -113,6 +165,7 @@ class IncomingInterface:
         :param record_info_in: A RecordInfo object for the incoming connection's fields.
         :return: True for success, otherwise False.
         """
+
         # Storing for later use
         self.record_info_in = record_info_in
 
@@ -128,7 +181,7 @@ class IncomingInterface:
         # Instantiate a new instance of the RecordCopier class.
         self.record_copier = Sdk.RecordCopier(self.record_info_out, self.record_info_in)
 
-        # Map each column of the input to where we want in the output
+        # Map each column of the input to where we want in the output.
         for index in range(self.record_info_in.num_fields):
 
             # Adding a field index mapping.

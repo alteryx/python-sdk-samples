@@ -9,20 +9,54 @@
 </head>
 <body>
   <form>
+  
     <fieldset>
-      <legend class='blueTitle'>XMSG("Top N Records")</legend>
-      <div class=''>
-        <label>XMSG("Number of Records")</label>
-        <ayx data-ui-props="{type: 'NumericSpinner', widgetId: 'ns'}" data-item-props="{dataName: 'NRecords'}"></ayx>
-      </div>
-    </fieldset>
+		<legend class='blueTitle'>XMSG("Top N Records")</legend>
+		<div>
+			<label>XMSG("Select the number of records:")</label>
+			<ayx data-ui-props = "{type: 'NumericSpinner', widgetId: 'ns'}" data-item-props = "{dataName: 'NRecords'}"></ayx>
+		</div>
+	</fieldset>
+	
+	</br>
+	
+	<fieldset>
+		<legend class='blueTitle'>XMSG("Sort Incoming Data (Optional)")</legend>
+		<div>
+			<label>XMSG("Select a field to order by:")</label>
+			<ayx data-ui-props = "{type: 'DropDown'}" data-item-props =
+				"{
+				  dataName: 'FieldSelect',
+				  dataType: 'FieldSelector',
+				  anchorIndex:'0',
+				  connectionIndex:'0'
+				}"
+			>
+			</ayx>
+		</div>
+			<label>XMSG("Select the order:")</label>
+			<ayx data-ui-props = "{type: 'RadioGroup', widgetId: 'RadioGroup1'}" data-item-props = "{dataName: 'OrderType'}"></ayx>
+		</div>
+	</fieldset>
+    
   </form>
   <script type="text/javascript">
     Alteryx.Gui.BeforeLoad = (manager, AlteryxDataItems, json) => {
+	
       const constrainedNumberDataItem = new AlteryxDataItems.ConstrainedInt('NRecords', {min: 0})
       manager.addDataItem(constrainedNumberDataItem)
       manager.bindDataItemToWidget(constrainedNumberDataItem, 'ns')
-    }
+	  
+      const operationSelectRadioGroup = new AlteryxDataItems.StringSelector('OrderType', {
+        optionList: [
+          {label: 'Descending', value: 'desc'},
+          {label: 'Ascending', value: 'asc'}
+        ]
+      })
+      manager.addDataItem(operationSelectRadioGroup)
+      manager.bindDataItemToWidget(operationSelectRadioGroup, 'RadioGroup1')
+	  
+    }	
   </script>
   <style>
   </style>
