@@ -11,10 +11,10 @@
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>OptionalOutputToolExample</Name>
-      <Description>Write log messages to output window.</Description>
+      <Name>Optional Output Python</Name>
+      <Description>Choose the option to output data to downstream tools or as a .csv file.</Description>
       <CategoryName>SDK Examples</CategoryName>
-      <SearchTags>python, sdk, python sdk, message</SearchTags>
+      <SearchTags>python, sdk, python sdk, optional output</SearchTags>
     </MetaInfo>
   </Properties>
 </AlteryxJavaScriptPlugin>
