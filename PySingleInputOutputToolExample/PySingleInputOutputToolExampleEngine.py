@@ -23,8 +23,6 @@ class AyxPlugin:
         self.name = str('PySingleInputOutputToolExample_') + str(self.n_tool_id)
         self.single_input = None
         self.n_record_select = None
-        self.field_selection = None
-        self.order_selection = None
         self.xml_sort_info = ''
 
         # Engine handles
@@ -43,8 +41,8 @@ class AyxPlugin:
 
         try:  # Getting the dataName data property from the Gui.html
             self.n_record_select = Et.fromstring(str_xml).find('NRecords').text
-            self.field_selection = Et.fromstring(str_xml).find('FieldSelect').text
-            self.order_selection = Et.fromstring(str_xml).find('OrderType').text
+            field_selection = Et.fromstring(str_xml).find('FieldSelect').text
+            order_selection = Et.fromstring(str_xml).find('OrderType').text
         except AttributeError:
             self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, xmsg('Invalid XML: ' + str_xml))
             raise
@@ -57,10 +55,7 @@ class AyxPlugin:
         #
 
         # Building out the <SortInfo>
-        if self.order_selection == "asc":
-            self.build_sort_info("SortInfo", self.field_selection, "Asc")
-        elif self.order_selection == "desc":
-            self.build_sort_info("SortInfo", self.field_selection, "Desc")
+        self.build_sort_info("SortInfo", field_selection, order_selection)
 
         # Getting the output anchor from Config.xml by the output connection name
         self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
@@ -210,6 +205,7 @@ class IncomingInterface:
 
             # Let the Alteryx engine know of the record count
             self.parent.output_anchor.output_record_count(False)
+
         else:
             return False
         return True
