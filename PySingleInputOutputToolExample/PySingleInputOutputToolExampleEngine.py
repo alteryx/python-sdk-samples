@@ -149,15 +149,8 @@ class IncomingInterface:
         :param parent: AyxPlugin
         """
 
-        # Miscellaneous properties
         self.parent = parent
-
-        # Record management
-        self.record_info_in = None
-        self.record_info_out = None
         self.record_cnt = 0
-        self.record_copier = None
-        self.record_creator = None
 
     def ii_init(self, record_info_in: object):
         """
@@ -167,29 +160,12 @@ class IncomingInterface:
         :return: True for success, otherwise False.
         """
 
-        # Storing for later use
-        self.record_info_in = record_info_in
-
         # Returns a new, empty RecordCreator object that is identical to record_info_in.
-        self.record_info_out = self.record_info_in.clone()
+        record_info_out = record_info_in.clone()
 
         # Lets the downstream tools know what the outgoing record metadata will look like, based on record_info_out.
-        self.parent.output_anchor.init(self.record_info_out)
+        self.parent.output_anchor.init(record_info_out)
 
-        # Creating a new, empty record creator based on record_info_out's record layout.
-        self.record_creator = self.record_info_out.construct_record_creator()
-
-        # Instantiate a new instance of the RecordCopier class.
-        self.record_copier = Sdk.RecordCopier(self.record_info_out, self.record_info_in)
-
-        # Map each column of the input to where we want in the output.
-        for index in range(self.record_info_in.num_fields):
-
-            # Adding a field index mapping.
-            self.record_copier.add(index, index)
-
-        # Let record copier know that all field mappings have been added.
-        self.record_copier.done_adding()
         return True
 
     def ii_push_record(self, in_record: object):
