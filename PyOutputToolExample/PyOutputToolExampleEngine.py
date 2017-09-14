@@ -17,18 +17,18 @@ class AyxPlugin:
         :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
         """
 
-        # miscellaneous variables
+        # Miscellaneous variables
         self.n_tool_id = n_tool_id
         self.name = str('PyOutputToolExample_') + str(self.n_tool_id)
         self.closed = False
         self.initialized = False
 
-        # engine handles
+        # Engine handles
         self.alteryx_engine = engine_interface
         self.generic_engine = generic_engine
 
 
-        # custom members
+        # Custom members
         self.str_file_path = None
 
     def pi_init(self, str_xml: str):
@@ -36,10 +36,15 @@ class AyxPlugin:
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
         :param str_xml: The raw XML from the GUI.
         """
+
+        # Extracting configuration xml
         root = ET.fromstring(str_xml)
 
-        # Getting the dataName data property from the Gui.html
-        self.str_file_path = root.find('fileOutputPath').text
+        try: # Finding the dataName property from the Gui.html that matches the child node
+            self.str_file_path = root.find('fileOutputPath').text
+        except AttributeError:
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, xmsg('Invalid XML: ' + str_xml))
+            raise
 
         self.initialized = True
 
@@ -77,7 +82,6 @@ class AyxPlugin:
         Called after all records have been processed..
         :param b_has_errors: Set to true to not do the final processing.
         """
-        return
 
     @staticmethod
     def xmsg(msg_string: str):
@@ -98,7 +102,7 @@ class IncomingInterface:
 
     def __init__(self, parent: object):
         """
-        Acts as the constructor for Incoming Interface. Instance variable initializations should happen here for PEP8 compliance.
+        Acts as the constructor for IncomingInterface. Instance variable initializations should happen here for PEP8 compliance.
         :param parent: AyxPlugin
         """
 
@@ -108,9 +112,10 @@ class IncomingInterface:
         # Record management
         self.record_info_in = None
 
-        # custom members
+        # Custom members
         self.field_names = None
-        self.all_records = ''
+        self.testfile = ''
+        self.first_record = True
 
     def ii_init(self, record_info_in):
         """
@@ -120,17 +125,23 @@ class IncomingInterface:
         :return: True for success, otherwise False.
         """
 
-        # Storing the argument being passed to record_info_in parameter
+        # Storing the argument being passed to the record_info_in parameter
         self.record_info_in = record_info_in
 
-        # extracting all the field names from record_info_in to a list in self.field_names
+        # Extracting all the field names from record_info_in to a list
         self.field_names = ','.join([field.name for field in record_info_in])
 
         # Deleting the newline characters in field names if they exist
         self.field_names = self.field_names.replace('\n', '')
 
-        self.initialized = True
+        if (self.parent.str_file_path is None):
+            # Outputting Error message if no path is entered
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Error: Please enter a file path.'))
+        elif os.access(self.parent.str_file_path, os.F_OK):
+            # Outputting Error message if user specified file already exists
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Error: ' + self.parent.str_file_path + ' already exists. Please enter a different path.'))
 
+            self.initialized = True
         return True
 
     def ii_push_record(self, in_record):
@@ -139,8 +150,7 @@ class IncomingInterface:
          :param in_record: The data for the incoming record.
          :return: True for accepted record.
          """
-        if self.initialized is not True:
-            return False
+        
         # extract_records extracts each record for every field object passed in as a string from record_in
         def extract_records(field, in_record):
             if field.get_null(in_record):
@@ -159,11 +169,20 @@ class IncomingInterface:
                 ret = field.get_as_string(in_record)
             return ret
 
-        # looping through null_to_str for each field in record_info_in to get a list of data points for the nth record
-        all_records = ','.join([extract_records(field, in_record) for field in self.record_info_in])
+        # looping through extract_records for each field in record_info_in to get a list of data points for the nth record
+        nth_record = ','.join([extract_records(field, in_record) for field in self.record_info_in])
 
-        # Appending each record in csv format to self.all_records
-        self.all_records += all_records + ' \n'
+        # Using Python's native file write functionality to write each record to the users specified file path
+        self.testfile = open(self.parent.str_file_path, 'a')
+
+        # Writing the field names out on the first record iteration
+        if self.first_record == True:
+            self.testfile.write(self.field_names + '\n' + nth_record)
+            self.first_record = False
+            self.testfile.close()
+        else:
+            self.testfile.write('\n' + nth_record)
+            self.testfile.close()
 
         return True
 
@@ -176,30 +195,12 @@ class IncomingInterface:
         # Inform the Alteryx engine of the tool's progress.
         self.parent.alteryx_engine.output_tool_progress(self.parent.n_tool_id, d_percent)
 
-        return
-
-
     def ii_close(self):
         """
         Called when the incoming connection has finished passing all of its records.
         """
-        if (self.parent.str_file_path == None):
 
-            # Outputting Error message if no path is entered
-            self.parent.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Error: Please enter a file path.'))
-        else:
-            if (self.all_records != ''):
-                if os.access(self.parent.str_file_path, os.F_OK):
-                    # Outputting Error message if user specified file already exists
-                    self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Error: ' + self.parent.str_file_path + ' already exists. Please enter a different path.'))
-
-                else:
-                    # Using Python's native file write functionality to write all the data stored in all_records the users specified file path
-                    with open(self.parent.str_file_path, 'a') as testfile:
-                        testfile.write(self.field_names + '\n' + self.all_records)
-                        testfile.close()
-
-                        # Outputting message that the file was written
-                        message = 'Output: ' + self.parent.str_file_path + ' was written.'
-                        self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.info, self.parent.xmsg(message))
-        return
+        if (self.parent.str_file_path is not None):
+            # Outputting message that the file was written
+            message = 'Output: ' + self.parent.str_file_path + ' was written.'
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.info, self.parent.xmsg(message))
