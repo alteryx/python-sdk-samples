@@ -1,206 +1,288 @@
 import AlteryxPythonSDK as Sdk
 import xml.etree.ElementTree as Et
+import itertools as it
+import time
 
 
-class NonInterface:
-    def __init__(self):
-        self.xml_out = None
-        self.hash_right = None
-        self.hash_left = None
-        self.fields_right = []
-        self.fields_left = []
+class AyxPlugin:
+    """
+    Implements the plugin interface methods, to be utilized by the Alteryx engine to communicate with a plugin.
+    Prefixed with "pi_", the Alteryx engine will expect the below five interface methods to be defined.
 
-    @property
-    def is_compatible(self):
-        # Returns true if same pattern of zeroes and ones in the data sets
-        if self.hash_left == self.hash_right:
-            return True
-        else:
-            return False
+    """
+    def __init__(self, n_tool_id: int, alteryx_engine: object, generic_engine: object, output_anchor_mgr: object):
+        """
+        Acts as the constructor for AyxPlugin.
+        :param n_tool_id: The assigned unique identification for a tool instance.
+        :param alteryx_engine: Provides an interface into the Alteryx engine.
+        :param generic_engine: An abstraction of alteryx_engine.
+        :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
+        """
 
-    def is_equal(self, index: int):
-        # Returns true if the `other_field` argument has the same type, size, and scale as this field.
-        return Sdk.Field.equal_type(self.fields_right[index], self.fields_left[index])
-
-    def validate_inputs(self, left_count: int, right_count: int):
-        if left_count != right_count:
-            raise self.__alteryx_engine.output_message(
-                self.__n_tool_id,
-                Sdk.EngineMessageType.error,
-                'Both inputs must have the same number of fields.'
-            )
-        pass
-
-    @property
-    def __xml_out(self):
-        return self.xml_out
-
-    @__xml_out.setter
-    def __xml_out(self, xml_string: str):
-        self.xml_out = xml_string
-        pass
-
-    @staticmethod
-    def change_to_bool(xml_string: str):
-        root = Et.fromstring(xml_string)
-        for field in root.iter('Field'):
-            field.set('type', 'Bool')
-            field.set('size', '1')
-        return Et.tostring(root, encoding='utf8', method='xml').decode('utf8')
-
-
-class AyxPlugin(NonInterface):
-    def __init__(self, n_tool_id, alteryx_engine, generic_engine, output_anchor_mgr):
-        """Initializing members that will be used."""
-        super().__init__()
-        self.__n_tool_id = n_tool_id
-        self.name = str('PyMultiInput_') + str(self.__n_tool_id)
-        self.__alteryx_engine = alteryx_engine
-        self.__generic_engine = generic_engine
-        self.__output_anchor_mgr = output_anchor_mgr
-        self.output_anchor = None
+        # Miscellaneous properties
+        self.n_tool_id = n_tool_id
+        self.name = 'PyMultiInput_' + str(self.n_tool_id)
+        self.left_input = None
+        self.right_input = None
+        self.left_prefix = ''
+        self.right_prefix = ''
         self.record_info_out = None
         self.record_creator = None
-        self.is_left = True  # flag for distinguishing input flow
-        pass
 
-    def pi_init(self, str_xml):
+        # Engine handles
+        self.alteryx_engine = alteryx_engine
+        self.generic_engine = generic_engine
+
+        # Output anchor management
+        self.output_anchor_mgr = output_anchor_mgr
+        self.output_anchor = None
+
+    def pi_init(self, str_xml: str):
         """
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
-        :param str_xml: The raw XML from the GUI
-        :return: Void
+        :param str_xml: The raw XML from the GUI.
         """
+
+        # Getting the text from the below attributes
+        self.left_prefix = Et.fromstring(str_xml).find('LeftPrefix').text
+        self.right_prefix = Et.fromstring(str_xml).find('RightPrefix').text
+
         # Getting the output anchor from Config.xml by the output connection name
-        self.output_anchor = self.__output_anchor_mgr.get_output_anchor('Output')
-        pass
+        self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
 
-    def pi_add_incoming_connection(self, str_type, str_name):
+    def pi_add_incoming_connection(self, str_type: str, str_name: str):
         """
+        The IncomingInterface objects are instantiated here, one object per incoming connection.
         Called when the Alteryx engine is attempting to add an incoming data connection.
-        :param str_type: The type of each input connection.
-        :param str_name: A unique name for each input connection.
-        :return: Self, and a reference to an object.
+        :param str_type: The name of the input connection anchor, defined in the Config.xml file.
+        :param str_name: The name of the wire, defined by the workflow author.
+        :return: The IncomingInterface object(s).
         """
-        return self
 
-    def pi_add_outgoing_connection(self, str_name):
+        if str_type == 'Left':
+            self.left_input = IncomingInterface(self)
+            return self.left_input
+        else:
+            self.right_input = IncomingInterface(self)
+            return self.right_input
+
+    def pi_add_outgoing_connection(self, str_name: str):
         """
         Called when the Alteryx engine is attempting to add an outgoing data connection.
-        :param str_name: A unique name for each output connection.
-        :return: Boolean, where True signifies that the connection is accepted.
+        :param str_name: The name of the output connection anchor, defined in the Config.xml file.
+        :return: True signifies that the connection is accepted.
         """
+
         return True
 
-    def pi_push_all_records(self, n_record_limit):
+    def pi_push_all_records(self, n_record_limit: int):
         """
-        Called when the Alteryx engine when it's expecting the plugin to provide all of its data.
+        Called by the Alteryx engine for tools that have no incoming connection connected.
         Only pertinent to tools which have no upstream connections, like the Input tool.
         :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
-        :return: False
+        :return: True for success, False for failure.
         """
-        self.__alteryx_engine.output_message(self.__n_tool_id, Sdk.EngineMessageType.error, 'Misssing Incoming Connection')
-        return False
-        
-    def pi_close(self, b_has_errors):
-        """
-        Called after all data has finished flowing through all the fields.
-        :param b_has_errors: Boolean; set to true to not do the final processing.
-        :return: Void
-        """
-        self.output_anchor.assert_close()
-        pass
-        
-    def ii_init(self, record_info_in):
-        """
-        For each connection:
-            1) Handles hash extraction from the data
-            2) Stores the references of each record_info_in field into an array
-            3) Building out the data structure layout for the record_info_out reference
-        Called when the incoming connection's record metadata is available or has changed, and
-        :param record_info_in: A RecordInfo object containing the XML representation for the incoming connection's field and sort properties.
-        :return: True
-        """
-        if self.is_left:
-            self.hash_left = record_info_in.get_hash()
-            
-            for field in range(record_info_in.__len__()):
-                self.fields_left.append(record_info_in[field])
-            
-            self.__xml_out = str(record_info_in.get_record_xml_meta_data(False)).replace('</RecordInfo>', '')
-        else:
-            self.hash_right = record_info_in.get_hash()
-            
-            for field in range(record_info_in.__len__()):
-                self.fields_right.append(record_info_in[field])
-                
-            # check to see if same number of fields for both connections
-            self.validate_inputs(len(self.fields_left), len(self.fields_right))
-            
-            self.__xml_out += str(record_info_in.get_record_xml_meta_data(False)).replace('<RecordInfo>', '')
-            self.__xml_out = self.__xml_out.replace('</RecordInfo>', '<Field name="IsBinaryCompatible" size="1" type="Bool"/></RecordInfo>')        
-            self.__xml_out = self.__xml_out.replace('\n', '').replace('\t', '')
-            self.__xml_out = self.change_to_bool(self.__xml_out)        
-        
-            self.record_info_out = Sdk.RecordInfo(self.__generic_engine)
-            self.record_info_out.init_from_xml(self.__xml_out, '')
-            self.record_creator = self.record_info_out.construct_record_creator()
-            self.output_anchor.init(self.record_info_out)
-        return True
-        
-    def ii_push_record(self, in_record):
-        """
-        Responsible for pushing out the evaluated boolean results for both the is_equal() and is_compatible() custom tests
-        :param in_record: The data for the incoming record.
-        :return: False
-        """
-        if self.is_left:
-            return False
-        else:
-            self.record_creator.reset()
 
-            for field in range(len(self.fields_right)):
-                self.record_info_out[field].set_from_bool(
-                    self.record_creator,
-                    self.is_equal(field)
-                )
-                # the above's index couple
-                self.record_info_out[field + len(self.fields_right)].set_from_bool(
-                    self.record_creator,
-                    self.is_equal(field)
-                )
-            
-            # very last include binary compatible
-            self.record_info_out[len(self.fields_right) + len(self.fields_left)].set_from_bool(
-                self.record_creator,
-                self.is_compatible
-            )
-            
-            out_record = self.record_creator.finalize_record()
-            self.output_anchor.push_record(out_record)
-            return False
-        
-    def ii_update_progress(self, d_percent):
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, xmsg('Misssing Incoming Connection'))
+        return False
+
+    def pi_close(self, b_has_errors: bool):
         """
-        Called when the incoming connection is requesting that the plugin update its progress.
-        :param d_percent: Value between 0 and 1
-        :return: Void
+        Called after all records have been processed..
+        :param b_has_errors: Set to true to not do the final processing.
         """
-        if self.is_left:
-            pass
+
+        # Checks whether connections were properly closed.
+        self.output_anchor.assert_close()
+
+    def check_input_complete(self):
+        """
+        Helper to verify end of processing for both incoming connections.
+        """
+        if self.right_input.input_complete and self.left_input.input_complete:
+            self.process_output()
+
+    def setup_record_copier(self, child: object, start_index: int):
+        """
+        Prepares the outgoing stream's meta data by copying the incoming meta data from both input streams
+        :param child: One of the incoming connection objects.
+        :param start_index: The starting field position of one of the incoming connection objects.
+        :return: The starting field position for the next incoming connection object.
+        """
+        child.record_copier = Sdk.RecordCopier(self.record_info_out, child.record_info_in)
+        for index in range(child.record_info_in.num_fields):
+            child.record_copier.add(start_index + index, index)
+        child.record_copier.done_adding()
+        return child.record_info_in.num_fields
+
+    def process_output(self):
+        """
+        Responsible for creating the record_info_out object, mapping the records, pushing the records out, and updating
+        output's progress and also what the percentage progress displayed in designer.
+        """
+
+        # ====================================================
+        # Output progress stuff ==============================
+        total_records = max(len(self.left_input.record_list),len(self.right_input.record_list))
+        num_records_output = 0
+        # ====================================================
+
+        # Building the RecordInfo object for the outgoing stream.
+        self.record_info_out = Sdk.RecordInfo(self.generic_engine)
+        self.record_info_out.init_from_xml(self.left_input.record_info_in.get_record_xml_meta_data(True),
+                                           self.left_prefix + '_' if self.left_prefix is not None else '')
+        self.record_info_out.init_from_xml(self.right_input.record_info_in.get_record_xml_meta_data(),
+                                           self.right_prefix + '_' if self.right_prefix is not None else '')
+
+        # Lets the downstream tools know what the outgoing record metadata will look like, based on record_info_out.
+        self.output_anchor.init(self.record_info_out)
+
+        # Helper function to handle the field index mapping from both incoming streams, into record_info_out.
+        start_index = self.setup_record_copier(self.left_input, 0)
+        self.setup_record_copier(self.right_input, start_index)
+
+        # Creating a new, empty record creator based on record_info_out's record layout.
+        self.record_creator = self.record_info_out.construct_record_creator()
+
+        # Having the shortest list be the first to output, so set_dest_to_null is applied only for the first copy,
+        # when dealing with an uneven record pair. This swap process will enventually be replaced in subsequent releases.
+        if len(self.left_input.record_list) == min(len(self.left_input.record_list), len(self.right_input.record_list)):
+            go_first_input = self.left_input
         else:
-            self.__alteryx_engine.output_tool_progress(self.__n_tool_id, d_percent)
-            self.output_anchor.update_progress(d_percent)
-            pass
+            go_first_input = self.right_input
+        if go_first_input == self.left_input:
+            go_second_input = self.right_input
+        else:
+            go_second_input = self.left_input
+
+        start_process_time = time.clock()
+
+        # Using zip_longest() to allow for uneven incoming streams. Returns an iterator.
+        for input_pair in it.zip_longest(go_first_input.record_list, go_second_input.record_list):
+
+            # Resets the capacity for variable-length data in this record to 0 bytes, to prevent unexpected results.
+            self.record_creator.reset(0)
+
+            # Copying the reference to a record into the record creator. Field mappings must match both field layouts.
+            # NULL values will be used to fill for the uneven number of records, using set_dest_to_null()
+            if input_pair[0] is not None:
+                go_first_input.record_copier.copy(self.record_creator, input_pair[0].finalize_record())
+            else:
+                go_first_input.record_copier.set_dest_to_null(self.record_creator)
+            go_second_input.record_copier.copy(self.record_creator, input_pair[1].finalize_record())
+
+            # Return the reference to a record containing the data for the record
+            output_records = self.record_creator.finalize_record()
+
+            # Push the record downstream
+            self.output_anchor.push_record(output_records)
+
+            # ====================================================
+            # Output progress stuff ==============================
+            num_records_output += 1
+            output_progress = num_records_output/total_records
+
+            # Only update once per the below seconds
+            if round((time.clock() - start_process_time), 1) % 2.5 == 0:
+                self.alteryx_engine.output_tool_progress(self.n_tool_id, ((1 + output_progress) / 2))
+
+            self.output_anchor.update_progress(output_progress)
+            # ====================================================
+
+        # Close outgoing connections.
+        self.output_anchor.close()
+
+    def process_update_input_progress(self):
+        """
+        Update progress based on records received from the inputs.
+        """
+
+        # We're assuming receiving the input data accounts for half the progress
+        input_percent = (self.right_input.d_progress_percentage + self.left_input.d_progress_percentage) / 2
+        self.alteryx_engine.output_tool_progress(self.n_tool_id, input_percent / 2 )
+
+    @staticmethod
+    def xmsg(msg_string: str):
+        """
+        A non-interface, non-operational placeholder for the eventual localization of predefined user-facing strings.
+        :param msg_string: The user-facing string.
+        :return: msg_string
+        """
+
+        return msg_string
+
+
+class IncomingInterface:
+    """
+    This class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be
+    utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
+    Prefixed with "ii_", the Alteryx engine will expect the below four interface methods to be defined.
+    """
+
+    def __init__(self, parent: object):
+        """
+        Acts as the constructor for IncomingInterface. Instance variable initializations should happen here for PEP8 compliance.
+        :param parent: AyxPlugin
+        """
+
+        # Miscellaneous properties
+        self.parent = parent
+        self.input_complete = False
+        self.d_progress_percentage = 0
+
+        self.record_info_in = None
+        self.record_list = []
+        self.record_copier = None
+
+    def ii_init(self, record_info_in: object):
+        """
+        Called when the incoming connection's record metadata is available or has changed, and
+        has let the Alteryx engine know what its output will look like.
+        :param record_info_in: A RecordInfo object for the incoming connection's fields.
+        :return: True for success, otherwise False.
+        """
+
+        # Instantiate a new instance of the RecordCopier class.
+        self.record_copier = Sdk.RecordCopier(record_info_in, record_info_in)
+
+        # Map each column of the input to where we want in the output.
+        for index in range(record_info_in.num_fields):
+
+            # Adding a field index mapping.
+            self.record_copier.add(index, index)
+
+        # Let record copier know that all field mappings have been added.
+        self.record_copier.done_adding()
+
+        # Storing for later use
+        self.record_info_in = record_info_in
+        return True
+
+    def ii_push_record(self, in_record: object):
+        """
+        Responsible for pushing records out, under a count limit set by the user in n_record_select.
+        Called when an input record is being sent to the plugin.
+        :param in_record: The data for the incoming record.
+        :return: False if method calling limit (record_cnt) is hit.
+        """
+
+        self.record_list.append(self.record_info_in.construct_record_creator())
+        self.record_copier.copy(self.record_list[-1], in_record)
+        return True
+
+    def ii_update_progress(self, d_percent: float):
+        """
+        Called when by the upstream tool to report what percentage of records have been pushed.
+        :param d_percent: Value between 0.0 and 1.0.
+        """
+
+        self.d_progress_percentage = d_percent
+        self.parent.process_update_input_progress()
 
     def ii_close(self):
         """
-        Responsible for setting the stream flow to focus on the right input
         Called when the incoming connection has finished passing all of its records.
-        :return: Void
         """
-        if self.is_left:
-            self.is_left = not self.is_left
-        else:
-            self.output_anchor.close()
-        pass
 
+        self.input_complete = True
+        self.parent.check_input_complete()
