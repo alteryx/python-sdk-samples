@@ -150,7 +150,7 @@ class IncomingInterface:
          :param in_record: The data for the incoming record.
          :return: True for accepted record.
          """
-        
+
         # extract_records extracts each record for every field object passed in as a string from record_in
         def extract_records(field, in_record):
             if field.get_null(in_record):
@@ -176,7 +176,7 @@ class IncomingInterface:
         self.testfile = open(self.parent.str_file_path, 'a')
 
         # Writing the field names out on the first record iteration
-        if self.first_record == True:
+        if self.first_record:
             self.testfile.write(self.field_names + '\n' + nth_record)
             self.first_record = False
             self.testfile.close()
