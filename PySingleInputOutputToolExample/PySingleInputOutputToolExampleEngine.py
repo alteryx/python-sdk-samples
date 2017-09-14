@@ -24,6 +24,7 @@ class AyxPlugin:
         self.single_input = None
         self.n_record_select = None
         self.xml_sort_info = ''
+        self.do_sort = False
 
         # Engine handles
         self.alteryx_engine = alteryx_engine
@@ -47,15 +48,19 @@ class AyxPlugin:
             self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, xmsg('Invalid XML: ' + str_xml))
             raise
 
-        # In order to sort by a field, an XML string will need to be built to pass into pre_sort(), as such:
-        #
-        # <SortInfo>
-        #   <Field field = "SortField1" order = "Asc" />
-        # </SortInfo>
-        #
+        if field_selection is not None:
+            self.do_sort = True
 
-        # Building out the <SortInfo>
-        self.build_sort_info("SortInfo", field_selection, order_selection)
+        if self.do_sort:
+            # In order to sort by a field, an XML string will need to be built to pass into pre_sort(), as such:
+            #
+            # <SortInfo>
+            #   <Field field = "SortField1" order = "Asc" />
+            # </SortInfo>
+            #
+
+            # Building out the <SortInfo>
+            self.build_sort_info("SortInfo", field_selection, order_selection)
 
         # Getting the output anchor from Config.xml by the output connection name
         self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
@@ -69,7 +74,8 @@ class AyxPlugin:
         :return: The IncomingInterface object(s).
         """
 
-        self.alteryx_engine.pre_sort(str_type, str_name, self.xml_sort_info)
+        if self.do_sort:
+            self.alteryx_engine.pre_sort(str_type, str_name, self.xml_sort_info)
         self.single_input = IncomingInterface(self)
         return self.single_input
 
