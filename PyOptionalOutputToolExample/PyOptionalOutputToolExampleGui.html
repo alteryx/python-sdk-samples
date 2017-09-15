@@ -16,8 +16,6 @@
     </fieldset>      
     <fieldset>      
       <legend class='blueTitle'>XMSG("CSV File Configuration")</legend>
-      <!-- <label>XMSG("Enter File Output Directory")</label>
-      <ayx data-ui-props='{type:"TextBox"}' data-item-props='{dataName:"fileOutputDir"}'></ayx> -->
       <label>XMSG("Enter CSV File Name")</label>
       <ayx data-ui-props='{type:"TextBox", widgetId:"fileOutputName"}' data-item-props='{dataName:"fileOutputName"}'></ayx>
     </fieldset>
@@ -26,44 +24,8 @@
     Alteryx.Gui.BeforeLoad = (manager, AlteryxDataItems, json) => {
       // set the default value for sendDownstream to True
       manager.getDataItem('sendDownstream').setValue('True')
-      manager.getDataItem('fileOutputName').setValue('data_output')      
-      // var booleanDataItem = new AlteryxDataItems.SimpleBool('sendDownstream')
-      // manager.addDataItem(booleanDataItem)
-      // manager.bindDataItemToWidget(booleanDataItem, 'sendDownstream')
-
-      // booleanDataItem = new AlteryxDataItems.SimpleBool('createFile')
-      // manager.addDataItem(booleanDataItem)
-      // manager.bindDataItemToWidget(booleanDataItem, 'createFile')
-      // const messageTimingRadioGroup = new AlteryxDataItems.StringSelector('messageTiming', {
-      //   optionList: [
-      //     {label: 'Before First Record', value: 'beforeFirstRecord'},
-      //     {label: 'After Last Record', value: 'afterLastRecord'}
-      //   ]
-      // })
-
-      // const messageTypeSelector = new AlteryxDataItems.StringSelector('messageType', {
-      //   optionList: [
-      //     {label: 'Message', value: 'info'},
-      //     {label: 'Warning', value: 'warning'},
-      //     {label: 'Field Conversion Error', value: 'field_conversion_error'},
-      //     {label: 'Error', value: 'error'}
-      //   ]
-      // })
-
-      // const messageStringTextBox = new AlteryxDataItems.SimpleString('messageString')
-
-      // manager.addDataItem(messageTimingRadioGroup)
-      // manager.addDataItem(messageTypeSelector)
-      // manager.addDataItem(messageStringTextBox)
-
-      // manager.bindDataItemToWidget(messageTimingRadioGroup, 'RadioGroup1')
-      // manager.bindDataItemToWidget(messageTypeSelector, 'DropDown1')
-      // manager.bindDataItemToWidget(messageStringTextBox, 'TextBox1')
-    }
-
-    // Alteryx.Gui.AfterLoad = function(manager) {
-    //   manager.getDataItem('sendDownstream').setValue('True')
-    // }
+      manager.getDataItem('fileOutputName').setValue('data_output')   
+    }   
   </script>
   <style>
   </style>
