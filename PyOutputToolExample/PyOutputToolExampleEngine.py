@@ -19,7 +19,7 @@ class AyxPlugin:
 
         # Miscellaneous variables
         self.n_tool_id = n_tool_id
-        self.name = str('PyOutputToolExample_') + str(self.n_tool_id)
+        self.name = 'PyOutputToolExample_' + str(self.n_tool_id)
         self.closed = False
         self.initialized = False
 
@@ -43,7 +43,7 @@ class AyxPlugin:
         try: # Finding the dataName property from the Gui.html that matches the child node
             self.str_file_path = root.find('fileOutputPath').text
         except AttributeError:
-            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, xmsg('Invalid XML: ' + str_xml))
+            self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('Invalid XML: ' + str_xml))
             raise
 
         self.initialized = True
@@ -74,7 +74,7 @@ class AyxPlugin:
         :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
         :return: True for success, False for failure.
         """
-        self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, xmsg('Missing Incoming Connection'))
+        self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('Missing Incoming Connection'))
         return False
 
     def pi_close(self, b_has_errors: bool):
@@ -83,8 +83,7 @@ class AyxPlugin:
         :param b_has_errors: Set to true to not do the final processing.
         """
 
-    @staticmethod
-    def xmsg(msg_string: str):
+    def xmsg(self, msg_string: str):
         """
         A non-interface, non-operational placeholder for the eventual localization of predefined user-facing strings.
         :param msg_string: The user-facing string.
@@ -157,8 +156,6 @@ class IncomingInterface:
                 ret = ''
             elif field.type == 'bool':
                 ret = str(field.get_as_bool(in_record))
-            elif field.type == 'byte':
-                ret = str(field.get_as_int32(in_record))
             elif field.type == 'int32':
                 ret = str(field.get_as_int32(in_record))
             elif field.type == 'int64':
@@ -169,20 +166,17 @@ class IncomingInterface:
                 ret = field.get_as_string(in_record)
             return ret
 
-        # looping through extract_records for each field in record_info_in to get a list of data points for the nth record
+        # Looping through extract_records for each field in record_info_in to get a list of data points for the nth record
         nth_record = ','.join([extract_records(field, in_record) for field in self.record_info_in])
 
         # Using Python's native file write functionality to write each record to the users specified file path
-        self.testfile = open(self.parent.str_file_path, 'a')
-
         # Writing the field names out on the first record iteration
         if self.first_record:
+            self.testfile = open(self.parent.str_file_path, 'a')
             self.testfile.write(self.field_names + '\n' + nth_record)
             self.first_record = False
-            self.testfile.close()
         else:
             self.testfile.write('\n' + nth_record)
-            self.testfile.close()
 
         return True
 
@@ -200,7 +194,8 @@ class IncomingInterface:
         Called when the incoming connection has finished passing all of its records.
         """
 
-        if (self.parent.str_file_path is not None):
+        if self.parent.str_file_path is not None and self.testfile != '':
+            # Closing out the file
+            self.testfile.close()
             # Outputting message that the file was written
-            message = 'Output: ' + self.parent.str_file_path + ' was written.'
-            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.info, self.parent.xmsg(message))
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.info, self.parent.xmsg( 'Output: ' + self.parent.str_file_path + ' was written.'))
