@@ -20,7 +20,6 @@ class AyxPlugin:
         # Miscellaneous properties
         self.n_tool_id = n_tool_id
         self.name = 'OptionalOutputPython_' + str(self.n_tool_id)
-        self.initialized = False
 
         # Engine handles
         self.alteryx_engine = alteryx_engine
@@ -163,7 +162,6 @@ class IncomingInterface:
             # Deleting the newline characters in field names if they exist
             self.field_names = self.field_names.replace('\n', '')
 
-        self.initialized = True
         return True
 
     def ii_push_record(self, in_record: object):
@@ -176,8 +174,6 @@ class IncomingInterface:
           2. ii_push_record calling limit has been reached.
           3. There's a downstream error
         """
-        if not self.initialized:
-            return False
 
         if self.parent.create_file:
             # Helper function to extract data by field for each record
