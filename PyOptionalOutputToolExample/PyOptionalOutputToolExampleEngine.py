@@ -28,7 +28,6 @@ class AyxPlugin:
         # Default configuration setting
         self.send_downstream = None
         self.create_file = None
-        self.file_output_dir = None
         self.file_output_name = None
 
         # Input and Output anchor management
@@ -106,8 +105,7 @@ class AyxPlugin:
             self.file.close()
         return
 
-    @staticmethod
-    def xmsg(msg_string: str):
+    def xmsg(self, msg_string: str):
         """
         A non-interface, non-operational placeholder for the eventual localization of predefined user-facing strings.
         :param msg_string: The user-facing string.
@@ -134,8 +132,6 @@ class IncomingInterface:
         # Record management properties
         self.record_info_in = None
         self.record_info_out = None
-        self.record_creator = None
-        self.record_copier = None
         return
     
     def ii_init(self, record_info_in: object):
@@ -170,11 +166,9 @@ class IncomingInterface:
         Called when an input record is being sent to the plugin.
         :param in_record: The data for the incoming record.
         :return: Will return False if:
-          1. ii_init has not been initialized
-          2. ii_push_record calling limit has been reached.
-          3. There's a downstream error
+          - ii_push_record calling limit has been reached.
+          - There is a downstream error.
         """
-
         if self.parent.create_file:
             # Helper function to extract data by field for each record
             def extract_records(field, in_record):
