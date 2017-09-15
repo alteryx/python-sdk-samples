@@ -20,12 +20,11 @@ class AyxPlugin:
 
         # Miscellaneous properties
         self.n_tool_id = n_tool_id
-        self.name = str('PySingleInputOutputToolExample_') + str(self.n_tool_id)
+        self.name = 'PySingleInputOutputToolExample_' + str(self.n_tool_id)
         self.single_input = None
         self.n_record_select = None
-        self.field_selection = None
-        self.order_selection = None
         self.xml_sort_info = ''
+        self.do_sort = False
 
         # Engine handles
         self.alteryx_engine = alteryx_engine
@@ -43,24 +42,25 @@ class AyxPlugin:
 
         try:  # Getting the dataName data property from the Gui.html
             self.n_record_select = Et.fromstring(str_xml).find('NRecords').text
-            self.field_selection = Et.fromstring(str_xml).find('FieldSelect').text
-            self.order_selection = Et.fromstring(str_xml).find('OrderType').text
+            field_selection = Et.fromstring(str_xml).find('FieldSelect').text
+            order_selection = Et.fromstring(str_xml).find('OrderType').text
         except AttributeError:
             self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, xmsg('Invalid XML: ' + str_xml))
             raise
 
-        # In order to sort by a field, an XML string will need to be built to pass into pre_sort(), as such:
-        #
-        # <SortInfo>
-        #   <Field field = "SortField1" order = "Asc" />
-        # </SortInfo>
-        #
+        if field_selection is not None:
+            self.do_sort = True
 
-        # Building out the <SortInfo>
-        if self.order_selection == "asc":
-            self.build_sort_info("SortInfo", self.field_selection, "Asc")
-        elif self.order_selection == "desc":
-            self.build_sort_info("SortInfo", self.field_selection, "Desc")
+        if self.do_sort:
+            # In order to sort by a field, an XML string will need to be built to pass into pre_sort(), as such:
+            #
+            # <SortInfo>
+            #   <Field field = "SortField1" order = "Asc" />
+            # </SortInfo>
+            #
+
+            # Building out the <SortInfo>
+            self.build_sort_info("SortInfo", field_selection, order_selection)
 
         # Getting the output anchor from Config.xml by the output connection name
         self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
@@ -74,7 +74,8 @@ class AyxPlugin:
         :return: The IncomingInterface object(s).
         """
 
-        self.alteryx_engine.pre_sort(str_type, str_name, self.xml_sort_info)
+        if self.do_sort:
+            self.alteryx_engine.pre_sort(str_type, str_name, self.xml_sort_info)
         self.single_input = IncomingInterface(self)
         return self.single_input
 
@@ -148,15 +149,8 @@ class IncomingInterface:
         :param parent: AyxPlugin
         """
 
-        # Miscellaneous properties
         self.parent = parent
-
-        # Record management
-        self.record_info_in = None
-        self.record_info_out = None
         self.record_cnt = 0
-        self.record_copier = None
-        self.record_creator = None
 
     def ii_init(self, record_info_in: object):
         """
@@ -166,29 +160,12 @@ class IncomingInterface:
         :return: True for success, otherwise False.
         """
 
-        # Storing for later use
-        self.record_info_in = record_info_in
-
         # Returns a new, empty RecordCreator object that is identical to record_info_in.
-        self.record_info_out = self.record_info_in.clone()
+        record_info_out = record_info_in.clone()
 
         # Lets the downstream tools know what the outgoing record metadata will look like, based on record_info_out.
-        self.parent.output_anchor.init(self.record_info_out)
+        self.parent.output_anchor.init(record_info_out)
 
-        # Creating a new, empty record creator based on record_info_out's record layout.
-        self.record_creator = self.record_info_out.construct_record_creator()
-
-        # Instantiate a new instance of the RecordCopier class.
-        self.record_copier = Sdk.RecordCopier(self.record_info_out, self.record_info_in)
-
-        # Map each column of the input to where we want in the output.
-        for index in range(self.record_info_in.num_fields):
-
-            # Adding a field index mapping.
-            self.record_copier.add(index, index)
-
-        # Let record copier know that all field mappings have been added.
-        self.record_copier.done_adding()
         return True
 
     def ii_push_record(self, in_record: object):
@@ -210,6 +187,7 @@ class IncomingInterface:
 
             # Let the Alteryx engine know of the record count
             self.parent.output_anchor.output_record_count(False)
+
         else:
             return False
         return True
