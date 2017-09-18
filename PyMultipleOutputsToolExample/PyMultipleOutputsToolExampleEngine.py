@@ -89,7 +89,7 @@ class AyxPlugin:
 
     def set_key_set_previous_len(self, key_set_current: set):
         """
-        Sets the previous set to be the current set.
+        A non-interface function, responsible for setting the previous set to be the current set.
         :param key_set_current: The current set with the new record data.
         """
 
@@ -98,8 +98,8 @@ class AyxPlugin:
 
     def set_output_direction(self, key_set_current: set):
         """
-        Evaluates incremental changes in set lengths, to decide
-        which output anchor to have the incoming record be pushed to
+        A non-interface function.
+        Evaluates incremental changes in set lengths, to decide which output anchor to have the incoming record be pushed to.
         :param key_set_current: The current set with the new record data.
         """
 
