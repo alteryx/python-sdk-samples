@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="PySingleInputOutputToolExampleEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="PySingleInputOutputToolExampleGui.html" Icon="PySingleInputOutputToolExampleIcon.png" Help="PySingleInputOutputToolExample.htm" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Output" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>Sortie D'entrée Unique Python</Name>
+      <Description>Gérer un flux d'entrée et un flux de sortie. Retourne les N premiers enregistrements. Cet outil d'exemple a été créé en utilisant le SDK GUI HTML et le SDK Python.</Description>
+      <CategoryName>Exemples de SDK</CategoryName>
+      <SearchTags>python, sdk, sélectionnez, échantillon, haut, enregistrements, python sdk</SearchTags>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>

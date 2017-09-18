@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="PySingleInputOutputToolExampleEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="PySingleInputOutputToolExampleGui.html" Icon="PySingleInputOutputToolExampleIcon.png" Help="PySingleInputOutputToolExample.htm" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Output" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>⇚⇚Single Input Output Python⇚⇚</Name>
+      <Description>⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚Manage one input stream and one output stream. Returns top N records. This example tool was created using the HTML GUI SDK and the Python SDK.⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚</Description>
+      <CategoryName>⇚⇚SDK Examples⇚⇚</CategoryName>
+      <SearchTags>⇚python⇚, ⇚sdk⇚, ⇚select⇚, ⇚sample⇚, ⇚top⇚, ⇚record⇚s, ⇚python sdk⇚</SearchTags>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="PySingleMultiInputToolExampleEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="PySingleMultiInputToolExampleGui.html" Icon="PySingleMultiInputToolExampleIcon.png" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input" AllowMultiple="True" Optional="False" Type="Connection" Label=""/>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Output" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>Single Anchor Multiple Inputs Python</Name>
+      <Description>Verwalten Sie mehrere Eingangsströme mit einem Eingangsanker. Dieses Beispielwerkzeug wurde mit dem HTML GUI SDK und dem Python SDK erstellt.</Description>
+      <CategoryName>SDK Beispiele</CategoryName>
+      <SearchTags>python, sdk, python sdk, Single-Anker, mehrere Eingänge</SearchTags>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>

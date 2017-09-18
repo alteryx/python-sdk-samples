@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="PyMultipleOutputsToolExampleEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="PyMultipleOutputsToolExampleGui.html" Icon="PyMultipleOutputsToolExampleIcon.png" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Unique" AllowMultiple="False" Optional="False" Type="Connection" Label="U"/>
+      <Connection Name="Duplicate" AllowMultiple="False" Optional="False" Type="Connection" Label="D"/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>Sorties Multiples Python</Name>
+      <Description>Gérer un flux d'entrée et deux flux de sortie. Divisez l'entrée entre les valeurs uniques et en double, semblable à l'outil unique. Cet outil d'exemple a été créé en utilisant le SDK GUI HTML et le SDK Python.</Description>
+      <CategoryName>Exemples de SDK</CategoryName>
+      <SearchTags>python, sdk, distinct, unique, record, python sdk, sorties multiples</SearchTags>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>

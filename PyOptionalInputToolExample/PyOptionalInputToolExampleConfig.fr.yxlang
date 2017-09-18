@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="PyOptionalInputToolExampleEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="PyOptionalInputToolExampleGui.html" Icon="PyOptionalInputToolExampleIcon.png" Help="PythonSDKExampleToolExample.htm" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input" AllowMultiple="False" Optional="True" Type="Connection" Label=""/>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Output" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>Entrée Facultative Python</Name>
+      <Description>Gérer un flux d'entrée et un flux de sortie. Ajoute un champ qui compte comme spécifié ou si aucune entrée n'est présente, crée un champ. Cet outil d'exemple a été créé en utilisant le SDK GUI HTML et le SDK Python.</Description>
+      <CategoryName>Exemples de SDK</CategoryName>
+      <SearchTags>python, sdk, enregistrement, enregistrement, id, python sdk, entrée facultative</SearchTags>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>

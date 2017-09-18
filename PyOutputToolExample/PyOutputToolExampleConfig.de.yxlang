@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+  The name of this file must be the name of the plugin folder + "Config"
+-->
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="PyOutputToolExampleEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="PyOutputToolExampleGui.html" Icon="PyOutputToolExampleIcon.png" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </InputConnections>
+    <OutputConnections>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>Ausgabe Python</Name>
+      <Description>Verwalten Sie einen Eingabestream und erstellen Sie eine CSV-Datei. Dieses Beispielwerkzeug wurde mit dem HTML GUI SDK und dem Python SDK erstellt.</Description>
+      <CategoryName>SDK Beispiele</CategoryName>
+      <SearchTags>python, sdk, python sdk, ausgabe</SearchTags>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>
