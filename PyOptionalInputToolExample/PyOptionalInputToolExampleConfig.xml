@@ -11,10 +11,10 @@
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>OptionalInputToolExample</Name>
-      <Description>Adds a field that counts as specified or if no input is present, creates a field. This is an example tool that was created using the HTML GUI SDK and the Python SDK.</Description>
+      <Name>Optional Input Python</Name>
+      <Description>Manage one input stream and one output stream. Adds a field that counts as specified or if no input is present, creates a field. This example tool was created using the HTML GUI SDK and the Python SDK.</Description>
       <CategoryName>SDK Examples</CategoryName>
-      <SearchTags>python, sdk, recordid, record, id, python sdk</SearchTags>
+      <SearchTags>python, sdk, recordid, record, id, python sdk, optional input</SearchTags>
     </MetaInfo>
   </Properties>
 </AlteryxJavaScriptPlugin>

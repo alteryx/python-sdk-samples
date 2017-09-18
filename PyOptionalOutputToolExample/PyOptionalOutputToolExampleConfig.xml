@@ -12,7 +12,7 @@
   <Properties>
     <MetaInfo>
       <Name>Optional Output Python</Name>
-      <Description>Choose the option to output data to downstream tools or as a .csv file.</Description>
+      <Description>Manage one output stream. Choose the option to output data to downstream tools or as a .csv file. This example tool was created using the HTML GUI SDK and the Python SDK.</Description>
       <CategoryName>SDK Examples</CategoryName>
       <SearchTags>python, sdk, python sdk, optional output</SearchTags>
     </MetaInfo>

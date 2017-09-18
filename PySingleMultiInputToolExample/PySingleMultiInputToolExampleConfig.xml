@@ -11,10 +11,10 @@
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>SingleMultiInputToolExample</Name>
-      <Description>An example Python plugin tool that supports an input with AllowMultiple=True</Description>
+      <Name>Single Anchor Multiple Inputs Python</Name>
+      <Description>Manage multiple input streams with one input anchor.  This example tool was created using the HTML GUI SDK and the Python SDK.</Description>
       <CategoryName>SDK Examples</CategoryName>
-      <SearchTags>python, sdk, python sdk</SearchTags>
+      <SearchTags>python, sdk, python sdk, single anchor, multiple inputs</SearchTags>
     </MetaInfo>
   </Properties>
 </AlteryxJavaScriptPlugin>
