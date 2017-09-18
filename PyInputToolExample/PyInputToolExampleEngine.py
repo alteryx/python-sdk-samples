@@ -39,7 +39,7 @@ class AyxPlugin:
         self.output_field = None
 
         # custom members
-        self.file_input_name = 'C:\\Users\\username\\Desktop\\PythonInputTest.csv'
+        self.file_input_name = ''
         self.file_out = None
         self.file_reader = None
 
@@ -52,7 +52,7 @@ class AyxPlugin:
         try: # Getting the dataName data property from the Gui.html
             self.file_input_name = Et.fromstring(str_xml).find('browseFiles').text
         except AttributeError:
-            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, xmsg('Invalid XML: ' + str_xml))
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Invalid XML: ' + str_xml))
             raise
 
         # Getting the output anchor from Config.xml by the output connection name
@@ -69,7 +69,7 @@ class AyxPlugin:
         :return: The IncomingInterface object(s).
         """
 
-        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, 'This tool does not accept an Incoming Connection')
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('This tool does not accept an Incoming Connection'))
         return self
 
 
@@ -119,7 +119,7 @@ class AyxPlugin:
             )
 
         # Lets the downstream tools know what the outgoing record metadata will look like, based on record_info_out.
-        self.output_anchor.init(self.record_info_out, '')
+        self.output_anchor.init(self.record_info_out)
 
         # Creating a new, empty record creator based on record_info_out's record layout.
         self.record_creator = self.record_info_out.construct_record_creator()
@@ -163,13 +163,11 @@ class AyxPlugin:
         """
 
         filename, file_extension = os.path.splitext(self.file_input_name)
-        if file_extension == '.csv' or file_extension == '.CSV':
+        if file_extension.lower() == '.csv':
             return True
         return False
 
-
-    @staticmethod
-    def xmsg(msg_string: str):
+    def xmsg(self, msg_string: str):
         """
         A non-interface, non-operational placeholder for the eventual localization of predefined user-facing strings.
         :param msg_string: The user-facing string.
@@ -207,16 +205,17 @@ class IncomingInterface:
         :return: True for success, otherwise False.
         """
 
-        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('This tool does not accept an Incoming Connection'))
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('This tool does not accept an Incoming Connection'))
         return False
 
     def ii_push_record(self, in_record: object):
         """
         Called when an input record is being sent to the plugin.
         :param in_record: The data for the incoming record.
+        :return: True for success, otherwise False.
         """
 
-        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('This tool does not accept an Incoming Connection'))
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('This tool does not accept an Incoming Connection'))
         return False
 
     def ii_update_progress(self, d_percent: float):
@@ -225,13 +224,11 @@ class IncomingInterface:
         :param d_percent: Value between 0.0 and 1.0.
         """
 
-        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('This tool does not accept an Incoming Connection'))
-        return
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('This tool does not accept an Incoming Connection'))
 
     def ii_close(self):
         """
         Called when the incoming connection has finished passing all of its records.
         """
 
-        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('This tool does not accept an Incoming Connection'))
-        return
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('This tool does not accept an Incoming Connection'))
