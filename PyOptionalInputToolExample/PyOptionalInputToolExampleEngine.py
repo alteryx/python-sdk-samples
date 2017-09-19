@@ -46,7 +46,7 @@ class AyxPlugin:
         self.record_increment = None
         self.previous_inc_value = None
 
-    def pi_init(self, str_xml: str) -> bool:
+    def pi_init(self, str_xml: str):
         """
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
         :param str_xml: The raw XML from the GUI.
@@ -129,7 +129,7 @@ class AyxPlugin:
             # Pass the record downstream.
             out_record = self.record_creator.finalize_record()
 
-            # Push the record downstream.
+            # Pushes record to output connection, passing False means completed connections will be automatically closed.
             self.output_anchor.push_record(out_record, False)
 
             # Sets the capacity in bytes for variable-length data in this record to 0.
@@ -210,7 +210,7 @@ class IncomingInterface:
         # Let record copier know that all field mappings have been added.
         self.record_copier.done_adding()
 
-        # grab the index of our new field in the record, so we don't have to do a string lookup on every push_record.
+        # Grab the index of our new field in the record, so we don't have to do a string lookup on every push_record.
         self.output_field = self.record_info_out[self.record_info_out.get_field_num(self.parent.column_name)]
 
         self.initialized = True

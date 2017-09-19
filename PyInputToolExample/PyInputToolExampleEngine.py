@@ -43,7 +43,7 @@ class AyxPlugin:
         self.file_out = None
         self.file_reader = None
 
-    def pi_init(self, str_xml: str) -> bool:
+    def pi_init(self, str_xml: str):
         """
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
         :param str_xml: The raw XML from the GUI.
