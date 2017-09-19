@@ -260,7 +260,7 @@ class IncomingInterface:
 
     def ii_push_record(self, in_record: object):
         """
-        Responsible for pushing records out, under a count limit set by the user in n_record_select.
+        Appending the incoming record for later use.
         Called when an input record is being sent to the plugin.
         :param in_record: The data for the incoming record.
         :return: False if method calling limit (record_cnt) is hit.

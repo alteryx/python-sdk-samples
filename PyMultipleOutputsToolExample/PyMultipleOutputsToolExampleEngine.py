@@ -2,182 +2,204 @@ import AlteryxPythonSDK as Sdk
 import xml.etree.ElementTree as Et
 
 
-class NonInterface:
-    def __init__(self):
+class AyxPlugin:
+    def __init__(self, n_tool_id: int, alteryx_engine: object, generic_engine: object, output_anchor_mgr: object):
+        """
+        Acts as the constructor for AyxPlugin.
+        :param n_tool_id: The assigned unique identification for a tool instance.
+        :param alteryx_engine: Provides an interface into the Alteryx engine.
+        :param generic_engine: An abstraction of alteryx_engine.
+        :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
+        """
+
+        # Miscellaneous properties
+        self.n_tool_id = n_tool_id
+        self.name = 'PyMultipleOutputsToolExample_' + str(self.n_tool_id)
+        self.field_selection = None
         self.key_set_current = set()
         self.key_set_previous = set()
         self.key_set_previous_len = 0
+        self.single_input = None
+        
+        # Engine handles
+        self.alteryx_engine = alteryx_engine
+        self.generic_engine = generic_engine
+
+        # Output anchor management
+        self.output_anchor_mgr = output_anchor_mgr
         self.target_output_anchor = None
         self.unique_output_anchor = None
         self.dupe_output_anchor = None
+
+    def pi_init(self, str_xml: str):
+        """
+        Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
+        :param str_xml: The raw XML from the GUI.
+        """
+
+        try:  # Getting the dataName data property from the Gui.html
+            self.field_selection = Et.fromstring(str_xml).find('FieldSelect').text
+        except AttributeError:
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Invalid XML: ' + str_xml))
+            raise
+
+        # Getting the output anchors from Config.xml by the output connection names
+        self.unique_output_anchor = self.output_anchor_mgr.get_output_anchor('Unique')
+        self.dupe_output_anchor = self.output_anchor_mgr.get_output_anchor('Duplicate')
+
+    def pi_add_incoming_connection(self, str_type: str, str_name: str) -> object:
+        """
+        The IncomingInterface objects are instantiated here, one object per incoming connection.
+        Called when the Alteryx engine is attempting to add an incoming data connection.
+        :param str_type: The name of the input connection anchor, defined in the Config.xml file.
+        :param str_name: The name of the wire, defined by the workflow author.
+        :return: The IncomingInterface object(s).
+        """
+
+        self.single_input = IncomingInterface(self)
+        return self.single_input
+
+    def pi_add_outgoing_connection(self, str_name: str) -> bool:
+        """
+        Called when the Alteryx engine is attempting to add an outgoing data connection.
+        :param str_name: The name of the output connection anchor, defined in the Config.xml file.
+        :return: True signifies that the connection is accepted.
+        """
+
+        return True
+
+    def pi_push_all_records(self, n_record_limit: int) -> bool:
+        """
+        Called by the Alteryx engine for tools that have no incoming connection connected.
+        Only pertinent to tools which have no upstream connections, like the Input tool.
+        :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
+        :return: True for success, False for failure.
+        """
+
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Missing Incoming Connection'))
+        return False
+
+    def pi_close(self, b_has_errors: bool):
+        """
+        Called after all records have been processed..
+        :param b_has_errors: Set to true to not do the final processing.
+        """
+
         pass
 
-    def set_key_set_previous_len(self, key_set_current):
+    def set_key_set_previous_len(self, key_set_current: set):
         """
-        Sets the previous set to be the current set.
+        A non-interface function, responsible for setting the previous set to be the current set.
         :param key_set_current: The current set with the new record data.
-        :return: Void
         """
+
         self.key_set_previous = key_set_current
         self.key_set_previous_len = len(self.key_set_previous)
-        pass
 
-    def set_output_direction(self, key_set_current):
+    def set_output_direction(self, key_set_current: set):
         """
-        Evaluates incremental changes in set lengths, to decide
-        which output anchor to have the incoming record be pushed to
+        A non-interface function.
+        Evaluates incremental changes in set lengths, to decide which output anchor to have the incoming record be pushed to.
         :param key_set_current: The current set with the new record data.
-        :return: Void
         """
-        # if a new unique record has been added, set target output anchor as the unique output anchor
+
+        # If a new unique record has been added, set target output anchor as the unique output anchor
         if len(key_set_current) > self.key_set_previous_len:
             self.target_output_anchor = self.unique_output_anchor
         else:
             self.target_output_anchor = self.dupe_output_anchor
-        pass
+
+    def xmsg(self, msg_string: str):
+        """
+        A non-interface, non-operational placeholder for the eventual localization of predefined user-facing strings.
+        :param msg_string: The user-facing string.
+        :return: msg_string
+        """
+
+        return msg_string
 
 
-class AyxPlugin(NonInterface):
-    def __init__(self, n_tool_id, alteryx_engine, generic_engine, output_anchor_mgr):
-        """Initialize members that will be used"""
-        super().__init__()
-        # miscellaneous variables
-        self.n_tool_id = n_tool_id
-        self.name = str('PyMultipleOutputsToolExample_') + str(self.n_tool_id)
-        self.initialized = False
-        self.field_selection = None
-        self.field_index = 0
+class IncomingInterface:
+    """
+    This class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be
+    utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
+    Prefixed with "ii_", the Alteryx engine will expect the below four interface methods to be defined.
+    """
 
-        # engine handles
-        self.alteryx_engine = alteryx_engine
-        self.generic_engine = generic_engine
+    def __init__(self, parent: object):
+        """
+        Acts as the constructor for IncomingInterface. Instance variable initializations should happen here for PEP8 compliance.
+        :param parent: AyxPlugin
+        """
 
-        # output anchor management
-        self.output_anchor_mgr = output_anchor_mgr
-
-        # record management
+        # Miscellaneous properties
+        self.parent = parent
         self.record_info_in = None
         self.record_info_out = None
-        self.record_creator = None
-        self.record_copier = None
-        pass
+        self.field_index = 0
 
-    def pi_init(self, str_xml):
-        """
-        Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
-        :param str_xml: The raw XML from the GUI.
-        :return: True
-        """
-        try:  # Retrieving user's field selection
-            self.field_selection = Et.fromstring(str_xml).find('FieldSelect').text
-        except AttributeError:
-            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, 'Invalid XML: ' + str_xml)
-            raise
-        self.unique_output_anchor = self.output_anchor_mgr.get_output_anchor('Unique')
-        self.dupe_output_anchor = self.output_anchor_mgr.get_output_anchor('Duplicate')
-        return True
-
-    def pi_add_incoming_connection(self, str_type, str_name):
-        """
-        Called when the Alteryx engine is attempting to add an incoming data connection.
-        :param str_type: The type of each input connection.
-        :param str_name: A unique name for each input connection.
-        :return: Self, and a reference to an object.
-        """
-        return self
-
-    def pi_add_outgoing_connection(self, str_name):
-        """
-        Called when the Alteryx engine is attempting to add an outgoing data connection.
-        :param str_name: A unique name for each output connection.
-        :return: Boolean, where True signifies that the connection is accepted.
-        """
-        return True
-
-    def pi_push_all_records(self, n_record_limit):
-        """
-        Called when the Alteryx engine when it's expecting the plugin to provide all of its data.
-        Only pertinent to tools which have no upstream connections, like the Input tool.
-        :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
-        :return: False
-        """
-        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, 'Missing Incoming Connection')
-        return False
-
-    def pi_close(self, b_has_errors):
-        """
-        Called after all data has finished flowing through all the fields.
-        :param b_has_errors: Boolean; set to true to not do the final processing.
-        :return: Void
-        """
-        pass
-
-    def ii_init(self, record_info_in):
+    def ii_init(self, record_info_in: object) -> bool:
         """
         Called when the incoming connection's record metadata is available or has changed, and
         has let the Alteryx engine know what its output will look like.
-        :param record_info_in: A RecordInfo object containing the XML representation for the incoming connection's field and sort properties.
-        :return: True
+        :param record_info_in: A RecordInfo object for the incoming connection's fields.
+        :return: True for success, otherwise False.
         """
+
+        # Storing record_info_in for later use.
         self.record_info_in = record_info_in
-        self.record_info_out = record_info_in
+
+        # Creating an exact copy of record_info_in.
+        self.record_info_out = self.record_info_in.clone()
 
         # initialize output anchors
-        self.unique_output_anchor.init(self.record_info_out)
-        self.dupe_output_anchor.init(self.record_info_out)
+        self.parent.unique_output_anchor.init(self.record_info_out)
+        self.parent.dupe_output_anchor.init(self.record_info_out)
 
-        self.record_creator = self.record_info_out.construct_record_creator()
-
-        # Setting the record_copier to copy the metadata from the input records into new output records
-        self.record_copier = Sdk.RecordCopier(self.record_info_out, self.record_info_in)
-
-        for idx in range(len(self.record_info_in)):  # For each field
-            self.record_copier.add(idx, idx)
-        self.record_copier.done_adding()
-        self.initialized = True
-        self.field_index = self.record_info_in.get_field_num(self.field_selection)
+        # Storing the number of the target field selected by the user.
+        self.field_index = self.record_info_in.get_field_num(self.parent.field_selection)
         return True
 
-    def ii_push_record(self, in_record):
+    def ii_push_record(self, in_record: object) -> bool:
         """
-        Evaluate the value of the record data being passed, to see if it's unique.
+        Responsible for pushing records out, upon evaluation of the record data being passed, to see if it's unique.
         Called when an input record is being sent to the plugin.
         :param in_record: The data for the incoming record.
-        :return: Will return False if ii_init has not been initialized.
+        :return: True
         """
-        if not self.initialized:
-            return False
-        self.record_creator.reset()
-        self.record_copier.copy(self.record_creator, in_record)
-        out_record = self.record_creator.finalize_record()
 
         # Append the incoming record to the current set
-        self.key_set_current.add(self.record_info_in[self.field_index].get_as_string(in_record))
+        self.parent.key_set_current.add(self.record_info_in[self.field_index].get_as_string(in_record))
 
         # Pass the current set to decide which output anchor to push the record to
-        self.set_output_direction(self.key_set_current)
+        self.parent.set_output_direction(self.parent.key_set_current)
 
         # Update previous set's length
-        self.set_key_set_previous_len(self.key_set_current)
+        self.parent.set_key_set_previous_len(self.parent.key_set_current)
 
-        return self.target_output_anchor.push_record(out_record)
+        # Push record out to either the unique or duplicate output anchor
+        self.parent.target_output_anchor.push_record(in_record)
+        return True
 
-    def ii_update_progress(self, d_percent):
+    def ii_update_progress(self, d_percent: float):
         """
-        Called when the incoming connection is requesting that the plugin update its progress.
-        :param d_percent: Value between 0 and 1
-        :return: Void
+        Called when by the upstream tool to report what percentage of records have been pushed.
+        :param d_percent: Value between 0.0 and 1.0.
         """
-        self.alteryx_engine.output_tool_progress(self.n_tool_id, d_percent)
-        self.unique_output_anchor.update_progress(d_percent)
-        self.dupe_output_anchor.update_progress(d_percent)
-        pass
+
+        # Inform the Alteryx engine of the tool's progress.
+        self.parent.alteryx_engine.output_tool_progress(self.parent.n_tool_id, d_percent)
+
+        # Inform the outgoing connections of the tool's progress.
+        self.parent.unique_output_anchor.update_progress(d_percent)
+        self.parent.dupe_output_anchor.update_progress(d_percent)
 
     def ii_close(self):
         """
         Called when the incoming connection has finished passing all of its records.
-        :return: Void
         """
-        self.unique_output_anchor.close()
-        self.dupe_output_anchor.close()
-        pass
+
+        # Close outgoing connections.
+        self.parent.unique_output_anchor.close()
+        self.parent.dupe_output_anchor.close()
+
