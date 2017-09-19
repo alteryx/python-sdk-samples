@@ -20,7 +20,6 @@ class AyxPlugin:
         # Miscellaneous variables
         self.n_tool_id = n_tool_id
         self.name = 'PyOutputToolExample_' + str(self.n_tool_id)
-        self.closed = False
         self.initialized = False
 
         # Engine handles
@@ -82,6 +81,7 @@ class AyxPlugin:
         Called after all records have been processed..
         :param b_has_errors: Set to true to not do the final processing.
         """
+        pass
 
     def xmsg(self, msg_string: str):
         """
@@ -113,10 +113,10 @@ class IncomingInterface:
 
         # Custom members
         self.field_names = None
-        self.testfile = ''
+        self.write_to_file = None
         self.first_record = True
 
-    def ii_init(self, record_info_in):
+    def ii_init(self, record_info_in: object):
         """
         Called when the incoming connection's record metadata is available or has changed, and
         has let the Alteryx engine know what its output will look like.
@@ -133,7 +133,7 @@ class IncomingInterface:
         # Deleting the newline characters in field names if they exist
         self.field_names = self.field_names.replace('\n', '')
 
-        if (self.parent.str_file_path is None):
+        if self.parent.str_file_path is None:
             # Outputting Error message if no path is entered
             self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Error: Please enter a file path.'))
         elif os.access(self.parent.str_file_path, os.F_OK):
@@ -143,14 +143,14 @@ class IncomingInterface:
             self.initialized = True
         return True
 
-    def ii_push_record(self, in_record):
+    def ii_push_record(self, in_record: object):
         """
          Called when an input record is being sent to the plugin.
          :param in_record: The data for the incoming record.
          :return: True for accepted record.
          """
 
-        # extract_records extracts each record for every field object passed in as a string from record_in
+        # Extract_records extracts each record for every field object passed in as a string from record_in
         def extract_records(field, in_record):
             if field.get_null(in_record):
                 ret = ''
@@ -180,7 +180,7 @@ class IncomingInterface:
 
         return True
 
-    def ii_update_progress(self, d_percent):
+    def ii_update_progress(self, d_percent: float):
         """
          Called when by the upstream tool to report what percentage of records have been pushed.
          :param d_percent: Value between 0.0 and 1.0.
@@ -194,7 +194,7 @@ class IncomingInterface:
         Called when the incoming connection has finished passing all of its records.
         """
 
-        if self.parent.str_file_path is not None and self.testfile != '':
+        if self.parent.str_file_path and self.testfile is not None:
             # Closing out the file
             self.testfile.close()
             # Outputting message that the file was written
