@@ -13,10 +13,10 @@
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>Output Python</Name>
-      <Description>Manage one input stream and create a CSV file. This example tool was created using the HTML GUI SDK and the Python SDK.</Description>
-      <CategoryName>SDK Examples</CategoryName>
-      <SearchTags>python, sdk, python sdk, output</SearchTags>
+      <Name>Python de Sortie</Name>
+      <Description>Gérer un flux d'entrée et créer un fichier CSV. Cet outil d'exemple a été créé en utilisant le SDK GUI HTML et le SDK Python.</Description>
+      <CategoryName>Exemples de SDK</CategoryName>
+      <SearchTags>python, sdk, python sdk, sortie</SearchTags>
     </MetaInfo>
   </Properties>
 </AlteryxJavaScriptPlugin>

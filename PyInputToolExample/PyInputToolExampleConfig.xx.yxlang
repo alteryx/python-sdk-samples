@@ -13,9 +13,9 @@
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>Input Python</Name>
-      <Description>Manage one output stream and load a CSV file. This example tool was created using the HTML GUI SDK and the Python SDK.</Description>
-      <CategoryName>SDK Examples</CategoryName>
+      <Name>⇚⇚Input Python⇚⇚</Name>
+      <Description>⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚Manage one output stream and load a CSV file. This example tool was created using the HTML GUI SDK and the Python SDK.⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚</Description>
+      <CategoryName>⇚⇚SDK Examples⇚⇚</CategoryName>
       <SearchTags>python, sdk, python sdk, input</SearchTags>
     </MetaInfo>
   </Properties>

@@ -12,9 +12,9 @@
   <Properties>
     <MetaInfo>
       <Name>Single Anchor Multiple Inputs Python</Name>
-      <Description>Manage multiple input streams with one input anchor.  This example tool was created using the HTML GUI SDK and the Python SDK.</Description>
-      <CategoryName>SDK Examples</CategoryName>
-      <SearchTags>python, sdk, python sdk, single anchor, multiple inputs</SearchTags>
+      <Description>Gérer plusieurs flux d'entrée avec une entrée d'entrée. Cet outil d'exemple a été créé en utilisant le SDK GUI HTML et le SDK Python.</Description>
+      <CategoryName>Exemples de SDK</CategoryName>
+      <SearchTags>python, sdk, python sdk, ancre unique, entrées multiples</SearchTags>
     </MetaInfo>
   </Properties>
 </AlteryxJavaScriptPlugin>
