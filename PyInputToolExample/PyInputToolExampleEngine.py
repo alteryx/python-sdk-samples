@@ -43,7 +43,7 @@ class AyxPlugin:
         self.file_out = None
         self.file_reader = None
 
-    def pi_init(self, str_xml: str):
+    def pi_init(self, str_xml: str) -> bool:
         """
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
         :param str_xml: The raw XML from the GUI.
@@ -60,7 +60,7 @@ class AyxPlugin:
 
         self.initialized = True
 
-    def pi_add_incoming_connection(self, str_type: str, str_name: str):
+    def pi_add_incoming_connection(self, str_type: str, str_name: str) -> object:
         """
         The IncomingInterface objects are instantiated here, one object per incoming connection.
         Called when the Alteryx engine is attempting to add an incoming data connection.
@@ -73,7 +73,7 @@ class AyxPlugin:
         return self
 
 
-    def pi_add_outgoing_connection(self, str_name: str):
+    def pi_add_outgoing_connection(self, str_name: str) -> bool:
         """
         Called when the Alteryx engine is attempting to add an outgoing data connection.
         :param str_name: The name of the output connection anchor, defined in the Config.xml file.
@@ -82,7 +82,7 @@ class AyxPlugin:
 
         return True
 
-    def pi_push_all_records(self, n_record_limit: int):
+    def pi_push_all_records(self, n_record_limit: int) -> bool:
         """
         Called by the Alteryx engine for tools that have no incoming connection connected.
         Only pertinent to tools which have no upstream connections, like the Input tool.
@@ -197,7 +197,7 @@ class IncomingInterface:
         self.record_info_in = None
         self.record_info_out = None
 
-    def ii_init(self, record_info_in: object):
+    def ii_init(self, record_info_in: object) -> bool:
         """
         Called when the incoming connection's record metadata is available or has changed, and
         has let the Alteryx engine know what its output will look like.
@@ -208,7 +208,7 @@ class IncomingInterface:
         self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('This tool does not accept an Incoming Connection'))
         return False
 
-    def ii_push_record(self, in_record: object):
+    def ii_push_record(self, in_record: object) -> bool:
         """
         Called when an input record is being sent to the plugin.
         :param in_record: The data for the incoming record.
