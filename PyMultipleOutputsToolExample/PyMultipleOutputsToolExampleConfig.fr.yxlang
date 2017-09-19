@@ -12,10 +12,10 @@
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>Multiple Outputs Python</Name>
-      <Description>Manage one input stream and two output streams. Split the input between unique and duplicate values, similar to the unique tool. This example tool was created using the HTML GUI SDK and the Python SDK.</Description>
-      <CategoryName>SDK Examples</CategoryName>
-      <SearchTags>python, sdk, distinct, unique, record, python sdk, multiple outputs</SearchTags>
+      <Name>Sorties Multiples Python</Name>
+      <Description>Gérer un flux d'entrée et deux flux de sortie. Divisez l'entrée entre les valeurs uniques et en double, semblable à l'outil unique. Cet outil d'exemple a été créé en utilisant le SDK GUI HTML et le SDK Python.</Description>
+      <CategoryName>Exemples de SDK</CategoryName>
+      <SearchTags>python, sdk, distinct, unique, record, python sdk, sorties multiples</SearchTags>
     </MetaInfo>
   </Properties>
 </AlteryxJavaScriptPlugin>

@@ -12,10 +12,10 @@
   </GuiSettings>
   <Properties>
     <MetaInfo>
-      <Name>Multiple Inputs Python</Name>
-      <Description>Manage two input streams and one output stream. Join two data sources by record position. This example tool was created using the HTML GUI SDK and the Python SDK.</Description>
+      <Name>Entrées Multiples Python</Name>
+      <Description>Gérez deux flux d'entrée et un flux de sortie. Rejoignez deux sources de données par position d'enregistrement. Cet outil d'exemple a été créé en utilisant le SDK GUI HTML et le SDK Python.</Description>
       <CategoryName>SDK Examples</CategoryName>
-      <SearchTags>python, sdk, python sdk, multiple inputs</SearchTags>
+      <SearchTags>python, sdk, python sdk, entrées multiples</SearchTags>
     </MetaInfo>
   </Properties>
 </AlteryxJavaScriptPlugin>
