@@ -172,11 +172,11 @@ class IncomingInterface:
         # Using Python's native file write functionality to write each record to the users specified file path
         # Writing the field names out on the first record iteration
         if self.first_record:
-            self.testfile = open(self.parent.str_file_path, 'a')
-            self.testfile.write(self.field_names + '\n' + nth_record)
+            self.write_to_file = open(self.parent.str_file_path, 'a')
+            self.write_to_file.write(self.field_names + '\n' + nth_record)
             self.first_record = False
         else:
-            self.testfile.write('\n' + nth_record)
+            self.write_to_file.write('\n' + nth_record)
 
         return True
 
@@ -194,8 +194,8 @@ class IncomingInterface:
         Called when the incoming connection has finished passing all of its records.
         """
 
-        if self.parent.str_file_path and self.testfile is not None:
+        if self.parent.str_file_path and self.write_to_file is not None:
             # Closing out the file
-            self.testfile.close()
+            self.write_to_file.close()
             # Outputting message that the file was written
             self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.info, self.parent.xmsg( 'Output: ' + self.parent.str_file_path + ' was written.'))
