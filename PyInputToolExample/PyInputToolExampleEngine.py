@@ -10,7 +10,7 @@ class AyxPlugin:
 
     """
 
-    def __init__(self, n_tool_id: int, engine_interface: object, generic_engine: object, output_anchor_mgr: object):
+    def __init__(self, n_tool_id: int, alteryx_engine: object, generic_engine: object, output_anchor_mgr: object):
         """
         Acts as the constructor for AyxPlugin.
         :param n_tool_id: The assigned unique identification for a tool instance.
@@ -19,26 +19,26 @@ class AyxPlugin:
         :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
         """
 
-        # miscellaneous variables
+        # Miscellaneous properties
         self.n_tool_id = n_tool_id
         self.name = 'InputPython_' + str(self.n_tool_id)
         self.closed = False
         self.initialized = False
 
-        # engine handles
-        self.alteryx_engine = engine_interface
+        # Engine handles
+        self.alteryx_engine = alteryx_engine
         self.generic_engine = generic_engine
 
-        # output anchor management
+        # Output anchor management
         self.output_anchor_mgr = output_anchor_mgr
         self.output_anchor = None
 
-        # record management
+        # Record management
         self.record_info_out = None
         self.record_creator = None
         self.output_field = None
 
-        # custom members
+        # Custom members
         self.file_input_name = ''
         self.file_out = None
         self.file_reader = None
@@ -161,8 +161,7 @@ class AyxPlugin:
         A non-interface method.
         Responsible for determining whether file is csv or not.
         """
-
-        filename, file_extension = os.path.splitext(self.file_input_name)
+        filename, file_extension = os.path.splitext(str(self.file_input_name))
         if file_extension.lower() == '.csv':
             return True
         return False
