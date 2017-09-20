@@ -172,7 +172,7 @@ class IncomingInterface:
         # Using Python's native file write functionality to write each record to the users specified file path
         # Writing the field names out on the first record iteration
         if self.first_record:
-            self.write_to_file = open(self.parent.str_file_path, 'a')
+            self.write_to_file = open(self.parent.str_file_path, 'a', encoding='utf-8')
             self.write_to_file.write(self.field_names + '\n' + nth_record)
             self.first_record = False
         else:
