@@ -1,15 +1,27 @@
-import AlteryxPythonSDK
-import xml.etree.ElementTree as ET
+import AlteryxPythonSDK as Sdk
+import xml.etree.ElementTree as Et
 import csv
 import os
 
 class AyxPlugin:
-    def __init__(self, n_tool_id, engine_interface, generic_engine, output_anchor_mgr):
-        # initialize *all* members that will be used (for PEP8 compliance)
+    """
+    Implements the plugin interface methods, to be utilized by the Alteryx engine to communicate with a plugin.
+    Prefixed with "pi_", the Alteryx engine will expect the below five interface methods to be defined.
+
+    """
+
+    def __init__(self, n_tool_id: int, engine_interface: object, generic_engine: object, output_anchor_mgr: object):
+        """
+        Acts as the constructor for AyxPlugin.
+        :param n_tool_id: The assigned unique identification for a tool instance.
+        :param engine_interface: Provides an interface into the Alteryx engine.
+        :param generic_engine: An abstraction of alteryx_engine.
+        :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
+        """
 
         # miscellaneous variables
         self.n_tool_id = n_tool_id
-        self.name = str('PyInputTool_') + str(self.n_tool_id)
+        self.name = 'InputPython_' + str(self.n_tool_id)
         self.closed = False
         self.initialized = False
 
@@ -26,189 +38,197 @@ class AyxPlugin:
         self.record_creator = None
         self.output_field = None
 
-        #
-        # create your custom members here and give them default values
-        #
-        self.file_input_name = 'C:\\Users\\username\\Desktop\\PythonInputTest.csv'
+        # custom members
+        self.file_input_name = ''
         self.file_out = None
         self.file_reader = None
-        #
-        # END custom members
-        #
 
-        return
+    def pi_init(self, str_xml: str):
+        """
+        Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
+        :param str_xml: The raw XML from the GUI.
+        """
 
-    # helper for determining if the file is csv, used for error messaging later
-    def is_csv(self):
-        filename, file_extension = os.path.splitext(self.file_input_name)
-        if file_extension == '.csv' or file_extension == '.CSV':
-            return True
-        return False
-
-    def output_message(self, method, status, message):
-        # helper for printing messages out to the engine
-        self.alteryx_engine.output_message(self.n_tool_id, status, method + ': ' + str(message))
-
-    #
-    # pi_init will be called when the Engine is ready to give us the tool configuration from the GUI
-    #
-    def pi_init(self, str_xml):
-        try:
-            root = ET.fromstring(str_xml)
-            #
-            # parse the necessary XML from Designer where node name is equal
-            #  to the dataname defined in Gui.html
-            #
-            self.file_input_name = root.find('browseFiles').text
-
-            # END XML parsing
-
+        try: # Getting the dataName data property from the Gui.html
+            self.file_input_name = Et.fromstring(str_xml).find('browseFiles').text
         except AttributeError:
-            self.output_message('pi_init', AlteryxPythonSDK.EngineMessageType.error, 'Invalid XML: ' + str_xml)
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Invalid XML: ' + str_xml))
             raise
 
-        #
-        # the Engine is ready for us to get the Output anchor. We know it is called 'Output' because
-        #  that is what we put in our Config.xml as its name
-        #
-
+        # Getting the output anchor from Config.xml by the output connection name
         self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
 
         self.initialized = True
 
-        return
+    def pi_add_incoming_connection(self, str_type: str, str_name: str) -> object:
+        """
+        The IncomingInterface objects are instantiated here, one object per incoming connection.
+        Called when the Alteryx engine is attempting to add an incoming data connection.
+        :param str_type: The name of the input connection anchor, defined in the Config.xml file.
+        :param str_name: The name of the wire, defined by the workflow author.
+        :return: The IncomingInterface object(s).
+        """
 
-    #
-    # pi_close will be called after all the records have been processed
-    #
-    def pi_close(self, b_has_errors):
-        self.closed = True
-        self.output_anchor.close()
-        return
-
-    #
-    # pi_add_incoming_connection will be called when a new input is connected to this tool
-    #
-    def pi_add_incoming_connection(self, str_type, str_name):
-        self.output_message(
-            'pi_add_incoming_connection'
-            , AlteryxPythonSDK.EngineMessageType.error
-            , 'This tool does not accept an Incoming Connection'
-        )
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('This tool does not accept an Incoming Connection'))
         return self
 
-    #
-    # pi_add_outgoing_connection will be called when a new output is connected to this tool
-    #
-    def pi_add_outgoing_connection(self, str_name):
+
+    def pi_add_outgoing_connection(self, str_name: str) -> bool:
+        """
+        Called when the Alteryx engine is attempting to add an outgoing data connection.
+        :param str_name: The name of the output connection anchor, defined in the Config.xml file.
+        :return: True signifies that the connection is accepted.
+        """
+
         return True
 
-    #
-    # pi_push_all_records will be called if there are no inputs connected to this tool
-    #
-    def pi_push_all_records(self, n_record_limit):
-        if self.initialized != True:
+    def pi_push_all_records(self, n_record_limit: int) -> bool:
+        """
+        Called by the Alteryx engine for tools that have no incoming connection connected.
+        Only pertinent to tools which have no upstream connections, like the Input tool.
+        :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
+        :return: True for success, False for failure.
+        """
+
+        if not self.initialized:
             return False
 
-        # stop processing and returns error if the file is not a csv
-        if self.is_csv() != True:
-            self.output_message('Error', AlteryxPythonSDK.EngineMessageType.error, 'This tool only accepts csv files')
+        # Check file extension and throw error if not csv.
+        if not self.is_csv():
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('This tool only accepts csv files'))
             return False
 
-        # Save a reference to the RecordInfo passed into this function in the global namespace, so we can access it later
-        self.record_info_out = AlteryxPythonSDK.RecordInfo(self.generic_engine)
-        # create a read-only file object
+        # Save a reference to the RecordInfo passed into this function in the global namespace, so we can access it later.
+        self.record_info_out = Sdk.RecordInfo(self.generic_engine)
+
+        # Create a read-only file object.
         self.file_out = open(self.file_input_name, 'r', encoding='utf-8')
-        # map the information read into a dict where the fieldnames are the keys
+
+        # Map the information read into a dict where the fieldnames are the keys.
         self.file_reader = csv.DictReader(self.file_out)
 
-        #
-        # add metadata info that is passed to tools downstream
-        #
+        # Add metadata info that is passed to tools downstream.
         for field in self.file_reader.fieldnames:
             self.record_info_out.add_field(
                 field
-                , AlteryxPythonSDK.FieldType.v_wstring
+                , Sdk.FieldType.v_wstring
                 , 254
                 , 0
                 , self.name
                 , ''
             )
 
-        #
-        # tell the downstream tools what our output will look like
-        #
-        self.output_anchor.init(self.record_info_out, '')
+        # Lets the downstream tools know what the outgoing record metadata will look like, based on record_info_out.
+        self.output_anchor.init(self.record_info_out)
 
-        #
-        # create the helper for constructing records to pass downstream
-        #
+        # Creating a new, empty record creator based on record_info_out's record layout.
         self.record_creator = self.record_info_out.construct_record_creator()
+
+        # Keeping track of number of records for use in output message.
         rownum = 0
 
-        #
-        # Loop through each record (or row) of data that has been passed into this function
-        #
+        # Loop through each record (or row) of data that has been passed into this function.
         for row in self.file_reader:
             rownum += 1
             # Iterate through the fields in this row and add them in order to the output row
             for index, value in enumerate(row.items()):
                 self.record_info_out[index].set_from_string(self.record_creator, value[1])
             out_record = self.record_creator.finalize_record()
-            # Push this row onto the end of the output anchor
+            # Push the record downstream.
             self.output_anchor.push_record(out_record, False)
             # Reset the record creator in order to begin looping through the next row
             self.record_creator.reset(0)
 
-        # self.rownum = sum(1 for row in self.file_reader)
-        self.output_message('Info', AlteryxPythonSDK.EngineMessageType.info, str(rownum) + ' records were read from ' + self.file_input_name)
+        # Returns message indicating number of records read from specified file.
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.info, self.xmsg(str(rownum) + ' records were read from ' + self.file_input_name))
 
         return True
 
+    def pi_close(self, b_has_errors: bool):
+        """
+        Called after all records have been processed..
+        :param b_has_errors: Set to true to not do the final processing.
+        """
 
-    #
-    # ii_init will be called when an incoming connection has been initalized and has told the Engine
-    #   what its output will look like. record_info_in represents what the incoming record will look like
-    #
-    def ii_init(self, record_info_in):
-        self.output_message(
-            'ii_init'
-            , AlteryxPythonSDK.EngineMessageType.error
-            , 'This tool does not accept an Incoming Connection'
-        )
-        return False
+        self.closed = True
 
-    #
-    # ii_push_record will be called every time we get a new record from the upstream tool
-    #
-    def ii_push_record(self, in_record):
-        self.output_message(
-            'ii_push_record'
-            , AlteryxPythonSDK.EngineMessageType.error
-            , 'This tool does not accept an Incoming Connection'
-        )
-        return False
-
-    #
-    # ii_update_progress will be called periodically from the upstream tools, where they will tell us how far along
-    #   they are in processing their data. If our tool needs to do any custom logic about how much work it has left to
-    #   do, that logic should happen in here
-    #
-    def ii_update_progress(self, d_percent):
-        self.output_message(
-            'ii_update_progress'
-            , AlteryxPythonSDK.EngineMessageType.error
-            , 'This tool does not accept an Incoming Connection'
-        )
+        # Close outgoing connections.
+        self.output_anchor.close()
         return
 
-    #
-    # ii_close will be called when the upstream tool is finished
-    #
+    def is_csv(self):
+        """
+        A non-interface method.
+        Responsible for determining whether file is csv or not.
+        """
+
+        filename, file_extension = os.path.splitext(self.file_input_name)
+        if file_extension.lower() == '.csv':
+            return True
+        return False
+
+    def xmsg(self, msg_string: str):
+        """
+        A non-interface, non-operational placeholder for the eventual localization of predefined user-facing strings.
+        :param msg_string: The user-facing string.
+        :return: msg_string
+        """
+
+        return msg_string
+
+
+class IncomingInterface:
+    """
+    This class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be
+    utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
+    Prefixed with "ii_", the Alteryx engine will expect the below four interface methods to be defined.
+    """
+
+    def __init__(self, parent: object):
+        """
+        Acts as the constructor for IncomingInterface. Instance variable initializations should happen here for PEP8 compliance.
+        :param parent: AyxPlugin
+        """
+
+        # Miscellaneous properties
+        self.parent = parent
+
+        # Record management
+        self.record_info_in = None
+        self.record_info_out = None
+
+    def ii_init(self, record_info_in: object) -> bool:
+        """
+        Called when the incoming connection's record metadata is available or has changed, and
+        has let the Alteryx engine know what its output will look like.
+        :param record_info_in: A RecordInfo object for the incoming connection's fields.
+        :return: True for success, otherwise False.
+        """
+
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('This tool does not accept an Incoming Connection'))
+        return False
+
+    def ii_push_record(self, in_record: object) -> bool:
+        """
+        Called when an input record is being sent to the plugin.
+        :param in_record: The data for the incoming record.
+        :return: True for success, otherwise False.
+        """
+
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('This tool does not accept an Incoming Connection'))
+        return False
+
+    def ii_update_progress(self, d_percent: float):
+        """
+        Called when by the upstream tool to report what percentage of records have been pushed.
+        :param d_percent: Value between 0.0 and 1.0.
+        """
+
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('This tool does not accept an Incoming Connection'))
+
     def ii_close(self):
-        self.output_message(
-            'ii_close'
-            , AlteryxPythonSDK.EngineMessageType.error
-            , 'This tool does not accept an Incoming Connection'
-        )
-        return
+        """
+        Called when the incoming connection has finished passing all of its records.
+        """
+
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('This tool does not accept an Incoming Connection'))

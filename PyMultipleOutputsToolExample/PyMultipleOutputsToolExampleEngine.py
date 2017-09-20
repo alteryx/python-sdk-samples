@@ -16,9 +16,6 @@ class AyxPlugin:
         self.n_tool_id = n_tool_id
         self.name = 'PyMultipleOutputsToolExample_' + str(self.n_tool_id)
         self.field_selection = None
-        self.key_set_current = set()
-        self.key_set_previous = set()
-        self.key_set_previous_len = 0
         self.single_input = None
         
         # Engine handles
@@ -27,7 +24,6 @@ class AyxPlugin:
 
         # Output anchor management
         self.output_anchor_mgr = output_anchor_mgr
-        self.target_output_anchor = None
         self.unique_output_anchor = None
         self.dupe_output_anchor = None
 
@@ -87,28 +83,6 @@ class AyxPlugin:
 
         pass
 
-    def set_key_set_previous_len(self, key_set_current: set):
-        """
-        A non-interface function, responsible for setting the previous set to be the current set.
-        :param key_set_current: The current set with the new record data.
-        """
-
-        self.key_set_previous = key_set_current
-        self.key_set_previous_len = len(self.key_set_previous)
-
-    def set_output_direction(self, key_set_current: set):
-        """
-        A non-interface function.
-        Evaluates incremental changes in set lengths, to decide which output anchor to have the incoming record be pushed to.
-        :param key_set_current: The current set with the new record data.
-        """
-
-        # If a new unique record has been added, set target output anchor as the unique output anchor
-        if len(key_set_current) > self.key_set_previous_len:
-            self.target_output_anchor = self.unique_output_anchor
-        else:
-            self.target_output_anchor = self.dupe_output_anchor
-
     def xmsg(self, msg_string: str):
         """
         A non-interface, non-operational placeholder for the eventual localization of predefined user-facing strings.
@@ -136,7 +110,11 @@ class IncomingInterface:
         self.parent = parent
         self.record_info_in = None
         self.record_info_out = None
-        self.field_index = 0
+        self.target_field = None
+        self.records_unique = 0
+        self.records_dupe = 0
+        self.key_set_previous_len = 0
+        self.key_set_current = set()
 
     def ii_init(self, record_info_in: object) -> bool:
         """
@@ -149,6 +127,9 @@ class IncomingInterface:
         # Storing record_info_in for later use.
         self.record_info_in = record_info_in
 
+        # Storing the user selected field to use in ii_push_record, no avoid repeated field lookup.
+        self.target_field = self.record_info_in[self.record_info_in.get_field_num(self.parent.field_selection)]
+
         # Creating an exact copy of record_info_in.
         self.record_info_out = self.record_info_in.clone()
 
@@ -156,29 +137,31 @@ class IncomingInterface:
         self.parent.unique_output_anchor.init(self.record_info_out)
         self.parent.dupe_output_anchor.init(self.record_info_out)
 
-        # Storing the number of the target field selected by the user.
-        self.field_index = self.record_info_in.get_field_num(self.parent.field_selection)
         return True
 
     def ii_push_record(self, in_record: object) -> bool:
         """
         Responsible for pushing records out, upon evaluation of the record data being passed, to see if it's unique.
+        Storing in memory to a set() appears to be faster than previous record evaluation on data that has been pre-sorted.
         Called when an input record is being sent to the plugin.
         :param in_record: The data for the incoming record.
         :return: True
         """
 
         # Append the incoming record to the current set
-        self.parent.key_set_current.add(self.record_info_in[self.field_index].get_as_string(in_record))
+        self.key_set_current.add(self.target_field.get_as_string(in_record))
 
-        # Pass the current set to decide which output anchor to push the record to
-        self.parent.set_output_direction(self.parent.key_set_current)
+        # If a new unique record has been added to key_set_previous_len, push the records out to unique_output_anchor.
+        if len(self.key_set_current) > self.key_set_previous_len:
+            self.parent.unique_output_anchor.push_record(in_record)
+            self.records_unique += 1
+        else:
+            self.parent.dupe_output_anchor.push_record(in_record)
+            self.records_dupe += 1
 
-        # Update previous set's length
-        self.parent.set_key_set_previous_len(self.parent.key_set_current)
+        # Update previous size
+        self.key_set_previous_len = len(self.key_set_current)
 
-        # Push record out to either the unique or duplicate output anchor
-        self.parent.target_output_anchor.push_record(in_record)
         return True
 
     def ii_update_progress(self, d_percent: float):
@@ -188,7 +171,7 @@ class IncomingInterface:
         """
 
         # Inform the Alteryx engine of the tool's progress.
-        self.parent.alteryx_engine.output_tool_progress(self.parent.n_tool_id, d_percent)
+        self.parent.alteryx_engine.output_tool_progress(self.parent.n_tool_id, ((d_percent/2)+0.5))
 
         # Inform the outgoing connections of the tool's progress.
         self.parent.unique_output_anchor.update_progress(d_percent)
@@ -196,8 +179,15 @@ class IncomingInterface:
 
     def ii_close(self):
         """
+        Responsible for outputting the final count of unique and duplicates as a message, and closing out both anchors.
         Called when the incoming connection has finished passing all of its records.
         """
+
+        self.parent.alteryx_engine.output_message(
+            self.parent.n_tool_id,
+            Sdk.EngineMessageType.info,
+            self.parent.xmsg('{} unique records and {} dupes were found'.format(self.records_unique, self.records_dupe))
+        )
 
         # Close outgoing connections.
         self.parent.unique_output_anchor.close()
