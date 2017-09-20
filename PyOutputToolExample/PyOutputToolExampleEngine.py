@@ -8,7 +8,7 @@ class AyxPlugin:
     Implements the plugin interface methods, to be utilized by the Alteryx engine to communicate with a plugin.
     Prefixed with "pi_", the Alteryx engine will expect the below five interface methods to be defined.
     """
-    def __init__(self, n_tool_id: int, engine_interface: object, generic_engine: object, output_anchor_mgr: object):
+    def __init__(self, n_tool_id: int, alteryx_engine: object, generic_engine: object, output_anchor_mgr: object):
         """
         Acts as the constructor for AyxPlugin.
         :param n_tool_id: The assigned unique identification for a tool instance.
@@ -23,7 +23,7 @@ class AyxPlugin:
         self.initialized = False
 
         # Engine handles
-        self.alteryx_engine = engine_interface
+        self.alteryx_engine = alteryx_engine
         self.generic_engine = generic_engine
 
 
