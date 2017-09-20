@@ -181,7 +181,7 @@ class IncomingInterface:
             record = ','.join([extract_records(field, in_record) for field in self.record_info_in])
             # Open the file only on first record
             if self.first_record:
-                self.parent.file = open(self.parent.file_output_path, 'a')
+                self.parent.file = open(self.parent.file_output_path, 'a', encoding='utf-8')
                 self.parent.file.write(self.field_names + '\n' + record)
                 self.first_record = False
             else:
