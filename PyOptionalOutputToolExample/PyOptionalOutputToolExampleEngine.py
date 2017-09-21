@@ -1,14 +1,13 @@
 import AlteryxPythonSDK as Sdk
 import xml.etree.ElementTree as Et
 import ast
-import os
-
 
 class AyxPlugin:
     """
     Implements the plugin interface methods, to be utilized by the Alteryx engine to communicate with a plugin.
     Prefixed with "pi_", the Alteryx engine will expect the below five interface methods to be defined.
     """
+
     def __init__(self, n_tool_id: int, alteryx_engine: object, generic_engine: object, output_anchor_mgr: object):
         """
         Acts as the constructor for AyxPlugin.
@@ -17,6 +16,7 @@ class AyxPlugin:
         :param generic_engine: An abstraction of alteryx_engine.
         :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
         """
+
         # Miscellaneous properties
         self.n_tool_id = n_tool_id
         self.name = 'OptionalOutputPython_' + str(self.n_tool_id)
@@ -45,6 +45,7 @@ class AyxPlugin:
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
         :param str_xml: The raw XML from the GUI.
         """
+
         # Getting the dataName data property from the GUI config
         self.send_downstream = ast.literal_eval(Et.fromstring(str_xml).find('sendDownstream').text)
         self.create_file = ast.literal_eval(Et.fromstring(str_xml).find('createFile').text)
@@ -74,6 +75,7 @@ class AyxPlugin:
         :param str_name: The name of the wire, defined by the workflow author.
         :return: The IncomingInterface object(s).
         """
+
         self.single_input = IncomingInterface(self)
         return self.single_input
 
@@ -83,6 +85,7 @@ class AyxPlugin:
         :param str_name: The name of the output connection anchor, defined in the Config.xml file.
         :return: True signifies that the connection is accepted.
         """
+
         return True
 
     def pi_push_all_records(self, n_record_limit: int):
@@ -92,6 +95,7 @@ class AyxPlugin:
         :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
         :return: True for success, False for failure.
         """
+
         self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Missing Incoming Connection'))
         return False
 
@@ -100,6 +104,7 @@ class AyxPlugin:
         Called after all records have been processed.
         :param b_has_errors: Set to true to not do the final processing.
         """
+
         # Close the csv file after records are appended
         if self.create_file and self.file is not None:
             self.file.close()
@@ -111,6 +116,7 @@ class AyxPlugin:
         :param msg_string: The user-facing string.
         :return: msg_string
         """
+
         return msg_string
 
 class IncomingInterface:
@@ -119,11 +125,13 @@ class IncomingInterface:
     utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
     Prefixed with "ii_", the Alteryx engine will expect the below four interface methods to be defined.
     """
+    
     def __init__(self, parent: object):
         """
         Acts as the constructor for IncomingInterface. Instance variable initializations should happen here for PEP8 compliance.
         :param parent: AyxPlugin
         """
+
         # Miscellaneous properties
         self.parent = parent
         self.field_names = None
@@ -141,6 +149,7 @@ class IncomingInterface:
         :param record_info_in: A RecordInfo object containing the XML representation for the incoming connection's field and sort properties.
         :return: True
         """
+
         # Storing the argument being passed to the record_info_in parameter
         self.record_info_in = record_info_in
 
@@ -169,6 +178,7 @@ class IncomingInterface:
           - ii_push_record calling limit has been reached.
           - There is a downstream error.
         """
+
         if self.parent.create_file:
             # Helper function to extract data by field for each record
             def extract_records(field, in_record):
@@ -200,6 +210,7 @@ class IncomingInterface:
         Called when by the upstream tool to report what percentage of records have been pushed.
         :param d_percent: Value between 0.0 and 1.0.
         """
+        
         # Inform the Alteryx engine of the tool's progress
         self.parent.alteryx_engine.output_tool_progress(self.parent.n_tool_id, d_percent)
         if self.parent.send_downstream:
