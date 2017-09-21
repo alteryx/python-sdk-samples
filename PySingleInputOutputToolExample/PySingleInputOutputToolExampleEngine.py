@@ -25,6 +25,7 @@ class AyxPlugin:
         self.n_record_select = None
         self.xml_sort_info = ''
         self.do_sort = False
+        self.field_selection = None
 
         # Engine handles
         self.alteryx_engine = alteryx_engine
@@ -42,13 +43,14 @@ class AyxPlugin:
 
         try:  # Getting the dataName data property from the Gui.html
             self.n_record_select = Et.fromstring(str_xml).find('NRecords').text
-            field_selection = Et.fromstring(str_xml).find('FieldSelect').text
+            if Et.fromstring(str_xml).find('FieldSelect') is not None:
+                self.field_selection = Et.fromstring(str_xml).find('FieldSelect').text
             order_selection = Et.fromstring(str_xml).find('OrderType').text
         except AttributeError:
-            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, xmsg('Invalid XML: ' + str_xml))
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Invalid XML: ' + str_xml))
             raise
 
-        if field_selection is not None:
+        if self.field_selection is not None:
             self.do_sort = True
 
         if self.do_sort:
@@ -60,12 +62,12 @@ class AyxPlugin:
             #
 
             # Building out the <SortInfo>
-            self.build_sort_info("SortInfo", field_selection, order_selection)
+            self.build_sort_info("SortInfo", self.field_selection, order_selection)
 
         # Getting the output anchor from Config.xml by the output connection name
         self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
 
-    def pi_add_incoming_connection(self, str_type: str, str_name: str):
+    def pi_add_incoming_connection(self, str_type: str, str_name: str) -> object:
         """
         The IncomingInterface objects are instantiated here, one object per incoming connection.
         Called when the Alteryx engine is attempting to add an incoming data connection.
@@ -79,7 +81,7 @@ class AyxPlugin:
         self.single_input = IncomingInterface(self)
         return self.single_input
 
-    def pi_add_outgoing_connection(self, str_name: str):
+    def pi_add_outgoing_connection(self, str_name: str) -> bool:
         """
         Called when the Alteryx engine is attempting to add an outgoing data connection.
         :param str_name: The name of the output connection anchor, defined in the Config.xml file.
@@ -88,7 +90,7 @@ class AyxPlugin:
 
         return True
 
-    def pi_push_all_records(self, n_record_limit: int):
+    def pi_push_all_records(self, n_record_limit: int) -> bool:
         """
         Called by the Alteryx engine for tools that have no incoming connection connected.
         Only pertinent to tools which have no upstream connections, like the Input tool.
@@ -96,7 +98,7 @@ class AyxPlugin:
         :return: True for success, False for failure.
         """
 
-        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, xmsg('Missing Incoming Connection'))
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Missing Incoming Connection'))
         return False
 
     def pi_close(self, b_has_errors: bool):
@@ -125,8 +127,7 @@ class AyxPlugin:
         # Decode to string and remove the excess xml info
         self.xml_sort_info += xml_string.decode('utf8').replace("<?xml version='1.0' encoding='utf8'?>\n", "")
 
-    @staticmethod
-    def xmsg(msg_string: str):
+    def xmsg(self, msg_string: str) -> str:
         """
         A non-interface, non-operational placeholder for the eventual localization of predefined user-facing strings.
         :param msg_string: The user-facing string.
@@ -152,7 +153,7 @@ class IncomingInterface:
         self.parent = parent
         self.record_cnt = 0
 
-    def ii_init(self, record_info_in: object):
+    def ii_init(self, record_info_in: object) -> bool:
         """
         Called when the incoming connection's record metadata is available or has changed, and
         has let the Alteryx engine know what its output will look like.
@@ -168,7 +169,7 @@ class IncomingInterface:
 
         return True
 
-    def ii_push_record(self, in_record: object):
+    def ii_push_record(self, in_record: object) -> bool:
         """
         Responsible for pushing records out, under a count limit set by the user in n_record_select.
         Called when an input record is being sent to the plugin.
