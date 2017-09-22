@@ -40,16 +40,24 @@ class AyxPlugin:
         self.temp_folder = self.alteryx_engine.get_init_var('TempPath')
         self.file_output_path = ''
 
-    def pi_init(self, str_xml: str):
+    def pi_init(self, str_xml: str) -> bool:
         """
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
         :param str_xml: The raw XML from the GUI.
         """
 
-        # Getting the dataName data property from the GUI config
-        self.send_downstream = ast.literal_eval(Et.fromstring(str_xml).find('sendDownstream').text)
-        self.create_file = ast.literal_eval(Et.fromstring(str_xml).find('createFile').text)
-        self.file_output_name = Et.fromstring(str_xml).find('fileOutputName').text
+        try:
+            # Getting the dataName data property from the GUI config
+            # If statements check if the XML node exists before assigning values to array
+            if Et.fromstring(str_xml).find('sendDownstream') is not None:
+                self.send_downstream = ast.literal_eval(Et.fromstring(str_xml).find('sendDownstream').text)
+            if Et.fromstring(str_xml).find('createFile') is not None:
+                self.create_file = ast.literal_eval(Et.fromstring(str_xml).find('createFile').text)
+            if Et.fromstring(str_xml).find('fileOutputName') is not None:
+                self.file_output_name = Et.fromstring(str_xml).find('fileOutputName').text
+        except:
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Invalid XML: ' + str_xml))
+            raise
 
         if self.file_output_name is None:
             self.file_output_name = 'data_output'
@@ -67,7 +75,7 @@ class AyxPlugin:
 
         return True
 
-    def pi_add_incoming_connection(self, str_type: str, str_name: str):
+    def pi_add_incoming_connection(self, str_type: str, str_name: str) -> object:
         """
         The IncomingInterface objects are instantiated here, one object per incoming connection.
         Called when the Alteryx engine is attempting to add an incoming data connection.
@@ -79,7 +87,7 @@ class AyxPlugin:
         self.single_input = IncomingInterface(self)
         return self.single_input
 
-    def pi_add_outgoing_connection(self, str_name: str):
+    def pi_add_outgoing_connection(self, str_name: str) -> bool:
         """
         Called when the Alteryx engine is attempting to add an outgoing data connection.
         :param str_name: The name of the output connection anchor, defined in the Config.xml file.
@@ -88,7 +96,7 @@ class AyxPlugin:
 
         return True
 
-    def pi_push_all_records(self, n_record_limit: int):
+    def pi_push_all_records(self, n_record_limit: int) -> bool:
         """
         Called by the Alteryx engine for tools that have no incoming connection connected.
         Only pertinent to tools which have no upstream connections, like the Input tool.
@@ -110,7 +118,7 @@ class AyxPlugin:
             self.file.close()
         return
 
-    def xmsg(self, msg_string: str):
+    def xmsg(self, msg_string: str) -> str:
         """
         A non-interface, non-operational placeholder for the eventual localization of predefined user-facing strings.
         :param msg_string: The user-facing string.
@@ -142,7 +150,7 @@ class IncomingInterface:
         self.record_info_out = None
         return
     
-    def ii_init(self, record_info_in: object):
+    def ii_init(self, record_info_in: object) -> bool:
         """
         Called when the incoming connection's record metadata is available or has changed, and
         has let the Alteryx engine know what its output will look like.
@@ -169,7 +177,7 @@ class IncomingInterface:
 
         return True
 
-    def ii_push_record(self, in_record: object):
+    def ii_push_record(self, in_record: object) -> bool:
         """
         Responsible for pushing records out, and outputting the user-selected message before the first record push.
         Called when an input record is being sent to the plugin.
@@ -201,7 +209,7 @@ class IncomingInterface:
         if not self.parent.send_downstream:
             self.parent.output_anchor = None
             return True
-
+        # Send records as is to output anchor
         self.parent.output_anchor.push_record(in_record)
         return True
 
