@@ -48,6 +48,7 @@ class AyxPlugin:
 
         try:
             # Getting the dataName data property from the GUI config
+            # If statements check if the XML node exists before assigning values to array
             if Et.fromstring(str_xml).find('sendDownstream') is not None:
                 self.send_downstream = ast.literal_eval(Et.fromstring(str_xml).find('sendDownstream').text)
             if Et.fromstring(str_xml).find('createFile') is not None:
@@ -208,7 +209,7 @@ class IncomingInterface:
         if not self.parent.send_downstream:
             self.parent.output_anchor = None
             return True
-
+        # Send records as is to output anchor
         self.parent.output_anchor.push_record(in_record)
         return True
 
