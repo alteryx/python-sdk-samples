@@ -14,7 +14,7 @@ class AyxPlugin:
         """
         Acts as the constructor for AyxPlugin.
         :param n_tool_id: The assigned unique identification for a tool instance.
-        :param engine_interface: Provides an interface into the Alteryx engine.
+        :param alteryx_engine: Provides an interface into the Alteryx engine.
         :param generic_engine: An abstraction of alteryx_engine.
         :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
         """
@@ -93,6 +93,11 @@ class AyxPlugin:
         if not self.initialized:
             return False
 
+        # Check if input file name is empty.
+        if not self.file_input_name:
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Please specify a csv file'))
+            return False
+
         # Check file extension and throw error if not csv.
         if not self.is_csv():
             self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('This tool only accepts csv files'))
@@ -161,7 +166,7 @@ class AyxPlugin:
         A non-interface method.
         Responsible for determining whether file is csv or not.
         """
-        filename, file_extension = os.path.splitext(str(self.file_input_name))
+        filename, file_extension = os.path.splitext(self.file_input_name)
         if file_extension.lower() == '.csv':
             return True
         return False
