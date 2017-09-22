@@ -59,7 +59,7 @@ class AyxPlugin:
         self.inputs.append(IncomingInterface(self, str_type, str_name))
         return self.inputs[-1]
 
-    def pi_add_outgoing_connection(self, str_name) -> bool:
+    def pi_add_outgoing_connection(self, str_name: str) -> bool:
         """
           Called when the Alteryx engine is attempting to add an outgoing data connection.
           :param str_name: The name of the output connection anchor, defined in the Config.xml file.
@@ -67,7 +67,7 @@ class AyxPlugin:
           """
         return True
 
-    def pi_push_all_records(self, n_record_limit) -> bool:
+    def pi_push_all_records(self, n_record_limit: int) -> bool:
         """
         Called by the Alteryx engine for tools that have no incoming connection connected.
         Only pertinent to tools which have no upstream connections, like the Input tool.
@@ -78,7 +78,7 @@ class AyxPlugin:
         self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, 'Missing Incoming Connection')
         return False
 
-    def pi_close(self, b_has_errors):
+    def pi_close(self, b_has_errors: bool):
         """
         Called after all records have been processed..
         :param b_has_errors: Set to true to not do the final processing.
@@ -96,7 +96,7 @@ class AyxPlugin:
 
         return msg_string
 
-    def setup_record_copier(self, input_):
+    def setup_record_copier(self, input_: object):
         """
         Prepares the outgoing stream's meta data by copying the incoming meta data from each input stream
         :param input_: One of the incoming connection objects.
@@ -164,7 +164,7 @@ class AyxPlugin:
         # Copy the latest record from each input into the outgoing stream.
         for input_ in self.inputs:
             for record in input_.record_list:
-                # Resets the capacity for variable-length data in this record to 0 bytes, to prevent unexpected results.
+                # Resets the capacity for variable-length data in this record to 0 bytes (default if no number specified.
                 self.record_creator.reset()
 
                 # Setting all the fields to null in record_creator so that if records don't appear for certain fields they will show up as null records.
@@ -197,7 +197,7 @@ class IncomingInterface:
     Prefixed with "ii_", the Alteryx engine will expect the below four interface methods to be defined.
     """
 
-    def __init__(self, parent, type_, name):
+    def __init__(self, parent: object, type_: str, name: str):
         """
         Acts as the constructor for IncomingInterface. Instance variable initializations should happen here for PEP8 compliance.
         :param parent: AyxPlugin
@@ -217,7 +217,7 @@ class IncomingInterface:
         self.in_record = None
         self.record_list = []
 
-    def ii_init(self, record_info_in) -> bool:
+    def ii_init(self, record_info_in: object) -> bool:
         """
         Called when the incoming connection's record metadata is available or has changed, and
         has let the Alteryx engine know what its output will look like.
@@ -239,7 +239,7 @@ class IncomingInterface:
         self.record_info_in = record_info_in
         return True
 
-    def ii_push_record(self, in_record) -> bool:
+    def ii_push_record(self, in_record: object) -> bool:
         """
         Called when an input record is being sent to the plugin.
         :param in_record: The data for the incoming record.
@@ -253,7 +253,7 @@ class IncomingInterface:
         self.record_copier.copy(self.record_list[-1], in_record)
         return True
 
-    def ii_update_progress(self, d_percent):
+    def ii_update_progress(self, d_percent: int):
         """
           Called when by the upstream tool to report what percentage of records have been pushed.
           :param d_percent: Value between 0.0 and 1.0.
