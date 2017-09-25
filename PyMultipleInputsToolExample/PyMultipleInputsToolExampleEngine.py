@@ -8,8 +8,8 @@ class AyxPlugin:
     """
     Implements the plugin interface methods, to be utilized by the Alteryx engine to communicate with a plugin.
     Prefixed with "pi_", the Alteryx engine will expect the below five interface methods to be defined.
-
     """
+
     def __init__(self, n_tool_id: int, alteryx_engine: object, generic_engine: object, output_anchor_mgr: object):
         """
         Acts as the constructor for AyxPlugin.
@@ -50,7 +50,7 @@ class AyxPlugin:
         # Getting the output anchor from Config.xml by the output connection name
         self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
 
-    def pi_add_incoming_connection(self, str_type: str, str_name: str):
+    def pi_add_incoming_connection(self, str_type: str, str_name: str) -> object:
         """
         The IncomingInterface objects are instantiated here, one object per incoming connection.
         Called when the Alteryx engine is attempting to add an incoming data connection.
@@ -66,7 +66,7 @@ class AyxPlugin:
             self.right_input = IncomingInterface(self)
             return self.right_input
 
-    def pi_add_outgoing_connection(self, str_name: str):
+    def pi_add_outgoing_connection(self, str_name: str) -> bool:
         """
         Called when the Alteryx engine is attempting to add an outgoing data connection.
         :param str_name: The name of the output connection anchor, defined in the Config.xml file.
@@ -75,7 +75,7 @@ class AyxPlugin:
 
         return True
 
-    def pi_push_all_records(self, n_record_limit: int):
+    def pi_push_all_records(self, n_record_limit: int) -> bool:
         """
         Called by the Alteryx engine for tools that have no incoming connection connected.
         Only pertinent to tools which have no upstream connections, like the Input tool.
@@ -83,7 +83,7 @@ class AyxPlugin:
         :return: True for success, False for failure.
         """
 
-        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, xmsg('Misssing Incoming Connection'))
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Misssing Incoming Connection'))
         return False
 
     def pi_close(self, b_has_errors: bool):
@@ -99,6 +99,7 @@ class AyxPlugin:
         """
         Helper to verify end of processing for both incoming connections.
         """
+
         if self.right_input.input_complete and self.left_input.input_complete:
             self.process_output()
 
@@ -109,6 +110,7 @@ class AyxPlugin:
         :param start_index: The starting field position of one of the incoming connection objects.
         :return: The starting field position for the next incoming connection object.
         """
+
         child.record_copier = Sdk.RecordCopier(self.record_info_out, child.record_info_in)
         for index in range(child.record_info_in.num_fields):
             child.record_copier.add(start_index + index, index)
@@ -122,7 +124,7 @@ class AyxPlugin:
         """
 
         # ====================================================
-        # Output progress stuff ==============================
+        # Setting up variables to track output progress ======
         total_records = max(len(self.left_input.record_list),len(self.right_input.record_list))
         num_records_output = 0
         # ====================================================
@@ -178,7 +180,7 @@ class AyxPlugin:
             self.output_anchor.push_record(output_records)
 
             # ====================================================
-            # Output progress stuff ==============================
+            # Update output progress =============================
             num_records_output += 1
             output_progress = num_records_output/total_records
 
@@ -201,8 +203,8 @@ class AyxPlugin:
         input_percent = (self.right_input.d_progress_percentage + self.left_input.d_progress_percentage) / 2
         self.alteryx_engine.output_tool_progress(self.n_tool_id, input_percent / 2 )
 
-    @staticmethod
-    def xmsg(msg_string: str):
+
+    def xmsg(self, msg_string: str):
         """
         A non-interface, non-operational placeholder for the eventual localization of predefined user-facing strings.
         :param msg_string: The user-facing string.
@@ -234,7 +236,7 @@ class IncomingInterface:
         self.record_list = []
         self.record_copier = None
 
-    def ii_init(self, record_info_in: object):
+    def ii_init(self, record_info_in: object) -> bool:
         """
         Called when the incoming connection's record metadata is available or has changed, and
         has let the Alteryx engine know what its output will look like.
@@ -258,7 +260,7 @@ class IncomingInterface:
         self.record_info_in = record_info_in
         return True
 
-    def ii_push_record(self, in_record: object):
+    def ii_push_record(self, in_record: object) -> bool:
         """
         Appending the incoming record for later use.
         Called when an input record is being sent to the plugin.
