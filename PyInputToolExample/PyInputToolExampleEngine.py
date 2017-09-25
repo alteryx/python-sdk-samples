@@ -103,6 +103,11 @@ class AyxPlugin:
             self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('This tool only accepts csv files'))
             return False
 
+        # Check if path exists and throws error if it does not
+        if not os.path.exists(self.file_input_name):
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('No such file or directory: ' + self.file_input_name))
+            return False
+
         # Save a reference to the RecordInfo passed into this function in the global namespace, so we can access it later.
         self.record_info_out = Sdk.RecordInfo(self.generic_engine)
 
