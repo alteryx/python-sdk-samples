@@ -8,7 +8,6 @@ class AyxPlugin:
         Acts as the constructor for AyxPlugin.
         :param n_tool_id: The assigned unique identification for a tool instance.
         :param alteryx_engine: Provides an interface into the Alteryx engine.
-        :param generic_engine: An abstraction of alteryx_engine.
         :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
         """
 
