@@ -187,6 +187,17 @@ class IncomingInterface:
           - There is a downstream error.
         """
 
+        # Check length of filename
+        if len(self.parent.file_output_name) > 100:
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('Maximum filename length is 100'))
+            return False
+
+        # Check for special characters in filename
+        special_chars = set('/\;?*:"<>|')
+        if any((c in special_chars) for c in self.parent.file_output_name):
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('These characters are not allowed in the filename: /\;?*:"<>|'))
+            return False
+
         if self.parent.create_file:
             # Helper function to extract data by field for each record
             def extract_records(field, in_record):
