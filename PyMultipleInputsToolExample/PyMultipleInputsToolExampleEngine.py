@@ -27,8 +27,6 @@ class AyxPlugin:
         self.right_prefix = ''
         self.record_info_out = None
         self.record_creator = None
-        self.initialized = True
-        self.count_inputs = 0
 
         # Engine handles
         self.alteryx_engine = alteryx_engine
@@ -58,8 +56,6 @@ class AyxPlugin:
         :param str_name: The name of the wire, defined by the workflow author.
         :return: The IncomingInterface object(s).
         """
-
-        self.count_inputs += 1
 
         if str_type == 'Left':
             self.left_input = IncomingInterface(self)
@@ -265,8 +261,6 @@ class IncomingInterface:
 
         # Storing for later use
         self.record_info_in = record_info_in
-
-        self.initialized = True
 
         return True
 
