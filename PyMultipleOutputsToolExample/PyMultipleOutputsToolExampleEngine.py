@@ -3,12 +3,11 @@ import xml.etree.ElementTree as Et
 
 
 class AyxPlugin:
-    def __init__(self, n_tool_id: int, alteryx_engine: object, generic_engine: object, output_anchor_mgr: object):
+    def __init__(self, n_tool_id: int, alteryx_engine: object, output_anchor_mgr: object):
         """
         Acts as the constructor for AyxPlugin.
         :param n_tool_id: The assigned unique identification for a tool instance.
         :param alteryx_engine: Provides an interface into the Alteryx engine.
-        :param generic_engine: An abstraction of alteryx_engine.
         :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
         """
 
@@ -20,7 +19,6 @@ class AyxPlugin:
         
         # Engine handles
         self.alteryx_engine = alteryx_engine
-        self.generic_engine = generic_engine
 
         # Output anchor management
         self.output_anchor_mgr = output_anchor_mgr
@@ -33,11 +31,8 @@ class AyxPlugin:
         :param str_xml: The raw XML from the GUI.
         """
 
-        try:  # Getting the dataName data property from the Gui.html
-            self.field_selection = Et.fromstring(str_xml).find('FieldSelect').text
-        except AttributeError:
-            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Invalid XML: ' + str_xml))
-            raise
+        # Getting the dataName data property from the Gui.html
+        self.field_selection = Et.fromstring(str_xml).find('FieldSelect').text if 'FieldSelect' in str_xml else None
 
         # Getting the output anchors from Config.xml by the output connection names
         self.unique_output_anchor = self.output_anchor_mgr.get_output_anchor('Unique')
@@ -72,7 +67,7 @@ class AyxPlugin:
         :return: True for success, False for failure.
         """
 
-        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Missing Incoming Connection'))
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Missing Incoming Connection.'))
         return False
 
     def pi_close(self, b_has_errors: bool):
@@ -123,6 +118,10 @@ class IncomingInterface:
         :param record_info_in: A RecordInfo object for the incoming connection's fields.
         :return: True for success, otherwise False.
         """
+
+        if self.parent.field_selection is None:
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('Select a field.'))
+            return False
 
         # Storing record_info_in for later use.
         self.record_info_in = record_info_in
