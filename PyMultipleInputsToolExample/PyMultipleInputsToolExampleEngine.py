@@ -10,12 +10,11 @@ class AyxPlugin:
     Prefixed with "pi_", the Alteryx engine will expect the below five interface methods to be defined.
     """
 
-    def __init__(self, n_tool_id: int, alteryx_engine: object, generic_engine: object, output_anchor_mgr: object):
+    def __init__(self, n_tool_id: int, alteryx_engine: object, output_anchor_mgr: object):
         """
         Acts as the constructor for AyxPlugin.
         :param n_tool_id: The assigned unique identification for a tool instance.
         :param alteryx_engine: Provides an interface into the Alteryx engine.
-        :param generic_engine: An abstraction of alteryx_engine.
         :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
         """
 
@@ -28,10 +27,11 @@ class AyxPlugin:
         self.right_prefix = ''
         self.record_info_out = None
         self.record_creator = None
+        self.initialized = True
+        self.count_inputs = 0
 
         # Engine handles
         self.alteryx_engine = alteryx_engine
-        self.generic_engine = generic_engine
 
         # Output anchor management
         self.output_anchor_mgr = output_anchor_mgr
@@ -59,12 +59,16 @@ class AyxPlugin:
         :return: The IncomingInterface object(s).
         """
 
+        self.count_inputs += 1
+
         if str_type == 'Left':
             self.left_input = IncomingInterface(self)
             return self.left_input
-        else:
+        elif str_type == 'Right':
             self.right_input = IncomingInterface(self)
             return self.right_input
+        else:
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Invalid Input Connection'))
 
     def pi_add_outgoing_connection(self, str_name: str) -> bool:
         """
@@ -88,7 +92,7 @@ class AyxPlugin:
 
     def pi_close(self, b_has_errors: bool):
         """
-        Called after all records have been processed..
+        Called after all records have been processed.
         :param b_has_errors: Set to true to not do the final processing.
         """
 
@@ -99,9 +103,12 @@ class AyxPlugin:
         """
         Helper to verify end of processing for both incoming connections.
         """
-
-        if self.right_input.input_complete and self.left_input.input_complete:
-            self.process_output()
+        if self.right_input is not None and self.left_input is not None:
+            if self.right_input.input_complete and self.left_input.input_complete:
+                self.process_output()
+        else:
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error,
+                                               self.xmsg('Both left and right inputs must have connections'))
 
     def setup_record_copier(self, child: object, start_index: int):
         """
@@ -130,7 +137,7 @@ class AyxPlugin:
         # ====================================================
 
         # Building the RecordInfo object for the outgoing stream.
-        self.record_info_out = Sdk.RecordInfo(self.generic_engine)
+        self.record_info_out = Sdk.RecordInfo(self.alteryx_engine)
         self.record_info_out.init_from_xml(self.left_input.record_info_in.get_record_xml_meta_data(True),
                                            self.left_prefix + '_' if self.left_prefix is not None else '')
         self.record_info_out.init_from_xml(self.right_input.record_info_in.get_record_xml_meta_data(),
@@ -199,10 +206,10 @@ class AyxPlugin:
         Update progress based on records received from the inputs.
         """
 
-        # We're assuming receiving the input data accounts for half the progress
-        input_percent = (self.right_input.d_progress_percentage + self.left_input.d_progress_percentage) / 2
-        self.alteryx_engine.output_tool_progress(self.n_tool_id, input_percent / 2 )
-
+        if self.right_input is not None and self.left_input is not None:
+            # We're assuming receiving the input data accounts for half the progress
+            input_percent = (self.right_input.d_progress_percentage + self.left_input.d_progress_percentage) / 2
+            self.alteryx_engine.output_tool_progress(self.n_tool_id, input_percent / 2 )
 
     def xmsg(self, msg_string: str):
         """
@@ -258,6 +265,9 @@ class IncomingInterface:
 
         # Storing for later use
         self.record_info_in = record_info_in
+
+        self.initialized = True
+
         return True
 
     def ii_push_record(self, in_record: object) -> bool:
