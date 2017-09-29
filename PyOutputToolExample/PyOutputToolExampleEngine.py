@@ -45,7 +45,7 @@ class AyxPlugin:
 
         self.initialized = True
 
-    def pi_add_incoming_connection(self, str_type: str, str_name: str):
+    def pi_add_incoming_connection(self, str_type: str, str_name: str) -> object:
         """
         The IncomingInterface objects are instantiated here, one object per incoming connection.
         Called when the Alteryx engine is attempting to add an incoming data connection.
@@ -64,7 +64,7 @@ class AyxPlugin:
        """
        return True
 
-    def pi_push_all_records(self, n_record_limit: int):
+    def pi_push_all_records(self, n_record_limit: int) -> bool:
         """
         Called by the Alteryx engine for tools that have no incoming connection connected.
         Only pertinent to tools which have no upstream connections, like the Input tool.
@@ -81,7 +81,7 @@ class AyxPlugin:
         """
         pass
 
-    def xmsg(self, msg_string: str):
+    def xmsg(self, msg_string: str) -> str:
         """
         A non-interface, non-operational placeholder for the eventual localization of predefined user-facing strings.
         :param msg_string: The user-facing string.
@@ -113,8 +113,9 @@ class IncomingInterface:
         self.field_names = None
         self.write_to_file = None
         self.first_record = True
+        self.special_chars = set('/;?*"<>|')
 
-    def ii_init(self, record_info_in: object):
+    def ii_init(self, record_info_in: object) -> bool:
         """
         Called when the incoming connection's record metadata is available or has changed, and
         has let the Alteryx engine know what its output will look like.
@@ -137,12 +138,22 @@ class IncomingInterface:
 
         return True
 
-    def ii_push_record(self, in_record: object):
+    def ii_push_record(self, in_record: object) -> bool:
         """
          Called when an input record is being sent to the plugin.
          :param in_record: The data for the incoming record.
          :return: True for accepted record.
          """
+
+        # Check length of filename
+        if len(self.parent.str_file_path) > 259:
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Maximum path length is 259'))
+            return False
+        
+        # Check for special characters in filename
+        if any((c in self.special_chars) for c in self.parent.str_file_path):
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('These characters are not allowed in the filename: /;?*"<>|'))
+            return False
         
         # Show error is filename is blank
         if self.parent.str_file_path is None:
