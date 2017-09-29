@@ -194,7 +194,7 @@ class IncomingInterface:
         Called when the incoming connection has finished passing all of its records.
         """
 
-        if self.parent.str_file_path and self.write_to_file is not None:
+        if self.parent.str_file_path is not None and self.write_to_file is not None:
             # Closing out the file
             self.write_to_file.close()
             # Outputting message that the file was written
