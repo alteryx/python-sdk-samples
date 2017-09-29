@@ -131,14 +131,10 @@ class IncomingInterface:
         # Deleting the newline characters in field names if they exist
         self.field_names = self.field_names.replace('\n', '')
 
-        if self.parent.str_file_path is None:
-            # Outputting Error message if no path is entered
-            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Error: Please enter a file path.'))
-        elif os.access(self.parent.str_file_path, os.F_OK):
+        if self.parent.str_file_path is not None and os.access(self.parent.str_file_path, os.F_OK):
             # Outputting Error message if user specified file already exists
             self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Error: ' + self.parent.str_file_path + ' already exists. Please enter a different path.'))
 
-            self.initialized = True
         return True
 
     def ii_push_record(self, in_record: object):
@@ -147,6 +143,11 @@ class IncomingInterface:
          :param in_record: The data for the incoming record.
          :return: True for accepted record.
          """
+        
+        # Show error is filename is blank
+        if self.parent.str_file_path is None:
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Enter a filename'))
+            return False
 
         # Extract_records extracts each record for every field object passed in as a string from record_in
         def extract_records(field, in_record):
