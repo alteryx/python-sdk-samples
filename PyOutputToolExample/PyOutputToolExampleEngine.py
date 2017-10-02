@@ -1,7 +1,7 @@
 import AlteryxPythonSDK
 import xml.etree.ElementTree as ET
 import os
-
+import csv
 
 class AyxPlugin:
     """
@@ -43,9 +43,7 @@ class AyxPlugin:
             self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('Invalid XML: ' + str_xml))
             raise
 
-        self.initialized = True
-
-    def pi_add_incoming_connection(self, str_type: str, str_name: str):
+    def pi_add_incoming_connection(self, str_type: str, str_name: str) -> object:
         """
         The IncomingInterface objects are instantiated here, one object per incoming connection.
         Called when the Alteryx engine is attempting to add an incoming data connection.
@@ -64,7 +62,7 @@ class AyxPlugin:
        """
        return True
 
-    def pi_push_all_records(self, n_record_limit: int):
+    def pi_push_all_records(self, n_record_limit: int) -> bool:
         """
         Called by the Alteryx engine for tools that have no incoming connection connected.
         Only pertinent to tools which have no upstream connections, like the Input tool.
@@ -81,7 +79,7 @@ class AyxPlugin:
         """
         pass
 
-    def xmsg(self, msg_string: str):
+    def xmsg(self, msg_string: str) -> str:
         """
         A non-interface, non-operational placeholder for the eventual localization of predefined user-facing strings.
         :param msg_string: The user-facing string.
@@ -89,6 +87,19 @@ class AyxPlugin:
         """
 
         return msg_string
+
+    @staticmethod
+    def write_lists_to_csv(file_temp_path: str, field_lists: list):
+        """
+        A non-interface, helper function that handles writing to csv and clearing the list elements.
+        :param file_temp_path: The default temp path and file name.
+        :param field_lists: The data for all fields.
+        """
+
+        with open(file_temp_path, 'a', encoding='utf-8', newline='') as output_file:
+            csv.writer(output_file, delimiter=',').writerows(zip(*field_lists))
+        for sublist in field_lists:
+            del sublist[:]
 
 class IncomingInterface:
     """
@@ -111,10 +122,11 @@ class IncomingInterface:
 
         # Custom members
         self.field_names = None
-        self.write_to_file = None
-        self.first_record = True
+        self.field_lists = []
+        self.counter = 0
+        self.special_chars = set('/;?*"<>|')
 
-    def ii_init(self, record_info_in: object):
+    def ii_init(self, record_info_in: object) -> bool:
         """
         Called when the incoming connection's record metadata is available or has changed, and
         has let the Alteryx engine know what its output will look like.
@@ -125,57 +137,46 @@ class IncomingInterface:
         # Storing the argument being passed to the record_info_in parameter
         self.record_info_in = record_info_in
 
-        # Extracting all the field names from record_info_in to a list
-        self.field_names = ','.join([field.name for field in record_info_in])
-
-        # Deleting the newline characters in field names if they exist
-        self.field_names = self.field_names.replace('\n', '')
+        # Storing the field names
+        for field in range(record_info_in.num_fields):
+            self.field_lists.append([record_info_in[field].name])
 
         if self.parent.str_file_path is not None and os.access(self.parent.str_file_path, os.F_OK):
             # Outputting Error message if user specified file already exists
             self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Error: ' + self.parent.str_file_path + ' already exists. Please enter a different path.'))
 
+        # Check length of filename
+        if self.parent.str_file_path is not None and len(self.parent.str_file_path) > 259:
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Maximum path length is 259'))
+        
+        # Check for special characters in filename
+        if self.parent.str_file_path is not None and any((c in self.special_chars) for c in self.parent.str_file_path):
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('These characters are not allowed in the filename: /;?*"<>|'))
+        
+        # Show error is filename is blank
+        if self.parent.str_file_path is None or len(self.parent.str_file_path) == 0:
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Enter a filename'))
+
         return True
 
-    def ii_push_record(self, in_record: object):
+    def ii_push_record(self, in_record: object) -> bool:
         """
          Called when an input record is being sent to the plugin.
          :param in_record: The data for the incoming record.
          :return: True for accepted record.
          """
-        
-        # Show error is filename is blank
-        if self.parent.str_file_path is None:
-            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Enter a filename'))
-            return False
 
-        # Extract_records extracts each record for every field object passed in as a string from record_in
-        def extract_records(field, in_record):
-            if field.get_null(in_record):
-                ret = ''
-            elif field.type == 'bool':
-                ret = str(field.get_as_bool(in_record))
-            elif field.type == 'int32':
-                ret = str(field.get_as_int32(in_record))
-            elif field.type == 'int64':
-                ret = str(field.get_as_int64(in_record))
-            elif field.type == 'double':
-                ret = str(field.get_as_double(in_record))
-            else:
-                ret = field.get_as_string(in_record)
-            return ret
+        self.counter += 1
 
-        # Looping through extract_records for each field in record_info_in to get a list of data points for the nth record
-        nth_record = ','.join([extract_records(field, in_record) for field in self.record_info_in])
+        # Storing the string data of in_record
+        for field in range(self.record_info_in.num_fields):
+            in_value = self.record_info_in[field].get_as_string(in_record)
+            self.field_lists[field].append(in_value) if in_value is not None else self.field_lists[field].append('')
 
-        # Using Python's native file write functionality to write each record to the users specified file path
-        # Writing the field names out on the first record iteration
-        if self.first_record:
-            self.write_to_file = open(self.parent.str_file_path, 'a', encoding='utf-8')
-            self.write_to_file.write(self.field_names + '\n' + nth_record)
-            self.first_record = False
-        else:
-            self.write_to_file.write('\n' + nth_record)
+        # Writing when chunk mark is met
+        if self.counter == 1000000:
+            self.parent.write_lists_to_csv(self.parent.str_file_path, self.field_lists)
+            self.counter = 0 # Reset counter
 
         return True
 
@@ -193,8 +194,10 @@ class IncomingInterface:
         Called when the incoming connection has finished passing all of its records.
         """
 
-        if self.parent.str_file_path is not None and self.write_to_file is not None:
-            # Closing out the file
-            self.write_to_file.close()
+        # Write the last chunk
+        if len(self.field_lists[0]) > 1: # First element for each list will always be the field names.
+            self.parent.write_lists_to_csv(self.parent.str_file_path, self.field_lists)
+
+        if self.parent.str_file_path is not None:
             # Outputting message that the file was written
             self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.Status.file_output, self.parent.xmsg(self.parent.str_file_path + "|" + self.parent.str_file_path + " was created."))
