@@ -55,7 +55,7 @@ class AyxPlugin:
         :return: The IncomingInterface object(s).
         """
 
-        self.single_input = IncomingInterface(self, self.file_temp_path)
+        self.single_input = IncomingInterface(self)
         return self.single_input
 
     def pi_add_outgoing_connection(self, str_name: str) -> bool:
@@ -114,7 +114,7 @@ class IncomingInterface:
     Prefixed with "ii_", the Alteryx engine will expect the below four interface methods to be defined.
     """
 
-    def __init__(self, parent: object, file_temp_path: str):
+    def __init__(self, parent: object):
         """
         Acts as the constructor for IncomingInterface. Instance variable initializations should happen here for PEP8 compliance.
         :param parent: AyxPlugin
@@ -123,7 +123,6 @@ class IncomingInterface:
 
         # Miscellaneous properties
         self.parent = parent
-        self.file_temp_path = file_temp_path
         self.field_lists = []
         self.counter = 0
         self.record_info_in = None
@@ -176,7 +175,7 @@ class IncomingInterface:
 
             # Writing when chunk mark is met
             if self.counter == 1000000:
-                self.parent.write_lists_to_csv(self.file_temp_path, self.field_lists)
+                self.parent.write_lists_to_csv(self.parent.file_temp_path, self.field_lists)
                 self.counter = 0  # Reset counter
 
         return True
@@ -201,12 +200,12 @@ class IncomingInterface:
 
         if self.parent.create_file:
             if len(self.field_lists[0]) > 1:  # First element for each list will always be the field names.
-                self.parent.write_lists_to_csv(self.file_temp_path, self.field_lists)
+                self.parent.write_lists_to_csv(self.parent.file_temp_path, self.field_lists)
             # Generates message with link to file
             self.parent.alteryx_engine.output_message(
                 self.parent.n_tool_id,
                 Sdk.Status.file_output,
-                self.parent.xmsg(self.file_temp_path + "|" + self.file_temp_path + " was created.")
+                self.parent.xmsg(self.parent.file_temp_path + "|" + self.parent.file_temp_path + " was created.")
             )
 
         # Close outgoing connections.
