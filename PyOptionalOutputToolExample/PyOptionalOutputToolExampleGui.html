@@ -12,19 +12,13 @@
     <fieldset>
       <legend class='blueTitle'>XMSG("Data Output Options")</legend>
         <ayx data-ui-props='{type:"CheckBox", widgetId:"sendDownstream", label:"XMSG("Pass data downstream")", default:"true"}' data-item-props='{dataName:"sendDownstream"}'></ayx>
-        <ayx data-ui-props='{type:"CheckBox", widgetId:"createFile", label:"XMSG("Create .csv file")"}' data-item-props='{dataName:"createFile"}'></ayx>
-    </fieldset>      
-    <fieldset>      
-      <legend class='blueTitle'>XMSG("CSV File Configuration")</legend>
-      <label>XMSG("Enter CSV File Name")</label>
-      <ayx data-ui-props='{type:"TextBox", widgetId:"fileOutputName"}' data-item-props='{dataName:"fileOutputName"}'></ayx>
+        <ayx data-ui-props='{type:"CheckBox", widgetId:"createFile", label:"XMSG("Write data to .csv file in temp path")"}' data-item-props='{dataName:"createFile"}'></ayx>
     </fieldset>
   </form>
   <script type="text/javascript">
     Alteryx.Gui.BeforeLoad = (manager, AlteryxDataItems, json) => {
       // set the default value for sendDownstream to True
       manager.getDataItem('sendDownstream').setValue('True')
-      manager.getDataItem('fileOutputName').setValue('data_output')   
     }   
   </script>
   <style>
