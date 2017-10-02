@@ -43,8 +43,6 @@ class AyxPlugin:
             self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('Invalid XML: ' + str_xml))
             raise
 
-        # self.initialized = True
-
     def pi_add_incoming_connection(self, str_type: str, str_name: str) -> object:
         """
         The IncomingInterface objects are instantiated here, one object per incoming connection.
