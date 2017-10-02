@@ -7,12 +7,11 @@ class AyxPlugin:
     Implements the plugin interface methods, to be utilized by the Alteryx engine to communicate with a plugin.
     Prefixed with "pi_", the Alteryx engine will expect the below five interface methods to be defined.
     """
-    def __init__(self, n_tool_id: int, alteryx_engine: object, generic_engine: object, output_anchor_mgr: object):
+    def __init__(self, n_tool_id: int, alteryx_engine: object, output_anchor_mgr: object):
         """
        Acts as the constructor for AyxPlugin.
        :param n_tool_id: The assigned unique identification for a tool instance.
        :param alteryx_engine: Provides an interface into the Alteryx engine.
-       :param generic_engine: An abstraction of alteryx_engine.
        :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
        """
 
@@ -20,10 +19,10 @@ class AyxPlugin:
         self.n_tool_id = n_tool_id
         self.name = str('PySingleMultiInput') + str(self.n_tool_id)
         self.closed = False
+        self.message_type = None
 
         # Engine handles
         self.alteryx_engine = alteryx_engine
-        self.generic_engine = generic_engine
 
         # Output anchor management
         self.output_anchor_mgr = output_anchor_mgr
@@ -42,6 +41,8 @@ class AyxPlugin:
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
         :param str_xml: The raw XML from the GUI.
         """
+        # Getting the dataName data property from the GUI config
+        self.message_type = ET.fromstring(str_xml).find('messageType').text
 
         # Getting the output anchor from Config.xml by the output connection name.
         self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
@@ -120,7 +121,7 @@ class AyxPlugin:
         self.inputs.sort(key=lambda inputObj: int(re.findall('[\d+]' , inputObj.name)[-1]))
 
         # Constructing a new RecordInfo object that will contain the metadata of the fields we want to output.
-        self.record_info_out= AlteryxPythonSDK.RecordInfo(self.generic_engine)
+        self.record_info_out= AlteryxPythonSDK.RecordInfo(self.alteryx_engine)
 
         for input_ in self.inputs:
             if (len(self.unique_field_names) == 0):
@@ -137,6 +138,13 @@ class AyxPlugin:
 
                 # Extracting the names of any new and unique names into a new_fields.
                 new_fields = [items for items in other_input_field_names if items not in self.unique_field_names]
+                if len(new_fields)!= 0:
+                    for item in new_fields:
+                        if self.message_type == 'warning':
+                            self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.warning,'The field:' + '"' + item + '"' + 'is not present in the initial input schema')
+                        elif self.message_type == 'error':
+                            self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error,'The field:' + '"' + item + '"' + 'is not present in in the initial input schema')
+
 
                 # Extracting the field metadata of the unique fields so they can be added to record_info_out.
                 new_field_obj = [input_.record_info_in.get_field_by_name(name) for name in new_fields]
