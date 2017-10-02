@@ -9,20 +9,14 @@
 </head>
 <body>
   <form>
-  
     <fieldset>
 		<legend class='blueTitle'>XMSG("Return Top Records")</legend>
 		<div>
 			<label>XMSG("Select the number of records:")</label>
 			<ayx data-ui-props = "{type: 'NumericSpinner', widgetId: 'ns'}" data-item-props = "{dataName: 'NRecords'}"></ayx>
 		</div>
-	</fieldset>
-	
-	</br>
-	
-	<fieldset>
-		<legend class='blueTitle'>XMSG("Sort Incoming Data (Optional)")</legend>
-		<div>
+		<ayx data-ui-props="{type:'CheckBox', label:'Sort Incoming Data (Optional)'}" data-item-props="{dataName:'DoSort'}"></ayx>
+		<div id="sort" style="margin-left: 20px;">
 			<label>XMSG("Select a field to order by:")</label>
 			<ayx data-ui-props = "{type: 'DropDown'}" data-item-props =
 				"{
@@ -33,8 +27,6 @@
 				}"
 			>
 			</ayx>
-		</div>
-		<div>
 			<label>XMSG("Select the order:")</label>
 			<ayx data-ui-props = "{type: 'RadioGroup', widgetId: 'RadioGroup1'}" data-item-props = "{dataName: 'OrderType'}"></ayx>
 		</div>
@@ -54,10 +46,10 @@
           {label: 'Ascending', value: 'Asc'}
         ]
       })
+      operationSelectRadioGroup.setValue('Desc')
       manager.addDataItem(operationSelectRadioGroup)
       manager.bindDataItemToWidget(operationSelectRadioGroup, 'RadioGroup1')
-	  
-    }	
+    }
   </script>
   <style>
   </style>
