@@ -1,6 +1,7 @@
 import AlteryxPythonSDK as Sdk
 import xml.etree.ElementTree as Et
-import ast
+import csv
+
 
 class AyxPlugin:
     """
@@ -8,12 +9,11 @@ class AyxPlugin:
     Prefixed with "pi_", the Alteryx engine will expect the below five interface methods to be defined.
     """
 
-    def __init__(self, n_tool_id: int, alteryx_engine: object, generic_engine: object, output_anchor_mgr: object):
+    def __init__(self, n_tool_id: int, alteryx_engine: object, output_anchor_mgr: object):
         """
         Acts as the constructor for AyxPlugin.
         :param n_tool_id: The assigned unique identification for a tool instance.
         :param alteryx_engine: Provides an interface into the Alteryx engine.
-        :param generic_engine: An abstraction of alteryx_engine.
         :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
         """
 
@@ -21,59 +21,30 @@ class AyxPlugin:
         self.n_tool_id = n_tool_id
         self.name = 'OptionalOutputPython_' + str(self.n_tool_id)
 
-        # Engine handles
+        # Engine handle
         self.alteryx_engine = alteryx_engine
-        self.generic_engine = generic_engine
 
         # Default configuration setting
-        self.send_downstream = None
-        self.create_file = None
-        self.file_output_name = None
+        self.send_downstream = self.create_file = False
+        self.single_input = None
+        self.file_temp_path = alteryx_engine.get_init_var(n_tool_id, 'TempPath') + 'data_output.csv'
 
-        # Input and Output anchor management
+        # Anchor management
         self.output_anchor_mgr = output_anchor_mgr
         self.output_anchor = None
-        self.single_input = None
 
-        # Csv path settings
-        self.file = None
-        self.temp_folder = self.alteryx_engine.get_init_var('TempPath')
-        self.file_output_path = ''
-
-    def pi_init(self, str_xml: str) -> bool:
+    def pi_init(self, str_xml: str):
         """
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
         :param str_xml: The raw XML from the GUI.
         """
 
-        try:
-            # Getting the dataName data property from the GUI config
-            # If statements check if the XML node exists before assigning values to array
-            if Et.fromstring(str_xml).find('sendDownstream') is not None:
-                self.send_downstream = ast.literal_eval(Et.fromstring(str_xml).find('sendDownstream').text)
-            if Et.fromstring(str_xml).find('createFile') is not None:
-                self.create_file = ast.literal_eval(Et.fromstring(str_xml).find('createFile').text)
-            if Et.fromstring(str_xml).find('fileOutputName') is not None:
-                self.file_output_name = Et.fromstring(str_xml).find('fileOutputName').text
-        except:
-            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Invalid XML: ' + str_xml))
-            raise
+        # Getting the dataName data property from the Gui.html
+        self.send_downstream = True if Et.fromstring(str_xml).find('sendDownstream').text == 'True' else False
+        self.create_file = True if Et.fromstring(str_xml).find('createFile').text == 'True' else False
 
-        if self.file_output_name is None:
-            self.file_output_name = 'data_output'
-
-        if self.create_file:
-            self.file_output_path = self.temp_folder + self.file_output_name + '.csv'
-
-        # Prepare output anchor if passing records to downstream tools
-        if self.send_downstream:
-            # Getting the output anchor from Config.xml by the output connection name
-            self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
-        else:            
-            self.output_anchor = None
-            self.output_anchor_mgr = None
-
-        return True
+        # Getting the output anchors from Config.xml
+        self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
 
     def pi_add_incoming_connection(self, str_type: str, str_name: str) -> object:
         """
@@ -84,7 +55,7 @@ class AyxPlugin:
         :return: The IncomingInterface object(s).
         """
 
-        self.single_input = IncomingInterface(self)
+        self.single_input = IncomingInterface(self, self.file_temp_path)
         return self.single_input
 
     def pi_add_outgoing_connection(self, str_name: str) -> bool:
@@ -112,11 +83,7 @@ class AyxPlugin:
         Called after all records have been processed.
         :param b_has_errors: Set to true to not do the final processing.
         """
-
-        # Close the csv file after records are appended
-        if self.create_file and self.file is not None:
-            self.file.close()
-        return
+        pass
 
     def xmsg(self, msg_string: str) -> str:
         """
@@ -127,31 +94,43 @@ class AyxPlugin:
 
         return msg_string
 
+    @staticmethod
+    def write_lists_to_csv(file_temp_path: str, field_lists: list):
+        """
+        A non-interface, helper function that handles writing to csv and clearing the list elements.
+        :param file_temp_path: The default temp path and file name.
+        :param field_lists: The data for all fields.
+        """
+        with open(file_temp_path, 'a', encoding='utf-8', newline='') as output_file:
+            csv.writer(output_file, delimiter=',').writerows(zip(*field_lists))
+        for sublist in field_lists:
+            del sublist[:]
+
+
 class IncomingInterface:
     """
     This class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be
     utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
     Prefixed with "ii_", the Alteryx engine will expect the below four interface methods to be defined.
     """
-    
-    def __init__(self, parent: object):
+
+    def __init__(self, parent: object, file_temp_path: str):
         """
         Acts as the constructor for IncomingInterface. Instance variable initializations should happen here for PEP8 compliance.
         :param parent: AyxPlugin
+        :param file_temp_path: The default temp path and file name.
         """
 
         # Miscellaneous properties
         self.parent = parent
-        self.field_names = None
-        self.first_record = True
-
-        # Record management properties
+        self.file_temp_path = file_temp_path
+        self.field_lists = []
+        self.counter = 0
         self.record_info_in = None
-        self.record_info_out = None
-        return
-    
+
     def ii_init(self, record_info_in: object) -> bool:
         """
+        Initiating output anchor and the field lists by storing the field name as the first element, respectively.
         Called when the incoming connection's record metadata is available or has changed, and
         has let the Alteryx engine know what its output will look like.
         :param record_info_in: A RecordInfo object containing the XML representation for the incoming connection's field and sort properties.
@@ -161,67 +140,45 @@ class IncomingInterface:
         # Storing the argument being passed to the record_info_in parameter
         self.record_info_in = record_info_in
 
-        # Clone the record metadata to outgoing record structure
-        self.record_info_out = self.record_info_in.clone()
-
         if self.parent.send_downstream:
-            # Initialize output anchor with outgoing record metadata
-            self.parent.output_anchor.init(self.record_info_out)
+            # Clone the record metadata to outgoing record structure
+            self.parent.output_anchor.init(self.record_info_in.clone())
 
         if self.parent.create_file:
-            # Extracting all the field names from record_info_in to a list in self.field_names
-            self.field_names = ','.join([field.name for field in record_info_in])
-
-            # Deleting the newline characters in field names if they exist
-            self.field_names = self.field_names.replace('\n', '')
+            # Storing field names
+            for field in range(record_info_in.num_fields):
+                self.field_lists.append([record_info_in[field].name])
 
         return True
 
     def ii_push_record(self, in_record: object) -> bool:
         """
-        Responsible for pushing records out, and outputting the user-selected message before the first record push.
+        Responsible for pushing records out and/or writing to file.
         Called when an input record is being sent to the plugin.
         :param in_record: The data for the incoming record.
-        :return: Will return False if:
-          - ii_push_record calling limit has been reached.
-          - There is a downstream error.
+        :return: True if user chose to pass data downstream or user chose to write data to file, False if neither.
         """
 
-        # Check length of filename
-        if len(self.parent.file_output_name) > 100:
-            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('Maximum filename length is 100'))
+        if not self.parent.send_downstream and not self.parent.create_file:
             return False
 
-        # Check for special characters in filename
-        special_chars = set('/\;?*:"<>|')
-        if any((c in special_chars) for c in self.parent.file_output_name):
-            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('These characters are not allowed in the filename: /\;?*:"<>|'))
-            return False
+        if self.parent.send_downstream:
+            # Push the records out
+            self.parent.output_anchor.push_record(in_record)
 
         if self.parent.create_file:
-            # Helper function to extract data by field for each record
-            def extract_records(field, in_record):
-                if field.get_null(in_record):
-                    record = ''
-                else:
-                    record = field.get_as_string(in_record)
-                return record
-            # Concatenate the data with commas for csv
-            record = ','.join([extract_records(field, in_record) for field in self.record_info_in])
-            # Open the file only on first record
-            if self.first_record:
-                self.parent.file = open(self.parent.file_output_path, 'a', encoding='utf-8')
-                self.parent.file.write(self.field_names + '\n' + record)
-                self.first_record = False
-            else:
-                self.parent.file.write('\n' + record)
-        
-        # End ii_push_record early if not passing data downstream
-        if not self.parent.send_downstream:
-            self.parent.output_anchor = None
-            return True
-        # Send records as is to output anchor
-        self.parent.output_anchor.push_record(in_record)
+            self.counter += 1
+
+            # Storing the string data of in_record
+            for field in range(self.record_info_in.num_fields):
+                in_value = self.record_info_in[field].get_as_string(in_record)
+                self.field_lists[field].append(in_value) if in_value is not None else self.field_lists[field].append('')
+
+            # Writing when chunk mark is met
+            if self.counter == 1000000:
+                self.parent.write_lists_to_csv(self.file_temp_path, self.field_lists)
+                self.counter = 0  # Reset counter
+
         return True
 
     def ii_update_progress(self, d_percent: float):
@@ -229,25 +186,28 @@ class IncomingInterface:
         Called when by the upstream tool to report what percentage of records have been pushed.
         :param d_percent: Value between 0.0 and 1.0.
         """
-        
-        # Inform the Alteryx engine of the tool's progress
+
+        # Inform the Alteryx engine of the tool's progress.
         self.parent.alteryx_engine.output_tool_progress(self.parent.n_tool_id, d_percent)
-        if self.parent.send_downstream:
-            # Inform the outgoing connections of the tool's progress
-            self.parent.output_anchor.update_progress(d_percent)
-        return
+
+        # Inform the outgoing connections of the tool's progress.
+        self.parent.output_anchor.update_progress(d_percent)
 
     def ii_close(self):
         """
+        Responsible for writing any remaining data below chunk threshold if necessary, and providing link to file temp path.
         Called when the incoming connection has finished passing all of its records.
         """
+
         if self.parent.create_file:
-            # Provide feedback on file creation in results pane
-            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, Sdk.EngineMessageType.info, self.parent.file_output_path + self.parent.xmsg(' has been created.'))
-        
-        if self.parent.send_downstream:
-            # Let Alteryx engine know that all records have been sent downstream
-            self.parent.output_anchor.output_record_count(True)
-            # Close outgoing connections
-            self.parent.output_anchor.close()
-        return
+            if len(self.field_lists[0]) > 1:  # First element for each list will always be the field names.
+                self.parent.write_lists_to_csv(self.file_temp_path, self.field_lists)
+            # Generates message with link to file
+            self.parent.alteryx_engine.output_message(
+                self.parent.n_tool_id,
+                Sdk.Status.file_output,
+                self.parent.xmsg(self.file_temp_path + "|" + self.file_temp_path + " was created.")
+            )
+
+        # Close outgoing connections.
+        self.parent.output_anchor.close()
