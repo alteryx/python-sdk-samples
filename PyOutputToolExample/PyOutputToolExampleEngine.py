@@ -48,6 +48,7 @@ class AyxPlugin:
         :param str_name: The name of the wire, defined by the workflow author.
         :return: The IncomingInterface object(s).
         """
+        
         self.single_input = IncomingInterface(self)
         return self.single_input
 
@@ -57,6 +58,7 @@ class AyxPlugin:
        :param str_name: The name of the output connection anchor, defined in the Config.xml file.
        :return: True signifies that the connection is accepted.
        """
+
        return True
 
     def pi_push_all_records(self, n_record_limit: int) -> bool:
@@ -66,6 +68,7 @@ class AyxPlugin:
         :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
         :return: True for success, False for failure.
         """
+        
         self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('Missing Incoming Connection'))
         return False
 
@@ -121,9 +124,9 @@ class IncomingInterface:
         self.field_names = None
         self.field_lists = []
         self.counter = 0
-        self.special_chars = set('/;?*"<>|')
 
         # Error checks
+        self.special_chars = set('/;?*"<>|')
         self.has_special_chars = any((c in self.special_chars) for c in self.parent.str_file_path)
         self.file_exists = os.access(self.parent.str_file_path, os.F_OK)
         self.valid_filename_length = len(self.parent.str_file_path) > 259
@@ -144,8 +147,8 @@ class IncomingInterface:
         for field in range(record_info_in.num_fields):
             self.field_lists.append([record_info_in[field].name])
 
+        # Outputting Error message if user specified file already exists
         if self.file_exists:
-            # Outputting Error message if user specified file already exists
             self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg(self.parent.str_file_path + ' already exists. Please enter a different path.'))
 
         # Check length of filename
@@ -202,7 +205,8 @@ class IncomingInterface:
         """
 
         # Write the last chunk
-        if len(self.field_lists[0]) > 1 and len(self.parent.str_file_path) > 0 and not self.has_special_chars: # First element for each list will always be the field names.
+        # First element for each list will always be the field names.
+        if len(self.field_lists[0]) > 1 and len(self.parent.str_file_path) > 0 and not self.has_special_chars:
             self.parent.write_lists_to_csv(self.parent.str_file_path, self.field_lists)
 
         if len(self.parent.str_file_path) > 0 and not self.valid_filename_length:
