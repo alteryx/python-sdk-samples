@@ -38,13 +38,10 @@
   <script type="text/javascript">
 
   	const displaySort = () => {
-  		console.log(document.getElementById('sort').style)
   		if (Alteryx.Gui.Manager.getDataItem('DoSort').getValue()) {
 			document.getElementById('sort').style.display = 'initial'
-
 			} else {
 				document.getElementById('sort').style.display = 'none'
-  				console.log('WORKS')
   				}
   	}
     Alteryx.Gui.BeforeLoad = (manager, AlteryxDataItems, json) => {
