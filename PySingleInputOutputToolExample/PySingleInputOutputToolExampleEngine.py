@@ -9,12 +9,11 @@ class AyxPlugin:
 
     """
 
-    def __init__(self, n_tool_id: int, alteryx_engine: object, generic_engine: object, output_anchor_mgr: object):
+    def __init__(self, n_tool_id: int, alteryx_engine: object, output_anchor_mgr: object):
         """
         Acts as the constructor for AyxPlugin.
         :param n_tool_id: The assigned unique identification for a tool instance.
         :param alteryx_engine: Provides an interface into the Alteryx engine.
-        :param generic_engine: An abstraction of alteryx_engine.
         :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
         """
 
@@ -29,7 +28,6 @@ class AyxPlugin:
 
         # Engine handles
         self.alteryx_engine = alteryx_engine
-        self.generic_engine = generic_engine
 
         # Output anchor management
         self.output_anchor_mgr = output_anchor_mgr
@@ -43,6 +41,7 @@ class AyxPlugin:
 
         try:  # Getting the dataName data property from the Gui.html
             self.n_record_select = Et.fromstring(str_xml).find('NRecords').text
+            self.do_sort = Et.fromstring(str_xml).find('DoSort').text == 'True'
             if Et.fromstring(str_xml).find('FieldSelect') is not None:
                 self.field_selection = Et.fromstring(str_xml).find('FieldSelect').text
             order_selection = Et.fromstring(str_xml).find('OrderType').text
@@ -50,10 +49,10 @@ class AyxPlugin:
             self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Invalid XML: ' + str_xml))
             raise
 
-        if self.field_selection is not None:
-            self.do_sort = True
+        if self.do_sort and self.field_selection is None:
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, 'Please select field to order by')
 
-        if self.do_sort:
+        elif self.do_sort and self.field_selection is not None:
             # In order to sort by a field, an XML string will need to be built to pass into pre_sort(), as such:
             #
             # <SortInfo>
@@ -78,6 +77,7 @@ class AyxPlugin:
 
         if self.do_sort:
             self.alteryx_engine.pre_sort(str_type, str_name, self.xml_sort_info)
+
         self.single_input = IncomingInterface(self)
         return self.single_input
 
@@ -124,6 +124,7 @@ class AyxPlugin:
         sub_element = 'Field field="{0}" order="{1}"' if order != "" else 'Field field="{0}"'
         Et.SubElement(root, sub_element.format(subelement, order))
         xml_string = Et.tostring(root, encoding='utf8', method='xml')
+
         # Decode to string and remove the excess xml info
         self.xml_sort_info += xml_string.decode('utf8').replace("<?xml version='1.0' encoding='utf8'?>\n", "")
 
