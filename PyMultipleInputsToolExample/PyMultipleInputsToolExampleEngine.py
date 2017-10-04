@@ -21,14 +21,12 @@ class AyxPlugin:
         # Miscellaneous properties
         self.n_tool_id = n_tool_id
         self.name = 'PyMultiInput_' + str(self.n_tool_id)
-        self.left_input = None
-        self.right_input = None
-        self.left_prefix = ''
-        self.right_prefix = ''
+        self.left_input = self.right_input = None
+        self.left_prefix = self.right_prefix = ''
         self.record_info_out = None
         self.record_creator = None
 
-        # Engine handles
+        # Engine handle
         self.alteryx_engine = alteryx_engine
 
         # Output anchor management
@@ -150,7 +148,7 @@ class AyxPlugin:
         self.record_creator = self.record_info_out.construct_record_creator()
 
         # Having the shortest list be the first to output, so set_dest_to_null is applied only for the first copy,
-        # when dealing with an uneven record pair. This swap process will enventually be replaced in subsequent releases.
+        # when dealing with an uneven record pair. This swap process will eventually be replaced in subsequent releases.
         if len(self.left_input.record_list) == min(len(self.left_input.record_list), len(self.right_input.record_list)):
             go_first_input = self.left_input
         else:
@@ -252,7 +250,6 @@ class IncomingInterface:
 
         # Map each column of the input to where we want in the output.
         for index in range(record_info_in.num_fields):
-
             # Adding a field index mapping.
             self.record_copier.add(index, index)
 
@@ -274,6 +271,7 @@ class IncomingInterface:
 
         self.record_list.append(self.record_info_in.construct_record_creator())
         self.record_copier.copy(self.record_list[-1], in_record)
+
         return True
 
     def ii_update_progress(self, d_percent: float):
