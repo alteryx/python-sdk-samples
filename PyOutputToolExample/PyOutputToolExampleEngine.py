@@ -104,35 +104,30 @@ class AyxPlugin:
         for sublist in field_lists:
             del sublist[:]
 
-    def validate_path(self, file_path: str) -> bool:
+    def validate_path(self, file_path: str):
         """
         A non-interface, helper function that handles validating the file path input.
         :param file_path: The file path and file name input by user.
         """
 
-        special_chars = set('/;?*"<>|')
-        has_special_chars = any((char in special_chars) for char in file_path)
-        file_exists = os.access(file_path, os.F_OK)
-        valid_filename_length = len(file_path) > 259
-        blank_filename = len(file_path) == 0
-
-        if has_special_chars or file_exists or valid_filename_length or blank_filename:
-            self.is_valid = False
-
         # Outputting Error message if user specified file already exists
-        if file_exists:
+        if os.access(file_path, os.F_OK):
+            self.is_valid = False
             self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg(file_path + ' already exists. Please enter a different path.'))
 
         # Check length of filename
-        if valid_filename_length:
+        if len(file_path) > 259:
+            self.is_valid = False
             self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('Maximum path length is 259'))
         
         # Check for special characters in filename
-        if has_special_chars:
+        if any((char in set('/;?*"<>|')) for char in file_path):
+            self.is_valid = False
             self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('These characters are not allowed in the filename: /;?*"<>|'))
         
         # Show error is filename is blank
-        if blank_filename:
+        if len(file_path) == 0:
+            self.is_valid = False
             self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('Enter a filename'))
 
 class IncomingInterface:
