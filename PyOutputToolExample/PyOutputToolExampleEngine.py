@@ -26,8 +26,6 @@ class AyxPlugin:
 
         # Custom members
         self.str_file_path = ''
-
-        # Error checks
         self.is_valid = True
 
     def pi_init(self, str_xml: str):
@@ -165,10 +163,6 @@ class IncomingInterface:
         :return: True for success, otherwise False.
         """
 
-        # Do not process records if file path is invalid
-        if not self.parent.is_valid:
-            return False
-
         # Storing the argument being passed to the record_info_in parameter
         self.record_info_in = record_info_in
 
@@ -187,9 +181,9 @@ class IncomingInterface:
 
         self.counter += 1
 
-        # Do not process records if there is an error
-        # if not self.is_valid:
-            # return False
+        # Do not process records if file path is invalid
+        if not self.parent.is_valid:
+            return False
 
         # Storing the string data of in_record
         for field in range(self.record_info_in.num_fields):
@@ -219,9 +213,9 @@ class IncomingInterface:
 
         # Write the last chunk
         # First element for each list will always be the field names.
-        if len(self.field_lists[0]) > 1 and len(self.parent.str_file_path) > 0 and not self.parent.has_special_chars:
+        if len(self.field_lists[0]) > 1 and len(self.parent.str_file_path) > 0 and self.parent.is_valid:
             self.parent.write_lists_to_csv(self.parent.str_file_path, self.field_lists)
 
-        if len(self.parent.str_file_path) > 0 and not self.parent.valid_filename_length:
-            # Outputting message that the file was written
+        # Outputting message that the file was written
+        if len(self.parent.str_file_path) > 0 and self.parent.is_valid:
             self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.Status.file_output, self.parent.xmsg(self.parent.str_file_path + "|" + self.parent.str_file_path + " was created."))
