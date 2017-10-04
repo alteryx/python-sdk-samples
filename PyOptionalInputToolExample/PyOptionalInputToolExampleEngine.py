@@ -9,12 +9,11 @@ class AyxPlugin:
 
     """
 
-    def __init__(self, n_tool_id: int, alteryx_engine: object, generic_engine: object, output_anchor_mgr: object):
+    def __init__(self, n_tool_id: int, alteryx_engine: object, output_anchor_mgr: object):
         """
         Acts as the constructor for AyxPlugin.
         :param n_tool_id: The assigned unique identification for a tool instance.
         :param alteryx_engine: Provides an interface into the Alteryx engine.
-        :param generic_engine: An abstraction of alteryx_engine.
         :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
         """
 
@@ -24,9 +23,8 @@ class AyxPlugin:
         self.initialized = False
         self.single_input = None
 
-        # Engine handles
+        # Engine handle
         self.alteryx_engine = alteryx_engine
-        self.generic_engine = generic_engine
 
         # Output anchor management
         self.output_anchor_mgr = output_anchor_mgr
@@ -35,7 +33,6 @@ class AyxPlugin:
         # Record management
         self.record_info_out = None
         self.record_creator = None
-        self.record_copier = None
         self.output_field = None
 
         # Default config settings
@@ -52,23 +49,20 @@ class AyxPlugin:
         :param str_xml: The raw XML from the GUI.
         """
 
-        try: # Getting the dataName data property from the Gui.html
-            self.column_name = Et.fromstring(str_xml).find('FieldName').text
-            self.total_record_count = int(Et.fromstring(str_xml).find('EndValue').text)
-            self.record_increment = int(Et.fromstring(str_xml).find('StepByValue').text)
-            self.starting_value = int(Et.fromstring(str_xml).find('StartValue').text) - self.record_increment
-            t = Et.fromstring(str_xml).find('FieldType').text
-            if t == 'Int16':
-                self.output_type = Sdk.FieldType.int16
-            elif t == 'Int32':
-                self.output_type = Sdk.FieldType.int32
-            elif t == 'Int64':
-                self.output_type = Sdk.FieldType.int64
-            elif t == 'Double':
-                self.output_type = Sdk.FieldType.double
-        except AttributeError:
-            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Invalid XML: ' + str_xml))
-            raise
+        # Getting the dataName data property from the Gui.html
+        self.column_name = Et.fromstring(str_xml).find('FieldName').text if 'FieldName' in str_xml else None
+        self.total_record_count = int(Et.fromstring(str_xml).find('EndValue').text) if 'EndValue' in str_xml else None
+        self.record_increment = int(Et.fromstring(str_xml).find('StepByValue').text) if 'StepByValue' in str_xml else None
+        self.starting_value = int(Et.fromstring(str_xml).find('StartValue').text) - self.record_increment if 'StartValue' in str_xml else None
+        field_type = Et.fromstring(str_xml).find('FieldType').text if 'FieldType' in str_xml else None
+        if field_type == 'Int16':
+            self.output_type = Sdk.FieldType.int16
+        elif field_type == 'Int32':
+            self.output_type = Sdk.FieldType.int32
+        elif field_type == 'Int64':
+            self.output_type = Sdk.FieldType.int64
+        elif field_type == 'Double':
+            self.output_type = Sdk.FieldType.double
 
         # Getting the output anchor from Config.xml by the output connection name
         self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
@@ -105,7 +99,7 @@ class AyxPlugin:
         """
 
         # Save a reference to the RecordInfo passed into this function in the global namespace, so we can access it later.
-        self.record_info_out = Sdk.RecordInfo(self.generic_engine)
+        self.record_info_out = Sdk.RecordInfo(self.alteryx_engine)
 
         # Adds the new field to the record.
         self.output_field = self.record_info_out.add_field(self.column_name, self.output_type)
@@ -211,10 +205,7 @@ class IncomingInterface:
         self.record_copier.done_adding()
 
         # Grab the index of our new field in the record, so we don't have to do a string lookup on every push_record.
-        self.output_field = self.record_info_out[self.record_info_out.get_field_num(self.parent.column_name)]
-
-        self.initialized = True
-
+        self.parent.output_field = self.record_info_out[self.record_info_out.get_field_num(self.parent.column_name)]
         return True
 
     def ii_push_record(self, in_record: object) -> bool:
@@ -225,9 +216,6 @@ class IncomingInterface:
         :return: True for success, otherwise False.
         """
 
-        if not self.initialized:
-            return False
-
         # Increment our custom starting_value variable by the selected record increment to show we have a new record.
         self.parent.starting_value += self.parent.record_increment
 
@@ -236,7 +224,7 @@ class IncomingInterface:
         self.record_copier.copy(self.record_creator, in_record)
 
         # Sets the value of this field in the specified record_creator from an int64 value.
-        self.output_field.set_from_int64(self.record_creator, self.parent.starting_value)
+        self.parent.output_field.set_from_int64(self.record_creator, self.parent.starting_value)
 
         out_record = self.record_creator.finalize_record()
 

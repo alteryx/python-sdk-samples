@@ -25,7 +25,6 @@
           <ayx data-ui-props="{type: 'NumericSpinner'}" data-item-props="{dataName: 'EndValue'}"></ayx>
       </div>
     </fieldset>
-
     <fieldset>
       <legend class='blueTitle'>XMSG("Options")</legend>
       <div class='leftCon'>
@@ -43,7 +42,7 @@
   <script type="text/javascript">
 
     Alteryx.Gui.BeforeLoad = function (manager, AlteryxDataItems, json) {
-      manager.getDataItem('FieldName').setValue('RecordId')
+      manager.getDataItem('FieldName').setValue('RecordID')
 
       var startValue = manager.getDataItem('StartValue')
       startValue.setValue(1)
