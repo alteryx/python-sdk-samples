@@ -3,6 +3,7 @@ import xml.etree.ElementTree as Et
 import csv
 import os
 
+
 class AyxPlugin:
     """
     Implements the plugin interface methods, to be utilized by the Alteryx engine to communicate with a plugin.
@@ -10,12 +11,11 @@ class AyxPlugin:
 
     """
 
-    def __init__(self, n_tool_id: int, alteryx_engine: object, generic_engine: object, output_anchor_mgr: object):
+    def __init__(self, n_tool_id: int, alteryx_engine: object, output_anchor_mgr: object):
         """
         Acts as the constructor for AyxPlugin.
         :param n_tool_id: The assigned unique identification for a tool instance.
         :param alteryx_engine: Provides an interface into the Alteryx engine.
-        :param generic_engine: An abstraction of alteryx_engine.
         :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
         """
 
@@ -25,23 +25,15 @@ class AyxPlugin:
         self.closed = False
         self.initialized = False
 
-        # Engine handles
+        # Engine handle
         self.alteryx_engine = alteryx_engine
-        self.generic_engine = generic_engine
 
         # Output anchor management
         self.output_anchor_mgr = output_anchor_mgr
         self.output_anchor = None
 
-        # Record management
-        self.record_info_out = None
-        self.record_creator = None
-        self.output_field = None
-
-        # Custom members
+        # Custom member
         self.file_input_name = ''
-        self.file_out = None
-        self.file_reader = None
 
     def pi_init(self, str_xml: str):
         """
@@ -49,11 +41,8 @@ class AyxPlugin:
         :param str_xml: The raw XML from the GUI.
         """
 
-        try: # Getting the dataName data property from the Gui.html
-            self.file_input_name = Et.fromstring(str_xml).find('browseFiles').text
-        except AttributeError:
-            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Invalid XML: ' + str_xml))
-            raise
+        # Retrieving file name from GUI.html
+        self.file_input_name = Et.fromstring(str_xml).find('browseFiles').text if 'browseFiles' in str_xml else ''
 
         # Getting the output anchor from Config.xml by the output connection name
         self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
@@ -109,17 +98,17 @@ class AyxPlugin:
             return False
 
         # Save a reference to the RecordInfo passed into this function in the global namespace, so we can access it later.
-        self.record_info_out = Sdk.RecordInfo(self.generic_engine)
+        record_info_out = Sdk.RecordInfo(self.alteryx_engine)
 
         # Create a read-only file object.
-        self.file_out = open(self.file_input_name, 'r', encoding='utf-8')
+        file_out = open(self.file_input_name, 'r', encoding='utf-8')
 
-        # Map the information read into a dict where the fieldnames are the keys.
-        self.file_reader = csv.DictReader(self.file_out)
+        # Create a reader object which will iterate over lines in the given file.
+        file_reader = csv.reader(file_out)
 
         # Add metadata info that is passed to tools downstream.
-        for field in self.file_reader.fieldnames:
-            self.record_info_out.add_field(
+        for field in next(file_reader):
+            record_info_out.add_field(
                 field
                 , Sdk.FieldType.v_wstring
                 , 254
@@ -129,25 +118,25 @@ class AyxPlugin:
             )
 
         # Lets the downstream tools know what the outgoing record metadata will look like, based on record_info_out.
-        self.output_anchor.init(self.record_info_out)
+        self.output_anchor.init(record_info_out)
 
         # Creating a new, empty record creator based on record_info_out's record layout.
-        self.record_creator = self.record_info_out.construct_record_creator()
+        record_creator = record_info_out.construct_record_creator()
 
         # Keeping track of number of records for use in output message.
         rownum = 0
 
         # Loop through each record (or row) of data that has been passed into this function.
-        for row in self.file_reader:
+        for row in file_reader:
             rownum += 1
             # Iterate through the fields in this row and add them in order to the output row
-            for index, value in enumerate(row.items()):
-                self.record_info_out[index].set_from_string(self.record_creator, value[1])
-            out_record = self.record_creator.finalize_record()
-            # Push the record downstream.
+            for index, value in enumerate(row):
+                record_info_out[index].set_from_string(record_creator, value)
+            out_record = record_creator.finalize_record()
+            # Push the record downstream, passing False means completed connections will be automatically closed.
             self.output_anchor.push_record(out_record, False)
             # Reset the record creator in order to begin looping through the next row
-            self.record_creator.reset(0)
+            record_creator.reset(0)
 
         # Returns message indicating number of records read from specified file.
         self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.info, self.xmsg(str(rownum) + ' records were read from ' + self.file_input_name))
@@ -185,7 +174,6 @@ class AyxPlugin:
 
         return msg_string
 
-
 class IncomingInterface:
     """
     This class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be
@@ -199,12 +187,8 @@ class IncomingInterface:
         :param parent: AyxPlugin
         """
 
-        # Miscellaneous properties
+        # Miscellaneous property
         self.parent = parent
-
-        # Record management
-        self.record_info_in = None
-        self.record_info_out = None
 
     def ii_init(self, record_info_in: object) -> bool:
         """
