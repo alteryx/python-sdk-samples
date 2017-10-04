@@ -26,7 +26,7 @@ class AyxPlugin:
         self.do_sort = False
         self.field_selection = None
 
-        # Engine handles
+        # Engine handle
         self.alteryx_engine = alteryx_engine
 
         # Output anchor management
@@ -39,15 +39,12 @@ class AyxPlugin:
         :param str_xml: The raw XML from the GUI.
         """
 
-        try:  # Getting the dataName data property from the Gui.html
-            self.n_record_select = Et.fromstring(str_xml).find('NRecords').text
-            self.do_sort = Et.fromstring(str_xml).find('DoSort').text == 'True'
-            if Et.fromstring(str_xml).find('FieldSelect') is not None:
-                self.field_selection = Et.fromstring(str_xml).find('FieldSelect').text
-            order_selection = Et.fromstring(str_xml).find('OrderType').text
-        except AttributeError:
-            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Invalid XML: ' + str_xml))
-            raise
+        # Getting the dataName data property from the Gui.html
+        self.n_record_select = Et.fromstring(str_xml).find('NRecords').text if 'NRecords' in str_xml else None
+        self.do_sort = Et.fromstring(str_xml).find('DoSort').text == 'True' if 'DoSort' in str_xml else None
+        if Et.fromstring(str_xml).find('FieldSelect') is not None:
+            self.field_selection = Et.fromstring(str_xml).find('FieldSelect').text
+        order_selection = Et.fromstring(str_xml).find('OrderType').text if 'OrderType' in str_xml else None
 
         if self.do_sort and self.field_selection is None:
             self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, 'Please select field to order by')

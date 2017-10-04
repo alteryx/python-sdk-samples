@@ -2,6 +2,7 @@ import AlteryxPythonSDK
 import xml.etree.ElementTree as ET
 import re
 
+
 class AyxPlugin:
     """
     Implements the plugin interface methods, to be utilized by the Alteryx engine to communicate with a plugin.
@@ -17,11 +18,10 @@ class AyxPlugin:
 
         # Miscellaneous variables
         self.n_tool_id = n_tool_id
-        self.name = str('PySingleMultiInput') + str(self.n_tool_id)
-        self.closed = False
+        self.name = 'PySingleMultiInput' + str(self.n_tool_id)
         self.message_type = None
 
-        # Engine handles
+        # Engine handle
         self.alteryx_engine = alteryx_engine
 
         # Output anchor management
@@ -33,7 +33,7 @@ class AyxPlugin:
         self.record_creator = None
 
         # Custom members
-        self.inputs = []
+        self.all_inputs = []
         self.unique_field_names = []
 
     def pi_init(self, str_xml: str):
@@ -41,8 +41,9 @@ class AyxPlugin:
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
         :param str_xml: The raw XML from the GUI.
         """
+
         # Getting the dataName data property from the GUI config
-        self.message_type = ET.fromstring(str_xml).find('messageType').text
+        self.message_type = ET.fromstring(str_xml).find('messageType').text if 'messageType' in str_xml else None
 
         # Getting the output anchor from Config.xml by the output connection name.
         self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
@@ -57,8 +58,8 @@ class AyxPlugin:
         """
 
         # Storing each IncomingInterface object
-        self.inputs.append(IncomingInterface(self, str_type, str_name))
-        return self.inputs[-1]
+        self.all_inputs.append(IncomingInterface(self, str_type, str_name))
+        return self.all_inputs[-1]
 
     def pi_add_outgoing_connection(self, str_name: str) -> bool:
         """
@@ -88,28 +89,25 @@ class AyxPlugin:
         # Checks whether connections were properly closed.
         self.output_anchor.assert_close()
 
-    def xmsg(self, msg_string: str) -> str:
-        """
-        A non-interface, non-operational placeholder for the eventual localization of predefined user-facing strings.
-        :param msg_string: The user-facing string.
-        :return: msg_string
-        """
+    def check_input_complete(self):
+        # Checks to see if all connections metainfo and record data has been initialized before deploying the field mapping and record handling method
+        if all([self.all_inputs[idx].input_complete for idx in range(len(self.all_inputs))]):
+            self.record_processor()
 
-        return msg_string
-
-    def setup_record_copier(self, input_: object):
+    def setup_record_copier(self, nth_input: object):
         """
         Prepares the outgoing stream's meta data by copying the incoming meta data from each input stream
-        :param input_: One of the incoming connection objects.
+        :param nth_input: One of the incoming connection objects.
         """
 
         # Setup the record_copier for copying data from the input records into our new output records.
-        input_.record_copier = AlteryxPythonSDK.RecordCopier(self.record_info_out, input_.record_info_in)
+        nth_input.record_copier = AlteryxPythonSDK.RecordCopier(self.record_info_out, nth_input.record_info_in)
+
         # Mapping each field of the input to where we want it to be in the output.
-        for input_idx in range(input_.record_info_in.num_fields):
-            output_idx = self.unique_field_names.index(input_.record_info_in[input_idx].name)
-            input_.record_copier.add(output_idx, input_idx)
-        input_.record_copier.done_adding()
+        for input_idx in range(nth_input.record_info_in.num_fields):
+            output_idx = self.unique_field_names.index(nth_input.record_info_in[input_idx].name)
+            nth_input.record_copier.add(output_idx, input_idx)
+        nth_input.record_copier.done_adding()
 
     def record_processor(self):
         """
@@ -118,36 +116,40 @@ class AyxPlugin:
         """
 
         # Sorts by connection name
-        self.inputs.sort(key=lambda inputObj: int(re.findall('[\d+]' , inputObj.name)[-1]))
+        self.all_inputs.sort(key=lambda inputObj: int(re.findall('[\d+]' , inputObj.name)[-1]))
 
         # Constructing a new RecordInfo object that will contain the metadata of the fields we want to output.
         self.record_info_out= AlteryxPythonSDK.RecordInfo(self.alteryx_engine)
 
-        for input_ in self.inputs:
+        # Going through each input connection to extract the field information.
+        for nth_input in self.all_inputs:
+            # Only runs on the first input
             if (len(self.unique_field_names) == 0):
 
                 # Extracting the XML metadata from the first connection and initializing the record layout in record_info_out.
-                self.record_info_out.init_from_xml(input_.record_info_in.get_record_xml_meta_data())
+                self.record_info_out.init_from_xml(nth_input.record_info_in.get_record_xml_meta_data())
 
                 # Using unique_field_names and other_input_field_names to keep track of all unique fields from each connection.
                 self.unique_field_names = [field.name for field in self.record_info_out]
 
             else:
                 # Storing all field names of other inputs.
-                other_input_field_names = [field.name for field in input_.record_info_in]
+                other_input_field_names = [field.name for field in nth_input.record_info_in]
 
                 # Extracting the names of any new and unique names into a new_fields.
                 new_fields = [items for items in other_input_field_names if items not in self.unique_field_names]
-                if len(new_fields)!= 0:
-                    for item in new_fields:
-                        if self.message_type == 'warning':
-                            self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.warning,'The field:' + '"' + item + '"' + 'is not present in the initial input schema')
-                        elif self.message_type == 'error':
-                            self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error,'The field:' + '"' + item + '"' + 'is not present in in the initial input schema')
 
+                # Outputting appropriate messaging depending on user selection.
+                if self.message_type != 'ignore':
+                    if len(new_fields) != 0:
+                        for item in new_fields:
+                            if self.message_type == 'warning':
+                                self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.warning,'The field:' + '"' + item + '"' + 'is not present in the initial input schema')
+                            elif self.message_type == 'error':
+                                self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error,'The field:' + '"' + item + '"' + 'is not present in in the initial input schema')
 
                 # Extracting the field metadata of the unique fields so they can be added to record_info_out.
-                new_field_obj = [input_.record_info_in.get_field_by_name(name) for name in new_fields]
+                new_field_obj = [nth_input.record_info_in.get_field_by_name(name) for name in new_fields]
                 for field in new_field_obj:
                     self.record_info_out.add_field(
                         field.name # name
@@ -161,7 +163,7 @@ class AyxPlugin:
                 self.unique_field_names += new_fields
 
             # Setup the record_copier for copying data from this input record into our new output records.
-            self.setup_record_copier(input_)
+            self.setup_record_copier(nth_input)
 
         # Tell the downstream tools what our records will look like.
         self.output_anchor.init(self.record_info_out)
@@ -170,8 +172,8 @@ class AyxPlugin:
         self.record_creator = self.record_info_out.construct_record_creator()
 
         # Copy the latest record from each input into the outgoing stream.
-        for input_ in self.inputs:
-            for record in input_.record_list:
+        for nth_input in self.all_inputs:
+            for record in nth_input.record_list:
                 # Resets the capacity for variable-length data in this record to 0 bytes (default if no number specified.
                 self.record_creator.reset()
 
@@ -180,7 +182,7 @@ class AyxPlugin:
                     field.set_null(self.record_creator)
 
                 #  Copying the individual records to record creator.
-                input_.record_copier.copy(self.record_creator, record.finalize_record())
+                nth_input.record_copier.copy(self.record_creator, record.finalize_record())
 
                 # Pushing the final record to the output anchor.
                 self.output_anchor.push_record(self.record_creator.finalize_record())
@@ -194,9 +196,17 @@ class AyxPlugin:
         """
 
         # Assuming that each input initialized is a percentage of the total records getting processed
-        input_percentage = sum([input_.d_progress_percentage for input_ in self.inputs])/len(self.inputs)
+        input_percentage = sum([nth_input.d_progress_percentage for nth_input in self.all_inputs])/len(self.all_inputs)
 
         self.alteryx_engine.output_tool_progress(self.n_tool_id, input_percentage)
+
+    def xmsg(self, msg_string: str) -> str:
+        """
+        A non-interface, non-operational placeholder for the eventual localization of predefined user-facing strings.
+        :param msg_string: The user-facing string.
+        :return: msg_string
+        """
+        return msg_string
 
 class IncomingInterface:
     """
@@ -215,14 +225,12 @@ class IncomingInterface:
         self.parent = parent
         self.type = type_
         self.name = name
-        self.closed = False
         self.input_complete = False
         self.d_progress_percentage = 0
 
         # Record management
         self.record_info_in = None
         self.record_copier = None
-        self.in_record = None
         self.record_list = []
 
     def ii_init(self, record_info_in: object) -> bool:
@@ -276,7 +284,4 @@ class IncomingInterface:
         Called when the incoming connection has finished passing all of its records.
         """
         self.input_complete = True
-
-        # Checks to see if all connections metainfo and record data has been initialized before deploying the field mapping and record handling method
-        if all([self.parent.inputs[idx].input_complete for idx in range(len(self.parent.inputs))]):
-            self.parent.record_processor()
+        self.parent.check_input_complete()

@@ -44,6 +44,7 @@
 				document.getElementById('sort').style.display = 'none'
   				}
   	}
+
     Alteryx.Gui.BeforeLoad = (manager, AlteryxDataItems, json) => {
 	
       const constrainedNumberDataItem = new AlteryxDataItems.ConstrainedInt('NRecords', {min: 0})
