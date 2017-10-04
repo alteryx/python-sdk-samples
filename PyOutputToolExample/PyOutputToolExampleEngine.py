@@ -60,6 +60,7 @@ class AyxPlugin:
        :param str_name: The name of the output connection anchor, defined in the Config.xml file.
        :return: True signifies that the connection is accepted.
        """
+	   
        return True
 
     def pi_push_all_records(self, n_record_limit: int) -> bool:
@@ -78,6 +79,7 @@ class AyxPlugin:
         Called after all records have been processed..
         :param b_has_errors: Set to true to not do the final processing.
         """
+		
         pass
 
     def xmsg(self, msg_string: str) -> str:
@@ -86,6 +88,7 @@ class AyxPlugin:
         :param msg_string: The user-facing string.
         :return: msg_string
         """
+		
         return msg_string
 
     @staticmethod
@@ -213,7 +216,7 @@ class IncomingInterface:
 
         # Write the last chunk
         # First element for each list will always be the field names.
-        if len(self.field_lists[0]) > 1 and len(self.parent.str_file_path) > 0 and self.parent.is_valid:
+        if len(self.field_lists[0]) > 1 and self.parent.is_valid:
             self.parent.write_lists_to_csv(self.parent.str_file_path, self.field_lists)
 
         # Outputting message that the file was written
