@@ -10,12 +10,11 @@ class AyxPlugin:
 
     """
 
-    def __init__(self, n_tool_id: int, alteryx_engine: object, generic_engine: object, output_anchor_mgr: object):
+    def __init__(self, n_tool_id: int, alteryx_engine: object, output_anchor_mgr: object):
         """
         Acts as the constructor for AyxPlugin.
         :param n_tool_id: The assigned unique identification for a tool instance.
         :param alteryx_engine: Provides an interface into the Alteryx engine.
-        :param generic_engine: An abstraction of alteryx_engine.
         :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
         """
 
@@ -27,7 +26,6 @@ class AyxPlugin:
 
         # Engine handles
         self.alteryx_engine = alteryx_engine
-        self.generic_engine = generic_engine
 
         # Output anchor management
         self.output_anchor_mgr = output_anchor_mgr
@@ -109,16 +107,16 @@ class AyxPlugin:
             return False
 
         # Save a reference to the RecordInfo passed into this function in the global namespace, so we can access it later.
-        self.record_info_out = Sdk.RecordInfo(self.generic_engine)
+        self.record_info_out = Sdk.RecordInfo(self.alteryx_engine)
 
         # Create a read-only file object.
         self.file_out = open(self.file_input_name, 'r', encoding='utf-8')
 
-        # Map the information read into a dict where the fieldnames are the keys.
-        self.file_reader = csv.DictReader(self.file_out)
+        # Create a reader object which will iterate over lines in the given file.
+        self.file_reader = csv.reader(self.file_out)
 
         # Add metadata info that is passed to tools downstream.
-        for field in self.file_reader.fieldnames:
+        for field in next(self.file_reader):
             self.record_info_out.add_field(
                 field
                 , Sdk.FieldType.v_wstring
@@ -141,10 +139,10 @@ class AyxPlugin:
         for row in self.file_reader:
             rownum += 1
             # Iterate through the fields in this row and add them in order to the output row
-            for index, value in enumerate(row.items()):
-                self.record_info_out[index].set_from_string(self.record_creator, value[1])
+            for index, value in enumerate(row):
+                self.record_info_out[index].set_from_string(self.record_creator, value)
             out_record = self.record_creator.finalize_record()
-            # Push the record downstream.
+            # Push the record downstream, passing False means completed connections will be automatically closed.
             self.output_anchor.push_record(out_record, False)
             # Reset the record creator in order to begin looping through the next row
             self.record_creator.reset(0)
