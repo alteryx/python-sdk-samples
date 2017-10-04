@@ -20,7 +20,6 @@ class AyxPlugin:
         # Miscellaneous variables
         self.n_tool_id = n_tool_id
         self.name = 'PyOutputToolExample_' + str(self.n_tool_id)
-        self.initialized = False
 
         # Engine handles
         self.alteryx_engine = alteryx_engine
@@ -58,7 +57,6 @@ class AyxPlugin:
        :param str_name: The name of the output connection anchor, defined in the Config.xml file.
        :return: True signifies that the connection is accepted.
        """
-
        return True
 
     def pi_push_all_records(self, n_record_limit: int) -> bool:
@@ -85,7 +83,6 @@ class AyxPlugin:
         :param msg_string: The user-facing string.
         :return: msg_string
         """
-
         return msg_string
 
     @staticmethod
@@ -121,13 +118,12 @@ class IncomingInterface:
         self.record_info_in = None
 
         # Custom members
-        self.field_names = None
         self.field_lists = []
         self.counter = 0
 
         # Error checks
         self.special_chars = set('/;?*"<>|')
-        self.has_special_chars = any((c in self.special_chars) for c in self.parent.str_file_path)
+        self.has_special_chars = any((char in self.special_chars) for char in self.parent.str_file_path)
         self.file_exists = os.access(self.parent.str_file_path, os.F_OK)
         self.valid_filename_length = len(self.parent.str_file_path) > 259
         self.blank_filename = len(self.parent.str_file_path) == 0
