@@ -27,6 +27,9 @@ class AyxPlugin:
         # Custom members
         self.str_file_path = ''
 
+        # Error checks
+        self.is_valid = True
+
     def pi_init(self, str_xml: str):
         """
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
@@ -38,6 +41,8 @@ class AyxPlugin:
 
         # Extract file path from the XML node and store it
         self.str_file_path = root.find('fileOutputPath').text if root.find('fileOutputPath').text else ''
+
+        self.validate_path(self.str_file_path)
 
     def pi_add_incoming_connection(self, str_type: str, str_name: str) -> object:
         """
@@ -51,7 +56,7 @@ class AyxPlugin:
         self.single_input = IncomingInterface(self)
         return self.single_input
 
-    def pi_add_outgoing_connection(self, str_name: str):
+    def pi_add_outgoing_connection(self, str_name: str) -> bool:
        """
        Called when the Alteryx engine is attempting to add an outgoing data connection.
        :param str_name: The name of the output connection anchor, defined in the Config.xml file.
@@ -86,17 +91,48 @@ class AyxPlugin:
         return msg_string
 
     @staticmethod
-    def write_lists_to_csv(file_temp_path: str, field_lists: list):
+    def write_lists_to_csv(file_path: str, field_lists: list):
         """
         A non-interface, helper function that handles writing to csv and clearing the list elements.
-        :param file_temp_path: The default temp path and file name.
+        :param file_path: The file path and file name input by user.
         :param field_lists: The data for all fields.
         """
 
-        with open(file_temp_path, 'a', encoding='utf-8', newline='') as output_file:
+        with open(file_path, 'a', encoding='utf-8', newline='') as output_file:
             csv.writer(output_file, delimiter=',').writerows(zip(*field_lists))
         for sublist in field_lists:
             del sublist[:]
+
+    def validate_path(self, file_path: str) -> bool:
+        """
+        A non-interface, helper function that handles validating the file path input.
+        :param file_path: The file path and file name input by user.
+        """
+
+        special_chars = set('/;?*"<>|')
+        has_special_chars = any((char in special_chars) for char in file_path)
+        file_exists = os.access(file_path, os.F_OK)
+        valid_filename_length = len(file_path) > 259
+        blank_filename = len(file_path) == 0
+
+        if has_special_chars or file_exists or valid_filename_length or blank_filename:
+            self.is_valid = False
+
+        # Outputting Error message if user specified file already exists
+        if file_exists:
+            self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg(file_path + ' already exists. Please enter a different path.'))
+
+        # Check length of filename
+        if valid_filename_length:
+            self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('Maximum path length is 259'))
+        
+        # Check for special characters in filename
+        if has_special_chars:
+            self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('These characters are not allowed in the filename: /;?*"<>|'))
+        
+        # Show error is filename is blank
+        if blank_filename:
+            self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('Enter a filename'))
 
 class IncomingInterface:
     """
@@ -121,13 +157,6 @@ class IncomingInterface:
         self.field_lists = []
         self.counter = 0
 
-        # Error checks
-        self.special_chars = set('/;?*"<>|')
-        self.has_special_chars = any((char in self.special_chars) for char in self.parent.str_file_path)
-        self.file_exists = os.access(self.parent.str_file_path, os.F_OK)
-        self.valid_filename_length = len(self.parent.str_file_path) > 259
-        self.blank_filename = len(self.parent.str_file_path) == 0
-
     def ii_init(self, record_info_in: object) -> bool:
         """
         Called when the incoming connection's record metadata is available or has changed, and
@@ -136,28 +165,16 @@ class IncomingInterface:
         :return: True for success, otherwise False.
         """
 
+        # Do not process records if file path is invalid
+        if not self.parent.is_valid:
+            return False
+
         # Storing the argument being passed to the record_info_in parameter
         self.record_info_in = record_info_in
 
         # Storing the field names
         for field in range(record_info_in.num_fields):
             self.field_lists.append([record_info_in[field].name])
-
-        # Outputting Error message if user specified file already exists
-        if self.file_exists:
-            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg(self.parent.str_file_path + ' already exists. Please enter a different path.'))
-
-        # Check length of filename
-        if self.valid_filename_length:
-            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Maximum path length is 259'))
-        
-        # Check for special characters in filename
-        if self.has_special_chars:
-            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('These characters are not allowed in the filename: /;?*"<>|'))
-        
-        # Show error is filename is blank
-        if self.blank_filename:
-            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Enter a filename'))
 
         return True
 
@@ -171,8 +188,8 @@ class IncomingInterface:
         self.counter += 1
 
         # Do not process records if there is an error
-        if self.has_special_chars or self.file_exists or self.valid_filename_length or self.blank_filename:
-            return False
+        # if not self.is_valid:
+            # return False
 
         # Storing the string data of in_record
         for field in range(self.record_info_in.num_fields):
@@ -202,9 +219,9 @@ class IncomingInterface:
 
         # Write the last chunk
         # First element for each list will always be the field names.
-        if len(self.field_lists[0]) > 1 and len(self.parent.str_file_path) > 0 and not self.has_special_chars:
+        if len(self.field_lists[0]) > 1 and len(self.parent.str_file_path) > 0 and not self.parent.has_special_chars:
             self.parent.write_lists_to_csv(self.parent.str_file_path, self.field_lists)
 
-        if len(self.parent.str_file_path) > 0 and not self.valid_filename_length:
+        if len(self.parent.str_file_path) > 0 and not self.parent.valid_filename_length:
             # Outputting message that the file was written
             self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.Status.file_output, self.parent.xmsg(self.parent.str_file_path + "|" + self.parent.str_file_path + " was created."))
