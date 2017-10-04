@@ -26,7 +26,7 @@ class AyxPlugin:
         self.alteryx_engine = alteryx_engine
 
         # Custom members
-        self.str_file_path = None
+        self.str_file_path = ''
 
     def pi_init(self, str_xml: str):
         """
@@ -37,11 +37,8 @@ class AyxPlugin:
         # Extracting configuration xml
         root = ET.fromstring(str_xml)
 
-        try: # Finding the dataName property from the Gui.html that matches the child node
-            self.str_file_path = root.find('fileOutputPath').text
-        except AttributeError:
-            self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('Invalid XML: ' + str_xml))
-            raise
+        # Extract file path from the XML node and store it
+        self.str_file_path = root.find('fileOutputPath').text if root.find('fileOutputPath').text else ''
 
     def pi_add_incoming_connection(self, str_type: str, str_name: str) -> object:
         """
@@ -51,6 +48,7 @@ class AyxPlugin:
         :param str_name: The name of the wire, defined by the workflow author.
         :return: The IncomingInterface object(s).
         """
+        
         self.single_input = IncomingInterface(self)
         return self.single_input
 
@@ -60,6 +58,7 @@ class AyxPlugin:
        :param str_name: The name of the output connection anchor, defined in the Config.xml file.
        :return: True signifies that the connection is accepted.
        """
+
        return True
 
     def pi_push_all_records(self, n_record_limit: int) -> bool:
@@ -69,6 +68,7 @@ class AyxPlugin:
         :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
         :return: True for success, False for failure.
         """
+        
         self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('Missing Incoming Connection'))
         return False
 
@@ -124,7 +124,13 @@ class IncomingInterface:
         self.field_names = None
         self.field_lists = []
         self.counter = 0
+
+        # Error checks
         self.special_chars = set('/;?*"<>|')
+        self.has_special_chars = any((c in self.special_chars) for c in self.parent.str_file_path)
+        self.file_exists = os.access(self.parent.str_file_path, os.F_OK)
+        self.valid_filename_length = len(self.parent.str_file_path) > 259
+        self.blank_filename = len(self.parent.str_file_path) == 0
 
     def ii_init(self, record_info_in: object) -> bool:
         """
@@ -141,20 +147,20 @@ class IncomingInterface:
         for field in range(record_info_in.num_fields):
             self.field_lists.append([record_info_in[field].name])
 
-        if self.parent.str_file_path is not None and os.access(self.parent.str_file_path, os.F_OK):
-            # Outputting Error message if user specified file already exists
-            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Error: ' + self.parent.str_file_path + ' already exists. Please enter a different path.'))
+        # Outputting Error message if user specified file already exists
+        if self.file_exists:
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg(self.parent.str_file_path + ' already exists. Please enter a different path.'))
 
         # Check length of filename
-        if self.parent.str_file_path is not None and len(self.parent.str_file_path) > 259:
+        if self.valid_filename_length:
             self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Maximum path length is 259'))
         
         # Check for special characters in filename
-        if self.parent.str_file_path is not None and any((c in self.special_chars) for c in self.parent.str_file_path):
+        if self.has_special_chars:
             self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('These characters are not allowed in the filename: /;?*"<>|'))
         
         # Show error is filename is blank
-        if self.parent.str_file_path is None or len(self.parent.str_file_path) == 0:
+        if self.blank_filename:
             self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.parent.xmsg('Enter a filename'))
 
         return True
@@ -167,6 +173,10 @@ class IncomingInterface:
          """
 
         self.counter += 1
+
+        # Do not process records if there is an error
+        if self.has_special_chars or self.file_exists or self.valid_filename_length or self.blank_filename:
+            return False
 
         # Storing the string data of in_record
         for field in range(self.record_info_in.num_fields):
@@ -195,9 +205,10 @@ class IncomingInterface:
         """
 
         # Write the last chunk
-        if len(self.field_lists[0]) > 1: # First element for each list will always be the field names.
+        # First element for each list will always be the field names.
+        if len(self.field_lists[0]) > 1 and len(self.parent.str_file_path) > 0 and not self.has_special_chars:
             self.parent.write_lists_to_csv(self.parent.str_file_path, self.field_lists)
 
-        if self.parent.str_file_path is not None:
+        if len(self.parent.str_file_path) > 0 and not self.valid_filename_length:
             # Outputting message that the file was written
             self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.Status.file_output, self.parent.xmsg(self.parent.str_file_path + "|" + self.parent.str_file_path + " was created."))
