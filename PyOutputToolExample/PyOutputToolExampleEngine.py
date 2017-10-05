@@ -78,8 +78,7 @@ class AyxPlugin:
         :return: True for success, False for failure.
         """
 
-        self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error,
-                                           self.xmsg('Missing Incoming Connection'))
+        self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('Missing Incoming Connection'))
         return False
 
     def pi_close(self, b_has_errors: bool):
@@ -116,7 +115,9 @@ class AyxPlugin:
     def msg_str(file_path: str):
         """
         A non-interface, helper function that handles validating the file path input.
+        :param file_path: The file path and file name input by user.
         """
+
         msg_str = ''
         if os.access(file_path, os.F_OK):  # Outputting Error message if user specified file already exists
             msg_str = file_path + ' already exists. Please enter a different path.'
@@ -124,7 +125,7 @@ class AyxPlugin:
             msg_str = 'Maximum path length is 259'
         elif any((char in set('/;?*"<>|')) for char in file_path):  # Check for special characters in filename
             msg_str = 'These characters are not allowed in the filename: /;?*"<>|'
-        elif len(file_path) == 0:  # Show error is filename is blank
+        elif len(file_path) == 0:  # Show error if filename is blank
             msg_str = 'Enter a filename'
         return msg_str
 
@@ -200,7 +201,7 @@ class IncomingInterface:
          :param d_percent: Value between 0.0 and 1.0.
         """
 
-        # Inform the Alteryx engine of the tool's progress.
+        # Inform the Alteryx engine of the tool's progress
         self.parent.alteryx_engine.output_tool_progress(self.parent.n_tool_id, d_percent)
 
     def ii_close(self):
@@ -215,6 +216,4 @@ class IncomingInterface:
 
         # Outputting message that the file was written
         if len(self.parent.str_file_path) > 0 and self.parent.is_valid:
-            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.Status.file_output,
-                                                      self.parent.xmsg(
-                                                          self.parent.str_file_path + "|" + self.parent.str_file_path + " was created."))
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.Status.file_output, self.parent.xmsg(self.parent.str_file_path + "|" + self.parent.str_file_path + " was created."))
