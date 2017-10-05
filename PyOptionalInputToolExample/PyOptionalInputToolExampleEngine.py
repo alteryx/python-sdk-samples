@@ -226,7 +226,7 @@ class IncomingInterface:
         out_record = self.record_creator.finalize_record()
 
         # Push the record downstream and quit if there's a downstream error.
-        if self.parent.output_anchor.push_record(out_record) is False:
+        if not self.parent.output_anchor.push_record(out_record):
             return False
 
         return True
