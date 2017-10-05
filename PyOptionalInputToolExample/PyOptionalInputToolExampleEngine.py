@@ -31,8 +31,6 @@ class AyxPlugin:
         self.output_anchor = None
 
         # Record management
-        self.record_info_out = None
-        self.record_creator = None
         self.output_field = None
 
         # Default config settings
@@ -99,16 +97,16 @@ class AyxPlugin:
         """
 
         # Save a reference to the RecordInfo passed into this function in the global namespace, so we can access it later.
-        self.record_info_out = Sdk.RecordInfo(self.alteryx_engine)
+        record_info_out = Sdk.RecordInfo(self.alteryx_engine)
 
         # Adds the new field to the record.
-        self.output_field = self.record_info_out.add_field(self.column_name, self.output_type)
+        self.output_field = record_info_out.add_field(self.column_name, self.output_type)
 
         # Lets the downstream tools know what the outgoing record metadata will look like, based on record_info_out.
-        self.output_anchor.init(self.record_info_out)
+        self.output_anchor.init(record_info_out)
 
         # Creating a new, empty record creator based on record_info_out's record layout.
-        self.record_creator = self.record_info_out.construct_record_creator()
+        record_creator = record_info_out.construct_record_creator()
 
         self.previous_inc_value = self.starting_value
 
@@ -118,16 +116,16 @@ class AyxPlugin:
             loop_value = self.previous_inc_value + self.record_increment
 
             # Set the value on our new column in the record_creator helper to be the new record_count.
-            self.record_info_out[0].set_from_int64(self.record_creator, loop_value)
+            record_info_out[0].set_from_int64(record_creator, loop_value)
 
             # Pass the record downstream.
-            out_record = self.record_creator.finalize_record()
+            out_record = record_creator.finalize_record()
 
             # Pushes record to output connection, passing False means completed connections will be automatically closed.
             self.output_anchor.push_record(out_record, False)
 
             # Sets the capacity in bytes for variable-length data in this record to 0.
-            self.record_creator.reset(0)
+            record_creator.reset(0)
 
             self.previous_inc_value = loop_value
 
@@ -159,13 +157,15 @@ class IncomingInterface:
     """
 
     def __init__(self, parent: object):
+        """
+        Acts as the constructor for IncomingInterface. Instance variable initializations should happen here for PEP8 compliance.
+        :param parent: AyxPlugin
+        """
 
         # Miscellaneous properties
         self.parent = parent
 
         # Record management
-        self.record_info_in = None
-        self.record_info_out = None
         self.record_copier = None
         self.record_creator = None
 
@@ -177,26 +177,23 @@ class IncomingInterface:
         :return: True for success, otherwise False.
         """
 
-        # Storing for later use
-        self.record_info_in = record_info_in
-
         # Returns a new, empty RecordCreator object that is identical to record_info_in.
-        self.record_info_out = self.record_info_in.clone()
+        record_info_out = record_info_in.clone()
 
         # Adds field to record with specified name and output type.
-        self.record_info_out.add_field(self.parent.column_name, self.parent.output_type)
+        record_info_out.add_field(self.parent.column_name, self.parent.output_type)
 
         # Lets the downstream tools know what the outgoing record metadata will look like, based on record_info_out.
-        self.parent.output_anchor.init(self.record_info_out)
+        self.parent.output_anchor.init(record_info_out)
 
         # Creating a new, empty record creator based on record_info_out's record layout.
-        self.record_creator = self.record_info_out.construct_record_creator()
+        self.record_creator = record_info_out.construct_record_creator()
 
         # Instantiate a new instance of the RecordCopier class.
-        self.record_copier = Sdk.RecordCopier(self.record_info_out, self.record_info_in)
+        self.record_copier = Sdk.RecordCopier(record_info_out, record_info_in)
 
         # Map each column of the input to where we want in the output.
-        for index in range(self.record_info_in.num_fields):
+        for index in range(record_info_in.num_fields):
 
             # Adding a field index mapping.
             self.record_copier.add(index, index)
@@ -205,7 +202,7 @@ class IncomingInterface:
         self.record_copier.done_adding()
 
         # Grab the index of our new field in the record, so we don't have to do a string lookup on every push_record.
-        self.parent.output_field = self.record_info_out[self.record_info_out.get_field_num(self.parent.column_name)]
+        self.parent.output_field = record_info_out[record_info_out.get_field_num(self.parent.column_name)]
         return True
 
     def ii_push_record(self, in_record: object) -> bool:
