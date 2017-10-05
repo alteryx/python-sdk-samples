@@ -3,7 +3,6 @@ import xml.etree.ElementTree as ET
 import os
 import csv
 
-
 class AyxPlugin:
     """
     Implements the plugin interface methods, to be utilized by the Alteryx engine to communicate with a plugin.
@@ -119,14 +118,16 @@ class AyxPlugin:
         """
 
         msg_str = ''
-        if os.access(file_path, os.F_OK):  # Outputting Error message if user specified file already exists
-            msg_str = file_path + ' already exists. Please enter a different path.'
+        if os.access(file_path, os.F_OK):  # Must be a new file
+            msg_str = file_path + ' already exists. Enter a different path.'
         elif len(file_path) > 259:  # Check length of filename
             msg_str = 'Maximum path length is 259'
         elif any((char in set('/;?*"<>|')) for char in file_path):  # Check for special characters in filename
             msg_str = 'These characters are not allowed in the filename: /;?*"<>|'
         elif len(file_path) == 0:  # Show error if filename is blank
             msg_str = 'Enter a filename'
+        elif not file_path.endswith('.csv'): # File extension must be .csv
+            msg_str = 'File extension must be .csv'
         return msg_str
 
 
