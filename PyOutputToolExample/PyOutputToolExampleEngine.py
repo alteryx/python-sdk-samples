@@ -3,11 +3,13 @@ import xml.etree.ElementTree as ET
 import os
 import csv
 
+
 class AyxPlugin:
     """
     Implements the plugin interface methods, to be utilized by the Alteryx engine to communicate with a plugin.
     Prefixed with "pi_", the Alteryx engine will expect the below five interface methods to be defined.
     """
+
     def __init__(self, n_tool_id: int, alteryx_engine: object, output_anchor_mgr: object):
         """
         Acts as the constructor for AyxPlugin.
@@ -26,7 +28,7 @@ class AyxPlugin:
 
         # Custom members
         self.str_file_path = ''
-        self.is_valid = True
+        self.is_valid = False
 
     def pi_init(self, str_xml: str):
         """
@@ -40,7 +42,12 @@ class AyxPlugin:
         # Extract file path from the XML node and store it
         self.str_file_path = root.find('fileOutputPath').text if root.find('fileOutputPath').text else ''
 
-        self.validate_path(self.str_file_path)
+        # If there is no error message string returned, set flag to True if validation passes
+        error_msg = self.msg_str(self.str_file_path)
+        if error_msg != '':
+            self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg(error_msg))
+        else:
+            self.is_valid = True
 
     def pi_add_incoming_connection(self, str_type: str, str_name: str) -> object:
         """
@@ -50,18 +57,18 @@ class AyxPlugin:
         :param str_name: The name of the wire, defined by the workflow author.
         :return: The IncomingInterface object(s).
         """
-        
+
         self.single_input = IncomingInterface(self)
         return self.single_input
 
     def pi_add_outgoing_connection(self, str_name: str) -> bool:
-       """
-       Called when the Alteryx engine is attempting to add an outgoing data connection.
-       :param str_name: The name of the output connection anchor, defined in the Config.xml file.
-       :return: True signifies that the connection is accepted.
-       """
-	   
-       return True
+        """
+        Called when the Alteryx engine is attempting to add an outgoing data connection.
+        :param str_name: The name of the output connection anchor, defined in the Config.xml file.
+        :return: True signifies that the connection is accepted.
+        """
+
+        return True
 
     def pi_push_all_records(self, n_record_limit: int) -> bool:
         """
@@ -70,8 +77,9 @@ class AyxPlugin:
         :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
         :return: True for success, False for failure.
         """
-        
-        self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('Missing Incoming Connection'))
+
+        self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error,
+                                           self.xmsg('Missing Incoming Connection'))
         return False
 
     def pi_close(self, b_has_errors: bool):
@@ -79,7 +87,7 @@ class AyxPlugin:
         Called after all records have been processed..
         :param b_has_errors: Set to true to not do the final processing.
         """
-		
+
         pass
 
     def xmsg(self, msg_string: str) -> str:
@@ -88,7 +96,7 @@ class AyxPlugin:
         :param msg_string: The user-facing string.
         :return: msg_string
         """
-		
+
         return msg_string
 
     @staticmethod
@@ -104,31 +112,22 @@ class AyxPlugin:
         for sublist in field_lists:
             del sublist[:]
 
-    def validate_path(self, file_path: str):
+    @staticmethod
+    def msg_str(file_path: str):
         """
         A non-interface, helper function that handles validating the file path input.
-        :param file_path: The file path and file name input by user.
         """
+        msg_str = ''
+        if os.access(file_path, os.F_OK):  # Outputting Error message if user specified file already exists
+            msg_str = file_path + ' already exists. Please enter a different path.'
+        elif len(file_path) > 259:  # Check length of filename
+            msg_str = 'Maximum path length is 259'
+        elif any((char in set('/;?*"<>|')) for char in file_path):  # Check for special characters in filename
+            msg_str = 'These characters are not allowed in the filename: /;?*"<>|'
+        elif len(file_path) == 0:  # Show error is filename is blank
+            msg_str = 'Enter a filename'
+        return msg_str
 
-        # Outputting Error message if user specified file already exists
-        if os.access(file_path, os.F_OK):
-            self.is_valid = False
-            self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg(file_path + ' already exists. Please enter a different path.'))
-
-        # Check length of filename
-        if len(file_path) > 259:
-            self.is_valid = False
-            self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('Maximum path length is 259'))
-        
-        # Check for special characters in filename
-        if any((char in set('/;?*"<>|')) for char in file_path):
-            self.is_valid = False
-            self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('These characters are not allowed in the filename: /;?*"<>|'))
-        
-        # Show error is filename is blank
-        if len(file_path) == 0:
-            self.is_valid = False
-            self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('Enter a filename'))
 
 class IncomingInterface:
     """
@@ -191,7 +190,7 @@ class IncomingInterface:
         # Writing when chunk mark is met
         if self.counter == 1000000:
             self.parent.write_lists_to_csv(self.parent.str_file_path, self.field_lists)
-            self.counter = 0 # Reset counter
+            self.counter = 0  # Reset counter
 
         return True
 
@@ -216,4 +215,6 @@ class IncomingInterface:
 
         # Outputting message that the file was written
         if len(self.parent.str_file_path) > 0 and self.parent.is_valid:
-            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.Status.file_output, self.parent.xmsg(self.parent.str_file_path + "|" + self.parent.str_file_path + " was created."))
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.Status.file_output,
+                                                      self.parent.xmsg(
+                                                          self.parent.str_file_path + "|" + self.parent.str_file_path + " was created."))
