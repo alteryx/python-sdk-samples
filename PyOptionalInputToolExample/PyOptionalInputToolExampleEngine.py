@@ -96,6 +96,16 @@ class AyxPlugin:
         :return: True for success, False for failure.
         """
 
+        # Checking if column_name is empty. If it is, records will stop processing and result in an error.
+        if self.column_name is None:
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Field name cannot be empty. Please enter a field name.'))
+            return False
+
+        # Checking if column_name is greater then 255 characters. If it is, records will stop processing and result in an error.
+        if len(self.column_name) > 255:
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Field name cannot be greater then 255 characters.'))
+            return False
+
         # Save a reference to the RecordInfo passed into this function in the global namespace, so we can access it later.
         record_info_out = Sdk.RecordInfo(self.alteryx_engine)
 
@@ -176,6 +186,16 @@ class IncomingInterface:
         :param record_info_in: A RecordInfo object for the incoming connection's fields.
         :return: True for success, otherwise False.
         """
+
+        # Checking if column_name is empty. If it is, records will stop processing and result in an error.
+        if self.parent.column_name is None:
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('Field name cannot be empty. Please enter a field name.'))
+            return False
+
+        # Checking if column_name is greater then 255 characters. If it is, records will stop processing and result in an error.
+        if len(self.parent.column_name) > 255:
+            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('Field name cannot be greater then 255 characters.'))
+            return False
 
         # Returns a new, empty RecordCreator object that is identical to record_info_in.
         record_info_out = record_info_in.clone()
