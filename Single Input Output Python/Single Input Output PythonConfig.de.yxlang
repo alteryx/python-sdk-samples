@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="Single Input Output PythonEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="Single Input Output PythonGui.html" Icon="Single Input Output PythonIcon.png" Help="" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Output" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>Single Input Output Python</Name>
+      <Description>Geben Sie eine benutzerdefinierte Anzahl von Zeilen am Anfang eines eingehenden Datenstroms aus. Dieses Beispielwerkzeug wurde mit dem Python-SDK und dem HTML-GUI-SDK erstellt.</Description>
+      <CategoryName>Labor</CategoryName>
+      <SearchTags>python, sdk, wählen Sie, Probe, Top, Datensätze, Python Sdk</SearchTags>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>

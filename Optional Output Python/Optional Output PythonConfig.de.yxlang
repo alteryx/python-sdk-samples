@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="Optional Output PythonEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="Optional Output PythonGui.html" Icon="Optional Output PythonIcon.png" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Output" AllowMultiple="False" Optional="True" Type="Connection" Label=""/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>Optionale Ausgabe Python</Name>
+      <Description>Optional können Daten entweder an Downstream-Tools oder als CSV-Datei ausgegeben werden. Dieses Beispielwerkzeug wurde mit dem Python-SDK und dem HTML-GUI-SDK erstellt.</Description>
+      <CategoryName>Labor</CategoryName>
+      <SearchTags>python, sdk, python sdk, optionale ausgabe</SearchTags>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>
