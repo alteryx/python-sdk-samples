@@ -13,7 +13,7 @@
     <MetaInfo>
       <Name>Single Input Output Python</Name>
       <Description>Verwalten Sie einen Eingangsstrom und einen Ausgabestream. Gibt Top-N-Datensätze zurück. Dieses Beispielwerkzeug wurde mit dem HTML GUI SDK und dem Python SDK erstellt.</Description>
-      <CategoryName>SDK Beispiele</CategoryName>
+      <CategoryName>Labor</CategoryName>
       <SearchTags>python, sdk, wählen Sie, Probe, Top, Datensätze, Python Sdk</SearchTags>
     </MetaInfo>
   </Properties>

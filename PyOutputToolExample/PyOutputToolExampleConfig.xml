@@ -14,8 +14,8 @@
   <Properties>
     <MetaInfo>
       <Name>Output Python</Name>
-      <Description>Manage one input stream and create a CSV file. This example tool was created using the HTML GUI SDK and the Python SDK.</Description>
-      <CategoryName>SDK Examples</CategoryName>
+      <Description>Write data to a user-specified .csv file within a local directory. This example tool was created using the Python SDK and the HTML GUI SDK.</Description>
+      <CategoryName>Laboratory</CategoryName>
       <SearchTags>python, sdk, python sdk, output</SearchTags>
     </MetaInfo>
   </Properties>

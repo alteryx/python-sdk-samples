@@ -13,7 +13,7 @@
     <MetaInfo>
       <Name>Optionale Eingabe Python</Name>
       <Description>Verwalten Sie einen Eingangsstrom und einen Ausgabestream. Fügt ein Feld hinzu, das als angegeben zählt oder wenn keine Eingabe vorhanden ist, erstellt ein Feld. Dieses Beispielwerkzeug wurde mit dem HTML GUI SDK und dem Python SDK erstellt.</Description>
-      <CategoryName>SDK Beispiele</CategoryName>
+      <CategoryName>Labor</CategoryName>
       <SearchTags>python, sdk, recordid, record, id, python sdk, optionale eingabe</SearchTags>
     </MetaInfo>
   </Properties>

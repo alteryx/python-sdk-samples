@@ -13,7 +13,7 @@
     <MetaInfo>
       <Name>Entrée Facultative Python</Name>
       <Description>Gérer un flux d'entrée et un flux de sortie. Ajoute un champ qui compte comme spécifié ou si aucune entrée n'est présente, crée un champ. Cet outil d'exemple a été créé en utilisant le SDK GUI HTML et le SDK Python.</Description>
-      <CategoryName>Exemples de SDK</CategoryName>
+      <CategoryName>Laboratoire</CategoryName>
       <SearchTags>python, sdk, enregistrement, enregistrement, id, python sdk, entrée facultative</SearchTags>
     </MetaInfo>
   </Properties>

@@ -12,8 +12,8 @@
   <Properties>
     <MetaInfo>
       <Name>⇚⇚Single Input Output Python⇚⇚</Name>
-      <Description>⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚Manage one input stream and one output stream. Returns top N records. This example tool was created using the HTML GUI SDK and the Python SDK.⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚</Description>
-      <CategoryName>⇚⇚SDK Examples⇚⇚</CategoryName>
+      <Description>⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚Manage one input stream and one output stream. Returns top N records. This example tool was created using the Python SDK and the HTML GUI SDK.⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚</Description>
+      <CategoryName>⇚⇚Laboratory⇚⇚</CategoryName>
       <SearchTags>⇚python⇚, ⇚sdk⇚, ⇚select⇚, ⇚sample⇚, ⇚top⇚, ⇚record⇚s, ⇚python sdk⇚</SearchTags>
     </MetaInfo>
   </Properties>

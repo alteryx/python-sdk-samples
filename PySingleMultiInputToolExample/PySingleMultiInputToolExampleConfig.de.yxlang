@@ -13,7 +13,7 @@
     <MetaInfo>
       <Name>Single Anchor Multiple Inputs Python</Name>
       <Description>Verwalten Sie mehrere Eingangsströme mit einem Eingangsanker. Dieses Beispielwerkzeug wurde mit dem HTML GUI SDK und dem Python SDK erstellt.</Description>
-      <CategoryName>SDK Beispiele</CategoryName>
+      <CategoryName>Labor</CategoryName>
       <SearchTags>python, sdk, python sdk, Single-Anker, mehrere Eingänge</SearchTags>
     </MetaInfo>
   </Properties>

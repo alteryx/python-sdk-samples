@@ -15,7 +15,7 @@
     <MetaInfo>
       <Name>Ausgabe Python</Name>
       <Description>Verwalten Sie einen Eingabestream und erstellen Sie eine CSV-Datei. Dieses Beispielwerkzeug wurde mit dem HTML GUI SDK und dem Python SDK erstellt.</Description>
-      <CategoryName>SDK Beispiele</CategoryName>
+      <CategoryName>Labor</CategoryName>
       <SearchTags>python, sdk, python sdk, ausgabe</SearchTags>
     </MetaInfo>
   </Properties>

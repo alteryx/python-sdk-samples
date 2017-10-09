@@ -14,7 +14,7 @@
     <MetaInfo>
       <Name>Mehrere Eingänge Python</Name>
       <Description>Verwalten Sie zwei Eingangsströme und einen Ausgabestream. Verbinden Sie zwei Datenquellen nach Datensatzposition. Dieses Beispielwerkzeug wurde mit dem HTML GUI SDK und dem Python SDK erstellt.</Description>
-      <CategoryName>SDK Beispiele</CategoryName>
+      <CategoryName>Labor</CategoryName>
       <SearchTags>python, sdk, python sdk, mehrere eingänge</SearchTags>
     </MetaInfo>
   </Properties>

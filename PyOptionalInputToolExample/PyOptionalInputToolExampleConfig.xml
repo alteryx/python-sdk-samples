@@ -12,8 +12,8 @@
   <Properties>
     <MetaInfo>
       <Name>Optional Input Python</Name>
-      <Description>Manage one input stream and one output stream. Adds a field that counts as specified or if no input is present, creates a field. This example tool was created using the HTML GUI SDK and the Python SDK.</Description>
-      <CategoryName>SDK Examples</CategoryName>
+      <Description>Add a field that counts as specified or, if no input is present, creates a field. This example tool was created using the Python SDK and the HTML GUI SDK.</Description>
+      <CategoryName>Laboratory</CategoryName>
       <SearchTags>python, sdk, recordid, record, id, python sdk, optional input</SearchTags>
     </MetaInfo>
   </Properties>

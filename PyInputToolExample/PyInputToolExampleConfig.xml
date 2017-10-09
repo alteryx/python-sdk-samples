@@ -14,8 +14,8 @@
   <Properties>
     <MetaInfo>
       <Name>Input Python</Name>
-      <Description>Manage one output stream and load a CSV file. This example tool was created using the HTML GUI SDK and the Python SDK.</Description>
-      <CategoryName>SDK Examples</CategoryName>
+      <Description>Read data from a local .csv file. This example tool was created using the Python SDK and the HTML GUI SDK.</Description>
+      <CategoryName>Laboratory</CategoryName>
       <SearchTags>python, sdk, python sdk, input</SearchTags>
     </MetaInfo>
   </Properties>
