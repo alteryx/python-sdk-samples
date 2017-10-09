@@ -15,6 +15,10 @@
       <Description>Kombinieren Sie zwei oder mehr Datenströme mit ähnlichen Strukturen basierend auf Feldnamen. Dieses Beispielwerkzeug wurde mit dem Python-SDK und dem HTML-GUI-SDK erstellt.</Description>
       <CategoryName>Labor</CategoryName>
       <SearchTags>python, sdk, python sdk, Single-Anker, mehrere Eingänge</SearchTags>
+      <ToolVersion>1.0</ToolVersion>
+      <Author>Alteryx</Author>
+      <Company>Alteryx, Inc.</Company>
+      <Copyright>2017</Copyright>
     </MetaInfo>
   </Properties>
 </AlteryxJavaScriptPlugin>

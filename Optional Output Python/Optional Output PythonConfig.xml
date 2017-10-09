@@ -15,6 +15,10 @@
       <Description>Optionally output data to either downstream tools or as a .csv file. This example tool was created using the Python SDK and the HTML GUI SDK.</Description>
       <CategoryName>Laboratory</CategoryName>
       <SearchTags>python, sdk, python sdk, optional output</SearchTags>
+      <ToolVersion>1.0</ToolVersion>
+      <Author>Alteryx</Author>
+      <Company>Alteryx, Inc.</Company>
+      <Copyright>2017</Copyright>
     </MetaInfo>
   </Properties>
 </AlteryxJavaScriptPlugin>

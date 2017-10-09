@@ -15,6 +15,10 @@
       <Description>Optional können Daten entweder an Downstream-Tools oder als CSV-Datei ausgegeben werden. Dieses Beispielwerkzeug wurde mit dem Python-SDK und dem HTML-GUI-SDK erstellt.</Description>
       <CategoryName>Labor</CategoryName>
       <SearchTags>python, sdk, python sdk, optionale ausgabe</SearchTags>
+      <ToolVersion>1.0</ToolVersion>
+      <Author>Alteryx</Author>
+      <Company>Alteryx, Inc.</Company>
+      <Copyright>2017</Copyright>
     </MetaInfo>
   </Properties>
 </AlteryxJavaScriptPlugin>

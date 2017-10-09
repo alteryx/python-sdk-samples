@@ -17,6 +17,10 @@
       <Description>Schreiben Sie Daten in eine vom Benutzer angegebene CSV-Datei in einem lokalen Verzeichnis. Dieses Beispielwerkzeug wurde mit dem Python-SDK und dem HTML-GUI-SDK erstellt.</Description>
       <CategoryName>Labor</CategoryName>
       <SearchTags>python, sdk, python sdk, ausgabe</SearchTags>
+      <ToolVersion>1.0</ToolVersion>
+      <Author>Alteryx</Author>
+      <Company>Alteryx, Inc.</Company>
+      <Copyright>2017</Copyright>
     </MetaInfo>
   </Properties>
 </AlteryxJavaScriptPlugin>

@@ -15,6 +15,10 @@
       <Description>Éventuellement les données de sortie à des outils en aval ou en tant que fichier .csv. Cet exemple d'outil a été créé à l'aide du SDK Python et du SDK de l'interface graphique HTML.</Description>
       <CategoryName>Laboratoire</CategoryName>
       <SearchTags>python, sdk, python sdk, sortie facultative</SearchTags>
+      <ToolVersion>1.0</ToolVersion>
+      <Author>Alteryx</Author>
+      <Company>Alteryx, Inc.</Company>
+      <Copyright>2017</Copyright>
     </MetaInfo>
   </Properties>
 </AlteryxJavaScriptPlugin>

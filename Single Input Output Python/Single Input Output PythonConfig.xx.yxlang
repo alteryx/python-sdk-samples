@@ -15,6 +15,10 @@
       <Description>⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚ Output a user-determined number of rows from the top of an incoming data stream. This example tool was created using the Python SDK and the HTML GUI SDK. ⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚</Description>
       <CategoryName>⇚⇚Laboratory⇚⇚</CategoryName>
       <SearchTags>⇚python⇚, ⇚sdk⇚, ⇚select⇚, ⇚sample⇚, ⇚top⇚, ⇚record⇚s, ⇚python sdk⇚</SearchTags>
+      <ToolVersion>1.0</ToolVersion>
+      <Author>Alteryx</Author>
+      <Company>Alteryx, Inc.</Company>
+      <Copyright>2017</Copyright>
     </MetaInfo>
   </Properties>
 </AlteryxJavaScriptPlugin>

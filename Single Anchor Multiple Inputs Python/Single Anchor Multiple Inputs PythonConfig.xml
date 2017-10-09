@@ -15,6 +15,10 @@
       <Description>Combine two or more data streams with similar structures based on field names. This example tool was created using the Python SDK and the HTML GUI SDK.</Description>
       <CategoryName>Laboratory</CategoryName>
       <SearchTags>python, sdk, python sdk, single anchor, multiple inputs</SearchTags>
+      <ToolVersion>1.0</ToolVersion>
+      <Author>Alteryx</Author>
+      <Company>Alteryx, Inc.</Company>
+      <Copyright>2017</Copyright>
     </MetaInfo>
   </Properties>
 </AlteryxJavaScriptPlugin>

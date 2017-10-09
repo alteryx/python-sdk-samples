@@ -16,6 +16,10 @@
       <Description>⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚ Separate data into two streams, unique and duplicate values. This example tool was created using the Python SDK and the HTML GUI SDK. ⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚</Description>
       <CategoryName>⇚⇚Laboratory⇚⇚</CategoryName>
       <SearchTags>python, sdk, distinct, unique, record, python sdk, multiple outputs</SearchTags>
+      <ToolVersion>1.0</ToolVersion>
+      <Author>Alteryx</Author>
+      <Company>Alteryx, Inc.</Company>
+      <Copyright>2017</Copyright>
     </MetaInfo>
   </Properties>
 </AlteryxJavaScriptPlugin>
