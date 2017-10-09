@@ -173,7 +173,7 @@ class AyxPlugin:
         # Create the helper for constructing records to pass downstream.
         self.record_creator = self.record_info_out.construct_record_creator()
 
-        # Checks makes sure when the user selects error and new fields are present that records are not processed
+        # Checks to make sure when the user selects error and new fields are present that records are not processed.
         if new_fields and self.message_type == 'error':
             # Close outgoing connections.
             self.output_anchor.close()
