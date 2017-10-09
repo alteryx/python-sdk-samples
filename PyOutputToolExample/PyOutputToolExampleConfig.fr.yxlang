@@ -14,7 +14,7 @@
   <Properties>
     <MetaInfo>
       <Name>Python de Sortie</Name>
-      <Description>Gérer un flux d'entrée et créer un fichier CSV. Cet outil d'exemple a été créé en utilisant le SDK GUI HTML et le SDK Python.</Description>
+      <Description>Ecrivez des données dans un fichier .csv spécifié par l'utilisateur dans un répertoire local. Cet exemple d'outil a été créé à l'aide du SDK Python et du SDK de l'interface graphique HTML.</Description>
       <CategoryName>Laboratoire</CategoryName>
       <SearchTags>python, sdk, python sdk, sortie</SearchTags>
     </MetaInfo>

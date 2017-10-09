@@ -13,7 +13,7 @@
   <Properties>
     <MetaInfo>
       <Name>⇚⇚Multiple Outputs Python⇚⇚</Name>
-      <Description>⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚Manage one input stream and two output streams. Split the input between unique and duplicate values, similar to the unique tool. This example tool was created using the Python SDK and the HTML GUI SDK.⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚</Description>
+      <Description>⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚ Separate data into two streams, unique and duplicate values. This example tool was created using the Python SDK and the HTML GUI SDK. ⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚</Description>
       <CategoryName>⇚⇚Laboratory⇚⇚</CategoryName>
       <SearchTags>python, sdk, distinct, unique, record, python sdk, multiple outputs</SearchTags>
     </MetaInfo>

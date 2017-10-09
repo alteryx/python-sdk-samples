@@ -12,7 +12,7 @@
   <Properties>
     <MetaInfo>
       <Name>Sortie D'entrée Unique Python</Name>
-      <Description>Gérer un flux d'entrée et un flux de sortie. Retourne les N premiers enregistrements. Cet outil d'exemple a été créé en utilisant le SDK GUI HTML et le SDK Python.</Description>
+      <Description>Produire un nombre de lignes déterminé par l'utilisateur à partir du haut d'un flux de données entrant. Cet exemple d'outil a été créé à l'aide du SDK Python et du SDK de l'interface graphique HTML.</Description>
       <CategoryName>Laboratoire</CategoryName>
       <SearchTags>python, sdk, sélectionnez, échantillon, haut, enregistrements, python sdk</SearchTags>
     </MetaInfo>

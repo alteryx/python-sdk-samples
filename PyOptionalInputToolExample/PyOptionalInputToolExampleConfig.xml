@@ -12,7 +12,7 @@
   <Properties>
     <MetaInfo>
       <Name>Optional Input Python</Name>
-      <Description>Add a field that counts as specified or, if no input is present, creates a field. This example tool was created using the Python SDK and the HTML GUI SDK.</Description>
+      <Description>Create a unique identifier column, regardless of if a data stream is present. This example tool was created using the Python SDK and the HTML GUI SDK.</Description>
       <CategoryName>Laboratory</CategoryName>
       <SearchTags>python, sdk, recordid, record, id, python sdk, optional input</SearchTags>
     </MetaInfo>

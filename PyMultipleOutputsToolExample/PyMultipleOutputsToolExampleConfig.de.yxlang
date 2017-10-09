@@ -13,7 +13,7 @@
   <Properties>
     <MetaInfo>
       <Name>Mehrfachausgänge Python</Name>
-      <Description>Verwalten Sie einen Eingangsstrom und zwei Ausgabeströme. Teilen Sie den Eingang zwischen eindeutigen und doppelten Werten, ähnlich dem einzigartigen Werkzeug. Dieses Beispielwerkzeug wurde mit dem HTML GUI SDK und dem Python SDK erstellt.</Description>
+      <Description>Trennen Sie Daten in zwei Streams, eindeutige und doppelte Werte. Dieses Beispielwerkzeug wurde mit dem Python-SDK und dem HTML-GUI-SDK erstellt.</Description>
       <CategoryName>Labor</CategoryName>
       <SearchTags>python, sdk, deutlich, einzigartig, aufnahme, python sdk, mehrfache ausgänge</SearchTags>
     </MetaInfo>

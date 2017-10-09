@@ -12,7 +12,7 @@
   <Properties>
     <MetaInfo>
       <Name>Optionale Ausgabe Python</Name>
-      <Description>Verwalten Sie einen Ausgabestream. Wählen Sie die Option, um Daten an Downstream-Tools oder als CSV-Datei auszugeben. Dieses Beispielwerkzeug wurde mit dem HTML GUI SDK und dem Python SDK erstellt.</Description>
+      <Description>Optional können Daten entweder an Downstream-Tools oder als CSV-Datei ausgegeben werden. Dieses Beispielwerkzeug wurde mit dem Python-SDK und dem HTML-GUI-SDK erstellt.</Description>
       <CategoryName>Labor</CategoryName>
       <SearchTags>python, sdk, python sdk, optionale ausgabe</SearchTags>
     </MetaInfo>

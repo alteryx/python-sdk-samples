@@ -14,7 +14,7 @@
   <Properties>
     <MetaInfo>
       <Name>Input Python</Name>
-      <Description>Lit les données à partir d'un fichier .csv local. Cet outil d'exemple a été créé en utilisant le SDK GUI HTML et le SDK Python.</Description>
+      <Description>Lire des données à partir d'un fichier .csv local. Cet exemple d'outil a été créé à l'aide du SDK Python et du SDK de l'interface graphique HTML.</Description>
       <CategoryName>Laboratoire</CategoryName>
       <SearchTags>python, sdk, python sdk, input</SearchTags>
     </MetaInfo>

@@ -12,7 +12,7 @@
   <Properties>
     <MetaInfo>
       <Name>Single Input Output Python</Name>
-      <Description>Verwalten Sie einen Eingangsstrom und einen Ausgabestream. Gibt Top-N-Datensätze zurück. Dieses Beispielwerkzeug wurde mit dem HTML GUI SDK und dem Python SDK erstellt.</Description>
+      <Description>Geben Sie eine benutzerdefinierte Anzahl von Zeilen am Anfang eines eingehenden Datenstroms aus. Dieses Beispielwerkzeug wurde mit dem Python-SDK und dem HTML-GUI-SDK erstellt.</Description>
       <CategoryName>Labor</CategoryName>
       <SearchTags>python, sdk, wählen Sie, Probe, Top, Datensätze, Python Sdk</SearchTags>
     </MetaInfo>

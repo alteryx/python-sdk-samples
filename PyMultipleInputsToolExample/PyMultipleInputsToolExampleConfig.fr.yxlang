@@ -13,7 +13,7 @@
   <Properties>
     <MetaInfo>
       <Name>Entrées Multiples Python</Name>
-      <Description>Gérez deux flux d'entrée et un flux de sortie. Rejoignez deux sources de données par position d'enregistrement. Cet outil d'exemple a été créé en utilisant le SDK GUI HTML et le SDK Python.</Description>
+      <Description>Joignez deux sources de données par position d'enregistrement. Cet exemple d'outil a été créé à l'aide du SDK Python et du SDK de l'interface graphique HTML.</Description>
       <CategoryName>Laboratoire</CategoryName>
       <SearchTags>python, sdk, python sdk, entrées multiples</SearchTags>
     </MetaInfo>

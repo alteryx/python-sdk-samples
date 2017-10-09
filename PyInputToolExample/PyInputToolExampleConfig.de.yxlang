@@ -14,7 +14,7 @@
   <Properties>
     <MetaInfo>
       <Name>Eingabe Python</Name>
-      <Description>Liest Daten aus einer lokalen .csv-Datei. Dieses Beispielwerkzeug wurde mit dem HTML GUI SDK und dem Python SDK erstellt.</Description>
+      <Description>Daten aus einer lokalen CSV-Datei lesen. Dieses Beispielwerkzeug wurde mit dem Python-SDK und dem HTML-GUI-SDK erstellt.</Description>
       <CategoryName>Labor</CategoryName>
       <SearchTags>python, sdk, python sdk, eingabe</SearchTags>
     </MetaInfo>

@@ -12,7 +12,7 @@
   <Properties>
     <MetaInfo>
       <Name>⇚⇚Single Anchor Multiple Inputs Python⇚⇚</Name>
-      <Description>⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚Manage multiple input streams with one input anchor.  This example tool was created using the Python SDK and the HTML GUI SDK.⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚</Description>
+      <Description>⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚ Combine two or more data streams with similar structures based on field names. This example tool was created using the Python SDK and the HTML GUI SDK. ⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚</Description>
       <CategoryName>⇚⇚Laboratory⇚⇚</CategoryName>
       <SearchTags>⇚python⇚, ⇚sdk⇚, ⇚python sdk⇚, ⇚single anchor⇚, ⇚multiple inputs⇚</SearchTags>
     </MetaInfo>

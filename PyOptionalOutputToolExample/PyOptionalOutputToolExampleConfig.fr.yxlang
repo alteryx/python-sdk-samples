@@ -12,7 +12,7 @@
   <Properties>
     <MetaInfo>
       <Name>Python de Sortie Facultatif</Name>
-      <Description>Gérez un flux de sortie. Choisissez l'option de sortie des données vers les outils en aval ou en tant que fichier .csv. Cet outil d'exemple a été créé en utilisant le SDK GUI HTML et le SDK Python.</Description>
+      <Description>Éventuellement les données de sortie à des outils en aval ou en tant que fichier .csv. Cet exemple d'outil a été créé à l'aide du SDK Python et du SDK de l'interface graphique HTML.</Description>
       <CategoryName>Laboratoire</CategoryName>
       <SearchTags>python, sdk, python sdk, sortie facultative</SearchTags>
     </MetaInfo>
