@@ -121,6 +121,8 @@ class AyxPlugin:
         # Constructing a new RecordInfo object that will contain the metadata of the fields we want to output.
         self.record_info_out= AlteryxPythonSDK.RecordInfo(self.alteryx_engine)
 
+        new_fields = []
+
         # Going through each input connection to extract the field information.
         for nth_input in self.all_inputs:
             # Only runs on the first input
@@ -171,24 +173,30 @@ class AyxPlugin:
         # Create the helper for constructing records to pass downstream.
         self.record_creator = self.record_info_out.construct_record_creator()
 
-        # Copy the latest record from each input into the outgoing stream.
-        for nth_input in self.all_inputs:
-            for record in nth_input.record_list:
-                # Resets the capacity for variable-length data in this record to 0 bytes (default if no number specified.
-                self.record_creator.reset()
+        # Checks makes sure when the user selects error and new fields are present that records are not processed
+        if new_fields and self.message_type == 'error':
+            # Close outgoing connections.
+            self.output_anchor.close()
 
-                # Setting all the fields to null in record_creator so that if records don't appear for certain fields they will show up as null records.
-                for field in self.record_info_out:
-                    field.set_null(self.record_creator)
+        else:
+            # Copy the latest record from each input into the outgoing stream.
+            for nth_input in self.all_inputs:
+                for record in nth_input.record_list:
+                    # Resets the capacity for variable-length data in this record to 0 bytes (default if no number specified.
+                    self.record_creator.reset()
 
-                #  Copying the individual records to record creator.
-                nth_input.record_copier.copy(self.record_creator, record.finalize_record())
+                    # Setting all the fields to null in record_creator so that if records don't appear for certain fields they will show up as null records.
+                    for field in self.record_info_out:
+                        field.set_null(self.record_creator)
 
-                # Pushing the final record to the output anchor.
-                self.output_anchor.push_record(self.record_creator.finalize_record())
+                    #  Copying the individual records to record creator.
+                    nth_input.record_copier.copy(self.record_creator, record.finalize_record())
 
-        # Close outgoing connections.
-        self.output_anchor.close()
+                    # Pushing the final record to the output anchor.
+                    self.output_anchor.push_record(self.record_creator.finalize_record())
+
+            # Close outgoing connections.
+            self.output_anchor.close()
 
     def process_update_input_progress(self):
         """
