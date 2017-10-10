@@ -12,7 +12,7 @@
   <Properties>
     <MetaInfo>
       <Name>Single Anchor Multiple Inputs Python</Name>
-      <Description>Combinez deux flux de données ou plus avec des structures similaires basées sur les noms de champs. Cet exemple d'outil a été créé à l'aide du SDK Python et du SDK de l'interface graphique HTML.</Description>
+      <Description>Combinez deux ou plusieurs flux de données en fonction des noms de champs. Cet exemple d'outil a été créé à l'aide du SDK Python et du SDK de l'interface graphique HTML.</Description>
       <CategoryName>Laboratoire</CategoryName>
       <SearchTags>python, sdk, python sdk, ancre unique, entrées multiples</SearchTags>
       <ToolVersion>1.0</ToolVersion>

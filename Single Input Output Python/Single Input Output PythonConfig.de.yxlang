@@ -12,7 +12,7 @@
   <Properties>
     <MetaInfo>
       <Name>Single Input Output Python</Name>
-      <Description>Geben Sie eine benutzerdefinierte Anzahl von Zeilen am Anfang eines eingehenden Datenstroms aus. Dieses Beispielwerkzeug wurde mit dem Python-SDK und dem HTML-GUI-SDK erstellt.</Description>
+      <Description>Eine benutzerdefinierte Anzahl von Zeilen vom Anfang eines eingehenden Datenstroms wird zurueck gegeben. Dieses Beispieltool wurde mit dem Python-SDK und dem HTML-GUI-SDK erstellt.</Description>
       <CategoryName>Labor</CategoryName>
       <SearchTags>python, sdk, wählen Sie, Probe, Top, Datensätze, Python Sdk</SearchTags>
       <ToolVersion>1.0</ToolVersion>
