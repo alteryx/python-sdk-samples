@@ -18,7 +18,7 @@ class AyxPlugin:
 
         # Miscellaneous variables
         self.n_tool_id = n_tool_id
-        self.name = 'PySingleMultiInput' + str(self.n_tool_id)
+        self.name = 'SingleAnchorMultipleInputsPython_' + str(self.n_tool_id)
         self.message_type = None
 
         # Engine handle

@@ -13,7 +13,7 @@ class AyxPlugin:
 
         # Miscellaneous properties
         self.n_tool_id = n_tool_id
-        self.name = 'PyMultipleOutputsToolExample_' + str(self.n_tool_id)
+        self.name = 'MultipleOutputsPython_' + str(self.n_tool_id)
         self.field_selection = None
         self.single_input = None
         

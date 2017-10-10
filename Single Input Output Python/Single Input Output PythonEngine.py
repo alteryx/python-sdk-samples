@@ -19,7 +19,7 @@ class AyxPlugin:
 
         # Miscellaneous properties
         self.n_tool_id = n_tool_id
-        self.name = 'PySingleInputOutputToolExample_' + str(self.n_tool_id)
+        self.name = 'SingleInputOutputPython_' + str(self.n_tool_id)
         self.single_input = None
         self.n_record_select = None
         self.xml_sort_info = ''

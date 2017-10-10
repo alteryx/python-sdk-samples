@@ -20,7 +20,7 @@ class AyxPlugin:
 
         # Miscellaneous variables
         self.n_tool_id = n_tool_id
-        self.name = 'PyOutputToolExample_' + str(self.n_tool_id)
+        self.name = 'OutputPython_' + str(self.n_tool_id)
 
         # Engine handles
         self.alteryx_engine = alteryx_engine
