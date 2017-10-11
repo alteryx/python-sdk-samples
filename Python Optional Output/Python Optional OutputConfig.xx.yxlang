@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="Python Optional OutputEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="Python Optional OutputGui.html" Icon="Python Optional OutputIcon.png" Help="https://help.alteryx.com/developer/current/index.htm#Python/Examples.htm" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Output" AllowMultiple="False" Optional="True" Type="Connection" Label=""/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>⇚⇚Python Optional Output⇚⇚</Name>
+      <Description>⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚ Optionally output data to either downstream tools or as a .csv file. This example tool was created using the Python SDK and the HTML GUI SDK. ⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚</Description>
+      <CategoryName>⇚⇚Laboratory⇚⇚</CategoryName>
+      <SearchTags>⇚python⇚, ⇚sdk⇚, ⇚python sdk⇚, ⇚optional output⇚</SearchTags>
+      <ToolVersion>1.0</ToolVersion>
+      <Author>Alteryx</Author>
+      <Company>Alteryx, Inc.</Company>
+      <Copyright>2017</Copyright>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>

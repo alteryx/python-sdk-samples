@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html style="padding:20px">
+<head>
+  <meta charset="utf-8">
+  <title>Python Input</title>
+
+	<script type="text/javascript">
+		document.write('<link rel="import" href="' + window.Alteryx.LibDir + '1/lib/alteryx/gui/includes.html">');
+	</script>
+</head>
+<body>
+	<form>
+    <fieldset>
+        <legend>XMSG("File Browse")</legend>
+        <alteryx-pluginwidget data-props='{type:"FileBrowse", id:"FileBrowse", dataName:"browseFiles", browseType: "File", isWorkflowDependency: true}' ></alteryx-pluginwidget>
+    </fieldset>
+	</form>
+
+  <style>
+    /*This styling needs to be here. Is due to file loading. Otherwise, will not get proper styling on dropdowns*/
+
+    .Select, .Select div, .Select input, .Select span {
+      box-sizing: content-box;
+      -webkit-box-sizing: content-box;
+    }
+  </style>
+</body>
+</html>

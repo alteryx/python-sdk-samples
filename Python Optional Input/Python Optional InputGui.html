@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html style="padding:20px">
+<head>
+  <meta charset="utf-8">
+  <title>Python Optional Input</title>
+
+  <script type="text/javascript">
+    document.write('<link rel="import" href="' + window.Alteryx.LibDir + '2/lib/includes.html">');
+  </script>
+</head>
+<body>
+  <form>
+    <fieldset>
+      <legend class='blueTitle'>XMSG("Create New Column")</legend>
+      <div class='leftCon'>
+        <label>XMSG("Name")</label>
+        <ayx data-ui-props="{type: 'TextBox'}" data-item-props="{dataName: 'FieldName'}"></ayx>
+      </div>
+      <div class='rightCon'>
+        <label><span id="startValText">XMSG("Starting Value")</span></label>
+          <ayx data-ui-props="{type: 'NumericSpinner'}" data-item-props="{dataName: 'StartValue'}"></ayx>
+      </div>
+      <div class='rightCon'>
+        <label><span id="endValText">XMSG("Number of records (if no input is present)")</span></label>
+          <ayx data-ui-props="{type: 'NumericSpinner'}" data-item-props="{dataName: 'EndValue'}"></ayx>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend class='blueTitle'>XMSG("Options")</legend>
+      <div class='leftCon'>
+        <label>XMSG("Type")</label>
+          <ayx data-ui-props="{type: 'DropDown'}", data-item-props="{dataName: 'FieldType'}">
+          </ayx>
+      </div>
+      <div class='rightCon'>
+        <label><span id="stepByText">XMSG("Increment count by")</span></label>
+          <ayx data-ui-props="{type: 'NumericSpinner'}" data-item-props="{dataName: 'StepByValue'}"></ayx>
+      </div>
+    </fieldset>
+  </form>
+
+  <script type="text/javascript">
+
+    Alteryx.Gui.BeforeLoad = function (manager, AlteryxDataItems, json) {
+      manager.getDataItem('FieldName').setValue('RecordID')
+
+      var startValue = manager.getDataItem('StartValue')
+      startValue.setValue(1)
+      startValue.setAllowedPrecision(2)
+      startValue.setMax('9999999999999')
+      startValue.setMin('0')
+
+      var endValue = manager.getDataItem('EndValue')
+      endValue.setValue(1)
+      endValue.setAllowedPrecision(2)
+      endValue.setMax('9999999999999')
+      endValue.setMin('0')
+
+      var fieldType = manager.getDataItem('FieldType')
+      fieldType.setOptionList([
+          { value: 'Int16', label: 'Int16'}
+          , { value: 'Int32', label: 'Int32'}
+          , {value: 'Int64', label: 'Int64'}
+          , {value: 'Double', label: 'Double'}
+      ])
+      fieldType.setValue('Int16')
+
+      var stepValue = manager.getDataItem('StepByValue')
+      stepValue.setValue(1)
+      stepValue.setAllowedPrecision(2)
+      stepValue.setMax('9999999999999')
+      stepValue.setMin('0')
+    }
+
+  </script>
+
+  <style>
+    /*This styling needs to be here. Is due to file loading. Otherwise, will not get proper styling on dropdowns*/
+
+    .Select, .Select div, .Select input, .Select span {
+      box-sizing: content-box;
+      -webkit-box-sizing: content-box;
+    }
+  </style>
+</body>
+</html>

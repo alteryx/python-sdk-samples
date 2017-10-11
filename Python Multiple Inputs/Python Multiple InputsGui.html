@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html style="padding:20px">
+<head>
+  <meta charset="utf-8">
+  <title>Python Multiple Inputs</title>
+  <script type="text/javascript">
+    document.write('<link rel="import" href="' + window.Alteryx.LibDir + '2/lib/includes.html">');
+  </script>
+</head>
+<body>
+  <form>
+	
+	<fieldset>
+		<legend class='blueTitle'>XMSG("Join By Record Position")</legend>
+		<div>
+			<label>XMSG("Append prefix to left field names (optional):")</label>
+			<ayx data-ui-props = "{type: 'TextBox', widgetId: 'TextBoxL'}" data-item-props = "{dataName: 'LeftPrefix'}"></ayx>		
+		</div>		
+		<div>
+			<label>XMSG("Append prefix to right field names (optional):")</label>
+			<ayx data-ui-props = "{type: 'TextBox', widgetId: 'TextBoxR'}" data-item-props = "{dataName: 'RightPrefix'}"></ayx>
+		</div>
+	</fieldset>
+    
+  </form>
+  <script type="text/javascript">
+    Alteryx.Gui.BeforeLoad = (manager, AlteryxDataItems, json) => {
+
+	  const textBoxDataItemLeft = new AlteryxDataItems.SimpleString('LeftPrefix')
+	  manager.addDataItem(textBoxDataItemLeft)
+	  manager.bindDataItemToWidget(textBoxDataItemLeft, 'TextBoxL')
+	 
+	  const textBoxDataItemRight = new AlteryxDataItems.SimpleString('RightPrefix')
+	  manager.addDataItem(textBoxDataItemRight)
+	  manager.bindDataItemToWidget(textBoxDataItemRight, 'TextBoxR')
+	  
+    }	
+  </script>
+  <style>
+  </style>
+</body>
+</html>
