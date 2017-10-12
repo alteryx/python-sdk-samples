@@ -141,6 +141,9 @@ class AyxPlugin:
         # Returns message indicating number of records read from specified file.
         self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.info, self.xmsg(str(rownum) + ' records were read from ' + self.file_input_name))
 
+        # Make sure that the output anchor is closed.
+        self.output_anchor.close()
+
         return True
 
     def pi_close(self, b_has_errors: bool):
@@ -151,8 +154,8 @@ class AyxPlugin:
 
         self.closed = True
 
-        # Close outgoing connections.
-        self.output_anchor.close()
+        # Check to see that the output anchor is closed.
+        self.output_anchor.assert_close()
         return
 
     def is_csv(self):

@@ -139,6 +139,9 @@ class AyxPlugin:
 
             self.previous_inc_value = loop_value
 
+        # Make sure that the output anchor is closed.
+        self.output_anchor.close()
+
         return True
 
     def pi_close(self, b_has_errors: bool):
