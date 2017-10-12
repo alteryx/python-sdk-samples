@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="Python - Multiple InputsEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="Python - Multiple InputsGui.html" Icon="Python - Multiple InputsIcon.png" Help="https://help.alteryx.com/developer/current/index.htm#Python/Examples.htm" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Left" AllowMultiple="False" Optional="False" Type="Connection" Label="L"/>
+      <Connection Name="Right" AllowMultiple="False" Optional="False" Type="Connection" Label="R"/>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Output" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>Python - Mehrere Eingänge</Name>
+      <Description>Verbinden Sie zwei Datenquellen nach Datensatzposition. Dieses Beispielwerkzeug wurde mit dem Python-SDK und dem HTML-GUI-SDK erstellt.</Description>
+      <CategoryName>Labor</CategoryName>
+      <SearchTags>python, sdk, python sdk, mehrere eingänge</SearchTags>
+      <ToolVersion>1.0</ToolVersion>
+      <Author>Alteryx</Author>
+      <Company>Alteryx, Inc.</Company>
+      <Copyright>2017</Copyright>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>
