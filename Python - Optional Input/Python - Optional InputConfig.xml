@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="Python - Optional InputEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="Python - Optional InputGui.html" Icon="Python - Optional InputIcon.png" Help="https://help.alteryx.com/developer/current/index.htm#Python/Examples.htm" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input" AllowMultiple="False" Optional="True" Type="Connection" Label=""/>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Output" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>Python - Optional Input</Name>
+      <Description>Create a unique identifier column, regardless of if a data stream is present. This example tool was created using the Python SDK and the HTML GUI SDK.</Description>
+      <CategoryName>Laboratory</CategoryName>
+      <SearchTags>python, sdk, recordid, record, id, python sdk, optional input</SearchTags>
+      <ToolVersion>1.0</ToolVersion>
+      <Author>Alteryx</Author>
+      <Company>Alteryx, Inc.</Company>
+      <Copyright>2017</Copyright>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>

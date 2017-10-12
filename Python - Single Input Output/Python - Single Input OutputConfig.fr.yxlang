@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="Python - Single Input OutputEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="Python - Single Input OutputGui.html" Icon="Python - Single Input OutputIcon.png" Help="https://help.alteryx.com/developer/current/index.htm#Python/Examples.htm" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Output" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>Python - Sortie D'entrée Unique</Name>
+      <Description>Renvoie un nombre de lignes spécifié par l'utilisateur à partir du haut d'un flux de données entrant. Cet exemple d'outil a été créé à l'aide du SDK Python et du SDK de l'interface graphique HTML.</Description>
+      <CategoryName>Laboratoire</CategoryName>
+      <SearchTags>python, sdk, sélectionnez, échantillon, haut, enregistrements, python sdk</SearchTags>
+      <ToolVersion>1.0</ToolVersion>
+      <Author>Alteryx</Author>
+      <Company>Alteryx, Inc.</Company>
+      <Copyright>2017</Copyright>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>

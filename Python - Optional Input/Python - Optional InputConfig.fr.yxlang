@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="Python - Optional InputEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="Python - Optional InputGui.html" Icon="Python - Optional InputIcon.png" Help="https://help.alteryx.com/developer/current/index.htm#Python/Examples.htm" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input" AllowMultiple="False" Optional="True" Type="Connection" Label=""/>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Output" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>Python - Entrée Facultative</Name>
+      <Description>Créez une colonne d'identifiant unique, peu importe si un flux de données est présent. Cet exemple d'outil a été créé à l'aide du SDK Python et du SDK de l'interface graphique HTML.</Description>
+      <CategoryName>Laboratoire</CategoryName>
+      <SearchTags>python, sdk, enregistrement, enregistrement, id, python sdk, entrée facultative</SearchTags>
+      <ToolVersion>1.0</ToolVersion>
+      <Author>Alteryx</Author>
+      <Company>Alteryx, Inc.</Company>
+      <Copyright>2017</Copyright>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>
