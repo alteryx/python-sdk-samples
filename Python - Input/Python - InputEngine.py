@@ -144,9 +144,6 @@ class AyxPlugin:
         # Make sure that the output anchor is closed.
         self.output_anchor.close()
 
-        # Make sure that the output anchor is closed.
-        self.output_anchor.close()
-
         return True
 
     def pi_close(self, b_has_errors: bool):
