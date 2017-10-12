@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!--
+  The name of this file must be the name of the plugin folder + "Config"
+-->
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="Python - InputEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="Python - InputGui.html" Icon="Python - InputIcon.png" Help="https://help.alteryx.com/developer/current/index.htm#Python/Examples.htm" SDKVersion="10.1">
+    <InputConnections>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Output" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>Python - Eingabe</Name>
+      <Description>Daten aus einer lokalen CSV-Datei lesen. Dieses Beispielwerkzeug wurde mit dem Python-SDK und dem HTML-GUI-SDK erstellt.</Description>
+      <CategoryName>Labor</CategoryName>
+      <SearchTags>python, sdk, python sdk, eingabe</SearchTags>
+      <ToolVersion>1.0</ToolVersion>
+      <Author>Alteryx</Author>
+      <Company>Alteryx, Inc.</Company>
+      <Copyright>2017</Copyright>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>

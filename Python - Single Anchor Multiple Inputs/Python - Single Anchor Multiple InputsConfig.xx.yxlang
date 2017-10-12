@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="Python - Single Anchor Multiple InputsEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="Python - Single Anchor Multiple InputsGui.html" Icon="Python - Single Anchor Multiple InputsIcon.png" Help="https://help.alteryx.com/developer/current/index.htm#Python/Examples.htm" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input" AllowMultiple="True" Optional="False" Type="Connection" Label=""/>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Output" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>⇚⇚Python Single Anchor Multiple Inputs⇚⇚</Name>
+      <Description>⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚ Combine two or more data streams based on field names. This example tool was created using the Python SDK and the HTML GUI SDK. ⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚</Description>
+      <CategoryName>⇚⇚Laboratory⇚⇚</CategoryName>
+      <SearchTags>⇚python⇚, ⇚sdk⇚, ⇚python sdk⇚, ⇚single anchor⇚, ⇚multiple inputs⇚</SearchTags>
+      <ToolVersion>1.0</ToolVersion>
+      <Author>Alteryx</Author>
+      <Company>Alteryx, Inc.</Company>
+      <Copyright>2017</Copyright>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>

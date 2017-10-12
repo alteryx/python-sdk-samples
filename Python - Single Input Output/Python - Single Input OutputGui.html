@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html style="padding:20px">
+<head>
+  <meta charset="utf-8">
+  <title>Python - Single Input Output</title>
+  <script type="text/javascript">
+    document.write('<link rel="import" href="' + window.Alteryx.LibDir + '2/lib/includes.html">');
+  </script>
+</head>
+<body>
+  <form>
+    <fieldset>
+		<legend class='blueTitle'>XMSG("Return Top Records")</legend>
+		<div>
+			<label>XMSG("Select the number of records:")</label>
+			<ayx data-ui-props = "{type: 'NumericSpinner', widgetId: 'ns'}" data-item-props = "{dataName: 'NRecords'}"></ayx>
+		</div>
+		<ayx data-ui-props="{type:'CheckBox', label:'Sort Incoming Data (Optional)'}" data-item-props="{dataName:'DoSort'}"></ayx>
+		<div id="sort" style="margin-left: 28px">
+			<label>XMSG("Select a field to order by:")</label>
+			<div id="sortInner" style="margin-left: 28px">
+				<ayx data-ui-props = "{type: 'DropDown'}" data-item-props =
+					"{
+					  dataName: 'FieldSelect',
+					  dataType: 'FieldSelector',
+					  anchorIndex:'0',
+					  connectionIndex:'0'
+					}"
+				>
+				</ayx>
+				<label>XMSG("Select the order:")</label>
+				<ayx data-ui-props = "{type: 'RadioGroup', widgetId: 'RadioGroup1'}" data-item-props = "{dataName: 'OrderType'}"></ayx>
+			</div>
+		</div>
+	</fieldset>
+    
+  </form>
+  <script type="text/javascript">
+
+  	const displaySort = () => {
+  		if (Alteryx.Gui.Manager.getDataItem('DoSort').getValue()) {
+			document.getElementById('sort').style.display = 'initial'
+			} else {
+				document.getElementById('sort').style.display = 'none'
+  				}
+  	}
+
+    Alteryx.Gui.BeforeLoad = (manager, AlteryxDataItems, json) => {
+	
+      const constrainedNumberDataItem = new AlteryxDataItems.ConstrainedInt('NRecords', {min: 0})
+      manager.addDataItem(constrainedNumberDataItem)
+      manager.bindDataItemToWidget(constrainedNumberDataItem, 'ns')
+	  
+      const operationSelectRadioGroup = new AlteryxDataItems.StringSelector('OrderType', {
+        optionList: [
+          {label: 'Descending', value: 'Desc'},
+          {label: 'Ascending', value: 'Asc'}
+        ]
+      })
+      operationSelectRadioGroup.setValue('Desc')
+      manager.addDataItem(operationSelectRadioGroup)
+      manager.bindDataItemToWidget(operationSelectRadioGroup, 'RadioGroup1')
+      displaySort()
+    }
+
+    Alteryx.Gui.AfterLoad = (manager) => {
+    	displaySort()
+    	Alteryx.Gui.Manager.getDataItem('DoSort').registerPropertyListener('value',displaySort)
+    }
+
+  </script>
+  <style>
+  </style>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<AlteryxJavaScriptPlugin>
+  <EngineSettings EngineDll="Python" EngineDllEntryPoint="Python - Multiple OutputsEngine.py" SDKVersion="10.1" />
+  <GuiSettings Html="Python - Multiple OutputsGui.html" Icon="Python - Multiple OutputsIcon.png" Help="https://help.alteryx.com/developer/current/index.htm#Python/Examples.htm" SDKVersion="10.1">
+    <InputConnections>
+      <Connection Name="Input" AllowMultiple="False" Optional="False" Type="Connection" Label=""/>
+    </InputConnections>
+    <OutputConnections>
+      <Connection Name="Unique" AllowMultiple="False" Optional="False" Type="Connection" Label="U"/>
+      <Connection Name="Duplicate" AllowMultiple="False" Optional="False" Type="Connection" Label="D"/>
+    </OutputConnections>
+  </GuiSettings>
+  <Properties>
+    <MetaInfo>
+      <Name>⇚⇚Python Multiple Outputs⇚⇚</Name>
+      <Description>⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚ Separate data into two streams, unique and duplicate values. This example tool was created using the Python SDK and the HTML GUI SDK. ⇚⇚⇚⇚⇚⇚⇚⇚⇚⇚</Description>
+      <CategoryName>⇚⇚Laboratory⇚⇚</CategoryName>
+      <SearchTags>python, sdk, distinct, unique, record, python sdk, multiple outputs</SearchTags>
+      <ToolVersion>1.0</ToolVersion>
+      <Author>Alteryx</Author>
+      <Company>Alteryx, Inc.</Company>
+      <Copyright>2017</Copyright>
+    </MetaInfo>
+  </Properties>
+</AlteryxJavaScriptPlugin>
