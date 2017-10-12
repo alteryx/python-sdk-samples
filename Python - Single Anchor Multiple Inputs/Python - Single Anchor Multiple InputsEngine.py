@@ -142,13 +142,10 @@ class AyxPlugin:
                 new_fields = [items for items in other_input_field_names if items not in self.unique_field_names]
 
                 # Outputting appropriate messaging depending on user selection.
-                if self.message_type != 'ignore':
+                if self.message_type == 'error':
                     if len(new_fields) != 0:
                         for item in new_fields:
-                            if self.message_type == 'warning':
-                                self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.warning,'The field:' + '"' + item + '"' + 'is not present in the initial input schema')
-                            elif self.message_type == 'error':
-                                self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error,'The field:' + '"' + item + '"' + 'is not present in in the initial input schema')
+                            self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error,'The field:' + '"' + item + '"' + 'is not present in in the initial input schema')
 
                 # Extracting the field metadata of the unique fields so they can be added to record_info_out.
                 new_field_obj = [nth_input.record_info_in.get_field_by_name(name) for name in new_fields]
