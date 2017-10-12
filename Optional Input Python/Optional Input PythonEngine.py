@@ -138,6 +138,9 @@ class AyxPlugin:
             record_creator.reset(0)
 
             self.previous_inc_value = loop_value
+            
+        # Make sure that the output anchor is closed.
+        self.output_anchor.close()
 
         return True
 
