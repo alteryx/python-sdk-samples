@@ -12,7 +12,7 @@
     <form>
     <fieldset>
         <legend class='blueTitle'>XMSG("Combine Data Streams by Field")</legend>
-        <label>XMSG("When Fields Differ from First Schema")</label>
+        <label>XMSG("If Fields Differ from First Schema")</label>
         <ayx data-ui-props="{type: 'DropDown', widgetId: 'DropDown1'}" data-item-props="{dataName: 'messageType'}"></ayx>
     </fieldset>
     </form>
@@ -20,12 +20,12 @@
         Alteryx.Gui.BeforeLoad = (manager, AlteryxDataItems, json) => {
           const messageTypeSelector = new AlteryxDataItems.StringSelector('messageType', {
             optionList: [
-              {label: 'Warning- Continue Processing Records', value: 'warning'},
               {label: 'Error - Stop Processing Records', value: 'error'},
               {label: 'Ignore- Continue Processing Records', value: 'ignore'}
             ]
           })
 
+           messageTypeSelector.setValue('ignore')
            manager.addDataItem(messageTypeSelector)
            manager.bindDataItemToWidget(messageTypeSelector, 'DropDown1')
         }
