@@ -106,16 +106,20 @@ class AyxPlugin:
         # Create a reader object which will iterate over lines in the given file.
         file_reader = csv.reader(file_out)
 
-        # Add metadata info that is passed to tools downstream.
-        for field in next(file_reader):
-            record_info_out.add_field(
-                field
-                , Sdk.FieldType.v_wstring
-                , 254
-                , 0
-                , self.name
-                , ''
-            )
+        try:
+            # Add metadata info that is passed to tools downstream.
+            for field in next(file_reader):
+                record_info_out.add_field(
+                    field
+                    , Sdk.FieldType.v_wstring
+                    , 254
+                    , 0
+                    , self.name
+                    , ''
+                )
+        except:
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Must be a UTF-8 file'))
+            return False
 
         # Lets the downstream tools know what the outgoing record metadata will look like, based on record_info_out.
         self.output_anchor.init(record_info_out)
