@@ -89,8 +89,8 @@ class AyxPlugin:
 
     def pi_push_all_records(self, n_record_limit: int) -> bool:
         """
-        Called by the Alteryx engine for tools that have no incoming connection connected.
-        Only pertinent to tools which have no upstream connections, like the Input tool.
+        Called when a tool has no incoming data connection.
+        
         :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
         :return: True for success, False for failure.
         """
@@ -153,8 +153,8 @@ class IncomingInterface:
 
     def ii_init(self, record_info_in: object) -> bool:
         """
-        Called when the incoming connection's record metadata is available or has changed, and
-        has let the Alteryx engine know what its output will look like.
+        Called to report changes of the incoming connection's record metadata to the Alteryx engine.
+        
         :param record_info_in: A RecordInfo object for the incoming connection's fields.
         :return: True for success, otherwise False.
         """
@@ -193,7 +193,7 @@ class IncomingInterface:
 
     def ii_update_progress(self, d_percent: float):
         """
-        Called when by the upstream tool to report what percentage of records have been pushed.
+        Called by the upstream tool to report what percentage of records have been pushed.
         :param d_percent: Value between 0.0 and 1.0.
         """
 
