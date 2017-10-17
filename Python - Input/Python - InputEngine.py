@@ -24,7 +24,6 @@ class AyxPlugin:
         self.output_anchor_mgr = output_anchor_mgr
 
         # Custom properties
-        self.plugin_name = 'PythonInput_' + str(n_tool_id)
         self.file_input_name = ''
         self.is_initialized = True
         self.output_anchor = None

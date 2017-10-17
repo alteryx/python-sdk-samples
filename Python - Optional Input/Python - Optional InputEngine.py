@@ -22,7 +22,6 @@ class AyxPlugin:
         self.output_anchor_mgr = output_anchor_mgr
 
         # Custom properties
-        self.name = 'PythonOptionalInput_' + str(n_tool_id)
         self.is_initialized = True
         self.single_input = None
         self.output_anchor = None
