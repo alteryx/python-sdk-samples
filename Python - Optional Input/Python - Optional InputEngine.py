@@ -5,44 +5,37 @@ import xml.etree.ElementTree as Et
 class AyxPlugin:
     """
     Implements the plugin interface methods, to be utilized by the Alteryx engine to communicate with a plugin.
-    Prefixed with "pi_", the Alteryx engine will expect the below five interface methods to be defined.
-
+    Prefixed with "pi", the Alteryx engine will expect the below five interface methods to be defined.
     """
 
     def __init__(self, n_tool_id: int, alteryx_engine: object, output_anchor_mgr: object):
         """
-        Acts as the constructor for AyxPlugin.
+        Constructor is called whenever the Alteryx engine wants to instantiate an instance of this plugin.
         :param n_tool_id: The assigned unique identification for a tool instance.
         :param alteryx_engine: Provides an interface into the Alteryx engine.
         :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
         """
 
-        # Miscellaneous properties
+        # Default properties
         self.n_tool_id = n_tool_id
-        self.name = 'PythonOptionalInput_' + str(self.n_tool_id)
-        self.initialized = False
-        self.single_input = None
-
-        # Engine handle
         self.alteryx_engine = alteryx_engine
-
-        # Output anchor management
         self.output_anchor_mgr = output_anchor_mgr
+
+        # Custom properties
+        self.name = 'PythonOptionalInput_' + str(n_tool_id)
+        self.is_initialized = True
+        self.single_input = None
         self.output_anchor = None
-
-        # Record management
         self.output_field = None
-
-        # Default config settings
         self.column_name = None
         self.starting_value = None
         self.total_record_count = None
         self.output_type = None
         self.record_increment = None
-        self.previous_inc_value = None
 
     def pi_init(self, str_xml: str):
         """
+        Handles configuration based on the GUI.
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
         :param str_xml: The raw XML from the GUI.
         """
@@ -53,18 +46,23 @@ class AyxPlugin:
         self.record_increment = int(Et.fromstring(str_xml).find('StepByValue').text) if 'StepByValue' in str_xml else None
         self.starting_value = int(Et.fromstring(str_xml).find('StartValue').text) - self.record_increment if 'StartValue' in str_xml else None
         field_type = Et.fromstring(str_xml).find('FieldType').text if 'FieldType' in str_xml else None
+
+        # Valid column name checks.
+        if self.column_name is None:
+            self.display_error_msg('Field name cannot be empty. Please enter a field name.')
+        elif len(self.column_name) > 255:
+            self.display_error_msg('Field name cannot be greater then 255 characters.')
+
+        # Assigning the appropriate Alteryx field type.
         if field_type == 'Int16':
             self.output_type = Sdk.FieldType.int16
         elif field_type == 'Int32':
             self.output_type = Sdk.FieldType.int32
         elif field_type == 'Int64':
             self.output_type = Sdk.FieldType.int64
-        elif field_type == 'Double':
-            self.output_type = Sdk.FieldType.double
 
         # Getting the output anchor from Config.xml by the output connection name
         self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
-
 
     def pi_add_incoming_connection(self, str_type: str, str_name: str) -> object:
         """
@@ -90,20 +88,13 @@ class AyxPlugin:
 
     def pi_push_all_records(self, n_record_limit: int) -> bool:
         """
+        Handles generating a new field for no incoming connections.
         Called when a tool has no incoming data connection.
-        
         :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
-        :return: True for success, False for failure.
+        :return: False if there's an error with the field name, otherwise True.
         """
 
-        # Checking if column_name is empty. If it is, records will stop processing and result in an error.
-        if self.column_name is None:
-            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Field name cannot be empty. Please enter a field name.'))
-            return False
-
-        # Checking if column_name is greater then 255 characters. If it is, records will stop processing and result in an error.
-        if len(self.column_name) > 255:
-            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Field name cannot be greater then 255 characters.'))
+        if not self.is_initialized:
             return False
 
         # Save a reference to the RecordInfo passed into this function in the global namespace, so we can access it later.
@@ -118,40 +109,44 @@ class AyxPlugin:
         # Creating a new, empty record creator based on record_info_out's record layout.
         record_creator = record_info_out.construct_record_creator()
 
-        self.previous_inc_value = self.starting_value
+        previous_inc_value = self.starting_value
 
         # Create new column and increments the value by self.record_increment.
         for i in range(0, self.total_record_count):
 
-            loop_value = self.previous_inc_value + self.record_increment
-
+            loop_value = previous_inc_value + self.record_increment
             # Set the value on our new column in the record_creator helper to be the new record_count.
             record_info_out[0].set_from_int64(record_creator, loop_value)
-
             # Pass the record downstream.
             out_record = record_creator.finalize_record()
-
             # Pushes record to output connection, passing False means completed connections will be automatically closed.
             self.output_anchor.push_record(out_record, False)
+            # Sets the capacity in bytes for variable-length data in this record to 0 (default).
+            record_creator.reset()
 
-            # Sets the capacity in bytes for variable-length data in this record to 0.
-            record_creator.reset(0)
-
-            self.previous_inc_value = loop_value
+            previous_inc_value = loop_value
             
         # Make sure that the output anchor is closed.
         self.output_anchor.close()
-
         return True
 
     def pi_close(self, b_has_errors: bool):
         """
-        Called after all records have been processed..
+        Called after all records have been processed.
         :param b_has_errors: Set to true to not do the final processing.
         """
 
         # Checks whether connections were properly closed.
         self.output_anchor.assert_close()
+
+    def display_error_msg(self, msg_string: str):
+        """
+        A non-interface method, that is responsible for displaying the relevant error message in Designer.
+        :param msg_string: The custom error message.
+        """
+
+        self.is_initialized = False
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg(msg_string))
 
     def xmsg(self, msg_string: str):
         """
@@ -162,42 +157,36 @@ class AyxPlugin:
 
         return msg_string
 
+
 class IncomingInterface:
     """
-    This class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be
+    This class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be\
     utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
-    Prefixed with "ii_", the Alteryx engine will expect the below four interface methods to be defined.
+    Prefixed with "ii", the Alteryx engine will expect the below four interface methods to be defined.
     """
 
     def __init__(self, parent: object):
         """
-        Acts as the constructor for IncomingInterface. Instance variable initializations should happen here for PEP8 compliance.
+        Constructor for IncomingInterface.
         :param parent: AyxPlugin
         """
 
-        # Miscellaneous properties
+        # Default properties
         self.parent = parent
 
-        # Record management
+        # Custom properties
         self.record_copier = None
         self.record_creator = None
 
     def ii_init(self, record_info_in: object) -> bool:
         """
+        Handles appending the new field to the incoming data.
         Called to report changes of the incoming connection's record metadata to the Alteryx engine.
-        
         :param record_info_in: A RecordInfo object for the incoming connection's fields.
-        :return: True for success, otherwise False.
+        :return: False if there's an error with the field name, otherwise True.
         """
 
-        # Checking if column_name is empty. If it is, records will stop processing and result in an error.
-        if self.parent.column_name is None:
-            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('Field name cannot be empty. Please enter a field name.'))
-            return False
-
-        # Checking if column_name is greater then 255 characters. If it is, records will stop processing and result in an error.
-        if len(self.parent.column_name) > 255:
-            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('Field name cannot be greater then 255 characters.'))
+        if not self.parent.is_initialized:
             return False
 
         # Returns a new, empty RecordCreator object that is identical to record_info_in.
@@ -217,7 +206,6 @@ class IncomingInterface:
 
         # Map each column of the input to where we want in the output.
         for index in range(record_info_in.num_fields):
-
             # Adding a field index mapping.
             self.record_copier.add(index, index)
 
@@ -230,11 +218,14 @@ class IncomingInterface:
 
     def ii_push_record(self, in_record: object) -> bool:
         """
-        Responsible for pushing records out, under a count limit set by the user in n_record_select.
+        Responsible for pushing records out.
         Called when an input record is being sent to the plugin.
         :param in_record: The data for the incoming record.
-        :return: True for success, otherwise False.
+        :return: False if there's a downstream error, or if there's an error with the field name, otherwise True.
         """
+
+        if not self.parent.is_initialized:
+            return False
 
         # Increment our custom starting_value variable by the selected record increment to show we have a new record.
         self.parent.starting_value += self.parent.record_increment
