@@ -6,33 +6,27 @@ import re
 class AyxPlugin:
     """
     Implements the plugin interface methods, to be utilized by the Alteryx engine to communicate with a plugin.
-    Prefixed with "pi_", the Alteryx engine will expect the below five interface methods to be defined.
+    Prefixed with "pi", the Alteryx engine will expect the below five interface methods to be defined.
     """
+
     def __init__(self, n_tool_id: int, alteryx_engine: object, output_anchor_mgr: object):
         """
-       Acts as the constructor for AyxPlugin.
+       Constructor is called whenever the Alteryx engine wants to instantiate an instance of this plugin.
        :param n_tool_id: The assigned unique identification for a tool instance.
        :param alteryx_engine: Provides an interface into the Alteryx engine.
        :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
        """
 
-        # Miscellaneous variables
+        # Default properties
         self.n_tool_id = n_tool_id
-        self.name = 'PythonSingleAnchorMultipleInputs_' + str(self.n_tool_id)
-        self.message_type = None
-
-        # Engine handle
         self.alteryx_engine = alteryx_engine
-
-        # Output anchor management
         self.output_anchor_mgr = output_anchor_mgr
-        self.output_anchor = None
 
-        # Record management
+        # Custom properties
+        self.message_type = None
+        self.output_anchor = None
         self.record_info_out= None
         self.record_creator = None
-
-        # Custom members
         self.all_inputs = []
         self.unique_field_names = []
 
@@ -67,12 +61,12 @@ class AyxPlugin:
           :param str_name: The name of the output connection anchor, defined in the Config.xml file.
           :return: True signifies that the connection is accepted.
           """
+
         return True
 
     def pi_push_all_records(self, n_record_limit: int) -> bool:
         """
         Called when a tool has no incoming data connection.
-        
         :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
         :return: True for success, False for failure.
         """
@@ -82,7 +76,7 @@ class AyxPlugin:
 
     def pi_close(self, b_has_errors: bool):
         """
-        Called after all records have been processed..
+        Called after all records have been processed.
         :param b_has_errors: Set to true to not do the final processing.
         """
 
@@ -90,13 +84,16 @@ class AyxPlugin:
         self.output_anchor.assert_close()
 
     def check_input_complete(self):
-        # Checks to see if all connections metainfo and record data has been initialized before deploying the field mapping and record handling method
+        """
+        A non-interface method that checks to see if all connections have been initialized.
+        """
+
         if all([self.all_inputs[idx].input_complete for idx in range(len(self.all_inputs))]):
             self.record_processor()
 
     def setup_record_copier(self, nth_input: object):
         """
-        Prepares the outgoing stream's meta data by copying the incoming meta data from each input stream
+        A non-interface method that prepares the outgoing stream's meta data by copying the incoming meta data from each input stream.
         :param nth_input: One of the incoming connection objects.
         """
 
@@ -111,8 +108,8 @@ class AyxPlugin:
 
     def record_processor(self):
         """
-        Responsible for creating the record_info_out object, mapping the records, pushing the records out, and updating
-        output's progress and also what the percentage progress displayed in designer.
+        A non-interface method that is responsible for creating the record_info_out object, mapping the records,pushing\
+        the records out, and updating output's progress and also what the percentage progress displayed in designer.
         """
 
         # Sorts by connection name
@@ -197,7 +194,7 @@ class AyxPlugin:
 
     def process_update_input_progress(self):
         """
-        Update progress based on records received from the inputs.
+        A non-interface method that updates progress based on records received from the inputs.
         """
 
         # Assuming that each input initialized is a percentage of the total records getting processed
@@ -211,29 +208,30 @@ class AyxPlugin:
         :param msg_string: The user-facing string.
         :return: msg_string
         """
+
         return msg_string
 
 class IncomingInterface:
     """
-    This class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be
+    This class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be\
     utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
-    Prefixed with "ii_", the Alteryx engine will expect the below four interface methods to be defined.
+    Prefixed with "ii", the Alteryx engine will expect the below four interface methods to be defined.
     """
 
     def __init__(self, parent: object, type_: str, name: str):
         """
-        Acts as the constructor for IncomingInterface. Instance variable initializations should happen here for PEP8 compliance.
+        Constructor for IncomingInterface.
         :param parent: AyxPlugin
         """
 
-        # Miscellaneous variables
+        # Default properties
         self.parent = parent
         self.type = type_
         self.name = name
+
+        # Custom properties
         self.input_complete = False
         self.d_progress_percentage = 0
-
-        # Record management
         self.record_info_in = None
         self.record_copier = None
         self.record_list = []
@@ -241,7 +239,6 @@ class IncomingInterface:
     def ii_init(self, record_info_in: object) -> bool:
         """
         Called to report changes of the incoming connection's record metadata to the Alteryx engine.
-        
         :param record_info_in: A RecordInfo object for the incoming connection's fields.
         :return: True for success, otherwise False.
         """

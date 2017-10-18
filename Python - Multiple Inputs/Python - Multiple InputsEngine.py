@@ -7,30 +7,27 @@ import time
 class AyxPlugin:
     """
     Implements the plugin interface methods, to be utilized by the Alteryx engine to communicate with a plugin.
-    Prefixed with "pi_", the Alteryx engine will expect the below five interface methods to be defined.
+    Prefixed with "pi", the Alteryx engine will expect the below five interface methods to be defined.
     """
 
     def __init__(self, n_tool_id: int, alteryx_engine: object, output_anchor_mgr: object):
         """
-        Acts as the constructor for AyxPlugin.
+        Constructor is called whenever the Alteryx engine wants to instantiate an instance of this plugin.
         :param n_tool_id: The assigned unique identification for a tool instance.
         :param alteryx_engine: Provides an interface into the Alteryx engine.
         :param output_anchor_mgr: A helper that wraps the outgoing connections for a plugin.
         """
 
-        # Miscellaneous properties
+        # Default properties
         self.n_tool_id = n_tool_id
-        self.name = 'PythonMultipleInputs_' + str(self.n_tool_id)
+        self.alteryx_engine = alteryx_engine
+        self.output_anchor_mgr = output_anchor_mgr
+
+        # Custom properties
         self.left_input = self.right_input = None
         self.left_prefix = self.right_prefix = ''
         self.record_info_out = None
         self.record_creator = None
-
-        # Engine handle
-        self.alteryx_engine = alteryx_engine
-
-        # Output anchor management
-        self.output_anchor_mgr = output_anchor_mgr
         self.output_anchor = None
 
     def pi_init(self, str_xml: str):
@@ -76,7 +73,6 @@ class AyxPlugin:
     def pi_push_all_records(self, n_record_limit: int) -> bool:
         """
         Called when a tool has no incoming data connection.
-        
         :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
         :return: True for success, False for failure.
         """
@@ -217,22 +213,23 @@ class AyxPlugin:
 
 class IncomingInterface:
     """
-    This class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be
+    This class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be\
     utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
-    Prefixed with "ii_", the Alteryx engine will expect the below four interface methods to be defined.
+    Prefixed with "ii", the Alteryx engine will expect the below four interface methods to be defined.
     """
 
     def __init__(self, parent: object):
         """
-        Acts as the constructor for IncomingInterface. Instance variable initializations should happen here for PEP8 compliance.
+        Constructor for IncomingInterface.
         :param parent: AyxPlugin
         """
 
-        # Miscellaneous properties
+        # Default properties
         self.parent = parent
+
+        # Custom properties
         self.input_complete = False
         self.d_progress_percentage = 0
-
         self.record_info_in = None
         self.record_list = []
         self.record_copier = None
@@ -240,7 +237,6 @@ class IncomingInterface:
     def ii_init(self, record_info_in: object) -> bool:
         """
         Called to report changes of the incoming connection's record metadata to the Alteryx engine.
-        
         :param record_info_in: A RecordInfo object for the incoming connection's fields.
         :return: True for success, otherwise False.
         """
