@@ -95,7 +95,7 @@ class AyxPlugin:
         try:
             # Add metadata info that is passed to tools downstream.
             for field in next(file_reader):
-                record_info_out.add_field(field, Sdk.FieldType.v_wstring, 254, 0, self.plugin_name, '')
+                record_info_out.add_field(field, Sdk.FieldType.v_wstring, 254, 0, 'PythonInput_' + str(self.n_tool_id), '')
         except:
             self.display_error_msg('Must be a UTF-8 file')
             return False
