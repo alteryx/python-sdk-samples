@@ -46,13 +46,13 @@
 
       var startValue = manager.getDataItem('StartValue')
       startValue.setValue(1)
-      startValue.setAllowedPrecision(2)
+      startValue.setAllowedPrecision(0)
       startValue.setMax('9999999999999')
       startValue.setMin('0')
 
       var endValue = manager.getDataItem('EndValue')
       endValue.setValue(1)
-      endValue.setAllowedPrecision(2)
+      endValue.setAllowedPrecision(0)
       endValue.setMax('9999999999999')
       endValue.setMin('0')
 
@@ -61,13 +61,12 @@
           { value: 'Int16', label: 'Int16'}
           , { value: 'Int32', label: 'Int32'}
           , {value: 'Int64', label: 'Int64'}
-          , {value: 'Double', label: 'Double'}
       ])
       fieldType.setValue('Int16')
 
       var stepValue = manager.getDataItem('StepByValue')
       stepValue.setValue(1)
-      stepValue.setAllowedPrecision(2)
+      stepValue.setAllowedPrecision(0)
       stepValue.setMax('9999999999999')
       stepValue.setMin('0')
     }
@@ -75,11 +74,8 @@
   </script>
 
   <style>
-    /*This styling needs to be here. Is due to file loading. Otherwise, will not get proper styling on dropdowns*/
-
-    .Select, .Select div, .Select input, .Select span {
-      box-sizing: content-box;
-      -webkit-box-sizing: content-box;
+    .blueTitle {
+      background-color: #e5e5e5;
     }
   </style>
 </body>
