@@ -30,24 +30,19 @@ class AyxPlugin:
 
     def pi_init(self, str_xml: str):
         """
-        Handles input data verification.
+        Handles extracting user-entered file name, and input data verification.
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
         :param str_xml: The raw XML from the GUI.
         """
 
-        # Retrieving file name from GUI.html
+        # Getting the user-entered file name string from the GUI, and the output anchor from the XML file.
         self.file_input_name = Et.fromstring(str_xml).find('browseFiles').text if 'browseFiles' in str_xml else ''
-
-        # Getting the output anchor from Config.xml by the output connection name
         self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
 
-        # Check if input file name is empty.
         if not self.file_input_name:
             self.display_error_msg('Please specify a csv file')
-        # Check file extension and throw error if not csv.
         elif not self.is_csv():
             self.display_error_msg('This tool only accepts csv files')
-        # Check if path exists and throws error if it does not
         elif not os.path.exists(self.file_input_name):
             self.display_error_msg('No such file or directory: ' + self.file_input_name)
 
@@ -83,31 +78,22 @@ class AyxPlugin:
         if not self.is_initialized:
             return False
 
-        # Save a reference to the RecordInfo passed into this function in the global namespace, so we can access it later.
-        record_info_out = Sdk.RecordInfo(self.alteryx_engine)
+        record_info_out = Sdk.RecordInfo(self.alteryx_engine)  # A fresh record info object.
 
-        # Create a read-only file object.
+        # Creating a read-only file object and a reader object which will iterate over lines in the given file.
         file_out = open(self.file_input_name, 'r', encoding='utf-8')
-
-        # Create a reader object which will iterate over lines in the given file.
         file_reader = csv.reader(file_out)
 
-        try:
-            # Add metadata info that is passed to tools downstream.
+        try:  # Add metadata info that is passed to tools downstream.
             for field in next(file_reader):
                 record_info_out.add_field(field, Sdk.FieldType.v_wstring, 254, 0, 'PythonInput_' + str(self.n_tool_id), '')
         except:
             self.display_error_msg('Must be a UTF-8 file')
             return False
 
-        # Lets the downstream tools know what the outgoing record metadata will look like, based on record_info_out.
-        self.output_anchor.init(record_info_out)
-
-        # Creating a new, empty record creator based on record_info_out's record layout.
-        record_creator = record_info_out.construct_record_creator()
-
-        # Keeping track of number of records for use in output message.
-        rownum = 0
+        self.output_anchor.init(record_info_out)  # Lets the downstream tools know of the outgoing record metadata.
+        record_creator = record_info_out.construct_record_creator()  # Creating a new record_creator for the new data.
+        rownum = 0  # Keeping track of number of records for use in output message.
 
         # Loop through each record (or row) of data that has been passed into this function.
         for row in file_reader:
@@ -115,17 +101,14 @@ class AyxPlugin:
             # Iterate through the fields in this row and add them in order to the output row
             for index, value in enumerate(row):
                 record_info_out[index].set_from_string(record_creator, value)
+
+            # Asking for a record to push downstream, then resetting the record to prevent unexpected results.
             out_record = record_creator.finalize_record()
-            # Push the record downstream, passing False means completed connections will be automatically closed.
-            self.output_anchor.push_record(out_record, False)
-            # Reset the record creator in order to begin looping through the next row
+            self.output_anchor.push_record(out_record, False)  # False: completed connections will automatically close.
             record_creator.reset()
 
-        # Returns message indicating number of records read from specified file.
         self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.info, self.xmsg(str(rownum) + ' records were read from ' + self.file_input_name))
-        
-        # Make sure that the output anchor is closed.
-        self.output_anchor.close()
+        self.output_anchor.close()  # Close outgoing connections.
         return True
 
     def pi_close(self, b_has_errors: bool):
@@ -134,8 +117,7 @@ class AyxPlugin:
         :param b_has_errors: Set to true to not do the final processing.
         """
 
-        # Check to see that the output anchor is closed.
-        self.output_anchor.assert_close()
+        self.output_anchor.assert_close()  # Checks whether connections were properly closed.
 
     def is_csv(self):
         """

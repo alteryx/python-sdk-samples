@@ -34,10 +34,8 @@ class AyxPlugin:
         :param str_xml: The raw XML from the GUI.
         """
 
-        # Getting the dataName data property from the Gui.html
+        # Getting the user-entered prefixes from the GUI, and the output anchors from the XML file.
         self.field_selection = Et.fromstring(str_xml).find('FieldSelect').text if 'FieldSelect' in str_xml else None
-
-        # Getting the output anchors from Config.xml by the output connection names
         self.unique_output_anchor = self.output_anchor_mgr.get_output_anchor('Unique')
         self.dupe_output_anchor = self.output_anchor_mgr.get_output_anchor('Duplicate')
 
@@ -74,7 +72,7 @@ class AyxPlugin:
 
     def pi_close(self, b_has_errors: bool):
         """
-        Called after all records have been processed..
+        Called after all records have been processed.
         :param b_has_errors: Set to true to not do the final processing.
         """
 
@@ -129,16 +127,16 @@ class IncomingInterface:
             self.parent.alteryx_engine.output_message(self.parent.n_tool_id, Sdk.EngineMessageType.error, self.parent.xmsg('Select a field.'))
             return False
 
-        # Storing record_info_in for later use.
-        self.record_info_in = record_info_in
+        self.record_info_in = record_info_in  # For later reference.
 
-        # Storing the user selected field to use in ii_push_record, no avoid repeated field lookup.
-        self.target_field = self.record_info_in[self.record_info_in.get_field_num(self.parent.field_selection)]
+        # Storing the user selected field to use in ii_push_record, to avoid repeated field lookup.
+        self.target_field = self.record_info_in[
+            self.record_info_in.get_field_num(self.parent.field_selection)
+        ]
 
-        # Creating an exact copy of record_info_in.
-        self.record_info_out = self.record_info_in.clone()
+        self.record_info_out = self.record_info_in.clone()  # Creating an exact copy of record_info_in.
 
-        # initialize output anchors
+        # Initialize output anchors
         self.parent.unique_output_anchor.init(self.record_info_out)
         self.parent.dupe_output_anchor.init(self.record_info_out)
         return True
@@ -152,8 +150,7 @@ class IncomingInterface:
         :return: True
         """
 
-        # Append the incoming record to the current set
-        self.key_set_current.add(self.target_field.get_as_string(in_record))
+        self.key_set_current.add(self.target_field.get_as_string(in_record))  # Append the incoming record to the current set
 
         # If a new unique record has been added to key_set_previous_len, push the records out to unique_output_anchor.
         if len(self.key_set_current) > self.key_set_previous_len:
@@ -163,8 +160,7 @@ class IncomingInterface:
             self.parent.dupe_output_anchor.push_record(in_record)
             self.records_dupe += 1
 
-        # Update previous size
-        self.key_set_previous_len = len(self.key_set_current)
+        self.key_set_previous_len = len(self.key_set_current)  # Update previous size for next comparison.
         return True
 
     def ii_update_progress(self, d_percent: float):

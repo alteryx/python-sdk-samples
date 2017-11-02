@@ -31,38 +31,29 @@ class AyxPlugin:
 
     def pi_init(self, str_xml: str):
         """
-        Handles building out the sort info from the user configuration.
+        Handles building out the sort info, to pass into pre_sort() later on, from the user configuration.
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
         :param str_xml: The raw XML from the GUI.
         """
 
-        # Getting the dataName data property from the Gui.html
+        # Getting the user-entered selections from the GUI.
         self.n_record_select = Et.fromstring(str_xml).find('NRecords').text if 'NRecords' in str_xml else None
         self.do_sort = Et.fromstring(str_xml).find('DoSort').text == 'True' if 'DoSort' in str_xml else None
         if Et.fromstring(str_xml).find('FieldSelect') is not None:
             self.field_selection = Et.fromstring(str_xml).find('FieldSelect').text
         order_selection = Et.fromstring(str_xml).find('OrderType').text if 'OrderType' in str_xml else None
 
+        # Letting the user know of the necessary selections, if they haven't been selected.
         if self.do_sort and self.field_selection is None:
             self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, 'Please select field to order by')
-
         elif self.do_sort and self.field_selection is not None:
-            # In order to sort by a field, an XML string will need to be built to pass into pre_sort(), as such:
-            #
-            # <SortInfo>
-            #   <Field field = "SortField1" order = "Asc" />
-            # </SortInfo>
-            #
+            self.build_sort_info("SortInfo", self.field_selection, order_selection)  # Building out the <SortInfo> portion.
 
-            # Building out the <SortInfo>
-            self.build_sort_info("SortInfo", self.field_selection, order_selection)
-
-        # Getting the output anchor from Config.xml by the output connection name
-        self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
+        self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')  # Getting the output anchor from the XML file.
 
     def pi_add_incoming_connection(self, str_type: str, str_name: str) -> object:
         """
-        The IncomingInterface objects are instantiated here, one object per incoming connection, also pre_sort.
+        The IncomingInterface objects are instantiated here, one object per incoming connection, also pre_sort() is called here.
         Called when the Alteryx engine is attempting to add an incoming data connection.
         :param str_type: The name of the input connection anchor, defined in the Config.xml file.
         :param str_name: The name of the wire, defined by the workflow author.
@@ -100,13 +91,11 @@ class AyxPlugin:
         :param b_has_errors: Set to true to not do the final processing.
         """
 
-        # Checks whether connections were properly closed.
-        self.output_anchor.assert_close()
+        self.output_anchor.assert_close()  # Checks whether connections were properly closed.
 
     def build_sort_info(self, element: str, subelement: property, order: str):
         """
-        A non-interface method.
-        Responsible for building out the proper XML string format for pre_sort.
+        A non-interface method responsible for building out the proper XML string format for pre_sort.
         :param element: SortInfo or FieldFilterList
         :param subelement: The user selected field
         :param order: Asc or Desc
@@ -117,8 +106,6 @@ class AyxPlugin:
         sub_element = 'Field field="{0}" order="{1}"' if order != "" else 'Field field="{0}"'
         Et.SubElement(root, sub_element.format(subelement, order))
         xml_string = Et.tostring(root, encoding='utf8', method='xml')
-
-        # Decode to string and remove the excess xml info
         self.xml_sort_info += xml_string.decode('utf8').replace("<?xml version='1.0' encoding='utf8'?>\n", "")
 
     def xmsg(self, msg_string: str) -> str:
@@ -157,12 +144,8 @@ class IncomingInterface:
         :return: True for success, otherwise False.
         """
 
-        # Returns a new, empty RecordCreator object that is identical to record_info_in.
-        record_info_out = record_info_in.clone()
-
-        # Lets the downstream tools know what the outgoing record metadata will look like, based on record_info_out.
-        self.parent.output_anchor.init(record_info_out)
-
+        record_info_out = record_info_in.clone()  # Since no new data is being introduced, setting the outgoing layout the same as record_info_in.
+        self.parent.output_anchor.init(record_info_out)  # Lets the downstream tools know what the outgoing record metadata will look like, based on record_info_out.
         return True
 
     def ii_push_record(self, in_record: object) -> bool:
@@ -173,18 +156,12 @@ class IncomingInterface:
         :return: False if method calling limit (record_cnt) is hit.
         """
 
-        # Keeping track of the push record calls.
-        self.record_cnt += 1
+        self.record_cnt += 1  # To keep track of the push record calls.
 
         # Quit calling ii_push_record going forward once n_record_select limit is reached.
         if self.record_cnt <= int(self.parent.n_record_select):
-
-            # Push the record downstream
             self.parent.output_anchor.push_record(in_record)
-
-            # Let the Alteryx engine know of the record count
-            self.parent.output_anchor.output_record_count(False)
-
+            self.parent.output_anchor.output_record_count(False)  # False: Let the Alteryx engine know of the record count
         else:
             return False
         return True
@@ -195,21 +172,13 @@ class IncomingInterface:
         :param d_percent: Value between 0.0 and 1.0.
         """
 
-        # Inform the Alteryx engine of the tool's progress.
-        self.parent.alteryx_engine.output_tool_progress(self.parent.n_tool_id, d_percent)
-
-        # Inform the outgoing connections of the tool's progress.
-        self.parent.output_anchor.update_progress(d_percent)
+        self.parent.alteryx_engine.output_tool_progress(self.parent.n_tool_id, d_percent)  # Inform the Alteryx engine of the tool's progress.
+        self.parent.output_anchor.update_progress(d_percent)  # Inform the downstream tool of this tool's progress.
 
     def ii_close(self):
         """
         Called when the incoming connection has finished passing all of its records.
         """
 
-        # Let Alteryx engine know that all records have been sent downstream.
-        self.parent.output_anchor.output_record_count(True)
-
-        # Close outgoing connections.
-        self.parent.output_anchor.close()
-
-
+        self.parent.output_anchor.output_record_count(True)  # True: Let Alteryx engine know that all records have been sent downstream.
+        self.parent.output_anchor.close()  # Close outgoing connections.

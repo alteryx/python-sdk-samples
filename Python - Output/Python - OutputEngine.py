@@ -29,15 +29,13 @@ class AyxPlugin:
 
     def pi_init(self, str_xml: str):
         """
-        Handles input data verification.
+        Handles input data verification and extracting the user settings for later use.
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
         :param str_xml: The raw XML from the GUI.
         """
 
-        # Extracting configuration XML
+        # Getting the user-entered file path string from the GUI, to use as output path.
         root = ET.fromstring(str_xml)
-
-        # Extract file path from the XML node and store it
         self.str_file_path = root.find('fileOutputPath').text if root.find('fileOutputPath').text else ''
 
         # If there is no error message string returned, set flag to True if validation passes
@@ -113,6 +111,7 @@ class AyxPlugin:
         """
         A non-interface, helper function that handles validating the file path input.
         :param file_path: The file path and file name input by user.
+        :return: The chosen message string.
         """
 
         msg_str = ''
@@ -158,13 +157,11 @@ class IncomingInterface:
         :return: True for success, otherwise False.
         """
 
-        # Storing the incoming connection layout.
-        self.record_info_in = record_info_in
+        self.record_info_in = record_info_in  # For later reference.
 
-        # Storing the field names.
+        # Storing the field names to use when writing data out.
         for field in range(record_info_in.num_fields):
             self.field_lists.append([record_info_in[field].name])
-
         return True
 
     def ii_push_record(self, in_record: object) -> bool:
@@ -175,9 +172,8 @@ class IncomingInterface:
         :return: False if file path string is invalid, otherwise True.
         """
 
-        self.counter += 1
+        self.counter += 1  # To keep track for chunking
 
-        # Do not process records if file path is invalid
         if not self.parent.is_valid:
             return False
 
@@ -186,11 +182,10 @@ class IncomingInterface:
             in_value = self.record_info_in[field].get_as_string(in_record)
             self.field_lists[field].append(in_value) if in_value is not None else self.field_lists[field].append('')
 
-        # Writing when chunk mark is met
+        # Writing when chunk mark is met, then resetting counter.
         if self.counter == 1000000:
             self.parent.write_lists_to_csv(self.parent.str_file_path, self.field_lists)
-            self.counter = 0  # Reset counter
-
+            self.counter = 0
         return True
 
     def ii_update_progress(self, d_percent: float):
@@ -199,8 +194,7 @@ class IncomingInterface:
          :param d_percent: Value between 0.0 and 1.0.
         """
 
-        # Inform the Alteryx engine of the tool's progress
-        self.parent.alteryx_engine.output_tool_progress(self.parent.n_tool_id, d_percent)
+        self.parent.alteryx_engine.output_tool_progress(self.parent.n_tool_id, d_percent)  # Inform the Alteryx engine of the tool's progress
 
     def ii_close(self):
         """
@@ -208,7 +202,6 @@ class IncomingInterface:
         Called when the incoming connection has finished passing all of its records.
         """
 
-        # Write the last chunk
         # First element for each list will always be the field names.
         if len(self.field_lists[0]) > 1 and self.parent.is_valid:
             self.parent.write_lists_to_csv(self.parent.str_file_path, self.field_lists)

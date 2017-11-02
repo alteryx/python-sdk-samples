@@ -1,3 +1,8 @@
+# TODO: Improve union performance
+# TODO: Abstract the core processes if necessary
+# TODO: Update comments and docstrings where needed
+
+
 import AlteryxPythonSDK
 import xml.etree.ElementTree as ET
 import re
