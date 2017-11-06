@@ -72,7 +72,7 @@ class AyxPlugin:
         :return: True for success, False for failure.
         """
 
-        self.display_error_message('Misssing Incoming Connection')
+        self.display_error_message('Missing Incoming Connection')
         return False
 
     def pi_close(self, b_has_errors: bool):

@@ -78,14 +78,16 @@ class AyxPlugin:
         if not self.is_initialized:
             return False
 
-        if self.alteryx_engine.get_init_var(self.n_tool_id, 'UpdateOnly') == True:
+        if self.alteryx_engine.get_init_var(self.n_tool_id, 'UpdateOnly') == 'True':
             return False
 
         record_info_out = Sdk.RecordInfo(self.alteryx_engine)  # A fresh record info object.
 
         # Creating a read-only file object and a reader object which will iterate over lines in the given file.
-        file_out = open(self.file_path, 'r', encoding='utf-8')
-        file_reader = csv.reader(file_out)
+        file_object = open(self.file_path, 'r', encoding='utf-8')
+        file_reader = csv.reader(file_object)
+        total_records = sum(1 for record in file_object) - 1  # Disregard field names
+        file_object.seek(0)
 
         try:  # Add metadata info that is passed to tools downstream.
             for field in next(file_reader):
@@ -97,21 +99,21 @@ class AyxPlugin:
         self.output_anchor.init(record_info_out)  # Lets the downstream tools know of the outgoing record metadata.
         record_creator = record_info_out.construct_record_creator()  # Creating a new record_creator for the new data.
 
-        # SLOWNESS STARTS HERE ================================================================================
-
-        for record in file_reader:
-            for field in enumerate(record):
+        for record in enumerate(file_reader):
+            for field in enumerate(record[1]):
                 record_info_out[field[0]].set_from_string(record_creator, field[1])
 
-            # Asking for a record to push downstream, then resetting the record to prevent unexpected results.
+            # Asking for a record to push downstream
             out_record = record_creator.finalize_record()
             self.output_anchor.push_record(out_record, False)  # False: completed connections will automatically close.
-            record_creator.reset()
 
-        # ======================================================================================================
+            # Not the best way to let the downstream tool know of this tool's progress, normally one would use a timer.
+            if record[0] % round(total_records * .30, 0) == 0:
+                self.output_anchor.update_progress(record[0]/float(total_records))
 
-        total_records = str(sum(1 for record in file_reader))  # Naming a reference to display to user.
-        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.info, self.xmsg(total_records) + ' records were read from ' + self.file_path)
+            record_creator.reset()  # Resets the variable length data to 0 bytes (default) to prevent unexpected results.
+
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.info, self.xmsg(str(total_records)) + ' records were read from ' + self.file_path)
         self.output_anchor.close()  # Close outgoing connections.
         return True
 
