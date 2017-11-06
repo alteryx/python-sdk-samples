@@ -24,7 +24,7 @@ class AyxPlugin:
         self.output_anchor_mgr = output_anchor_mgr
 
         # Custom properties
-        self.file_input_name = ''
+        self.file_path = ''
         self.is_initialized = True
         self.output_anchor = None
 
@@ -36,15 +36,15 @@ class AyxPlugin:
         """
 
         # Getting the user-entered file name string from the GUI, and the output anchor from the XML file.
-        self.file_input_name = Et.fromstring(str_xml).find('browseFiles').text if 'browseFiles' in str_xml else ''
+        self.file_path = Et.fromstring(str_xml).find('browseFiles').text if 'browseFiles' in str_xml else ''
         self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
 
-        if not self.file_input_name:
+        if not self.file_path:
             self.display_error_msg('Please specify a csv file')
         elif not self.is_csv():
             self.display_error_msg('This tool only accepts csv files')
-        elif not os.path.exists(self.file_input_name):
-            self.display_error_msg('No such file or directory: ' + self.file_input_name)
+        elif not os.path.exists(self.file_path):
+            self.display_error_msg('No such file or directory: ' + self.file_path)
 
     def pi_add_incoming_connection(self, str_type: str, str_name: str) -> object:
         """
@@ -72,42 +72,46 @@ class AyxPlugin:
         Handles reading in the data from the file, mapping out the layout going out, and pushing records out.
         Called when a tool has no incoming data connection.
         :param n_record_limit: Set it to <0 for no limit, 0 for no records, and >0 to specify the number of records.
-        :return: False if there are issues with the input data, otherwise True.
+        :return: False if there are issues with the input data or if the workflow isn't being ran, otherwise True.
         """
 
         if not self.is_initialized:
             return False
 
+        if self.alteryx_engine.get_init_var(self.n_tool_id, 'UpdateOnly') == True:
+            return False
+
         record_info_out = Sdk.RecordInfo(self.alteryx_engine)  # A fresh record info object.
 
         # Creating a read-only file object and a reader object which will iterate over lines in the given file.
-        file_out = open(self.file_input_name, 'r', encoding='utf-8')
+        file_out = open(self.file_path, 'r', encoding='utf-8')
         file_reader = csv.reader(file_out)
 
         try:  # Add metadata info that is passed to tools downstream.
             for field in next(file_reader):
-                record_info_out.add_field(field, Sdk.FieldType.v_wstring, 254, 0, 'PythonInput_' + str(self.n_tool_id), '')
+                record_info_out.add_field(field, Sdk.FieldType.v_wstring, 254, 0, 'File: ' + self.file_path, '')
         except:
             self.display_error_msg('Must be a UTF-8 file')
             return False
 
         self.output_anchor.init(record_info_out)  # Lets the downstream tools know of the outgoing record metadata.
         record_creator = record_info_out.construct_record_creator()  # Creating a new record_creator for the new data.
-        rownum = 0  # Keeping track of number of records for use in output message.
 
-        # Loop through each record (or row) of data that has been passed into this function.
-        for row in file_reader:
-            rownum += 1
-            # Iterate through the fields in this row and add them in order to the output row
-            for index, value in enumerate(row):
-                record_info_out[index].set_from_string(record_creator, value)
+        # SLOWNESS STARTS HERE ================================================================================
+
+        for record in file_reader:
+            for field in enumerate(record):
+                record_info_out[field[0]].set_from_string(record_creator, field[1])
 
             # Asking for a record to push downstream, then resetting the record to prevent unexpected results.
             out_record = record_creator.finalize_record()
             self.output_anchor.push_record(out_record, False)  # False: completed connections will automatically close.
             record_creator.reset()
 
-        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.info, self.xmsg(str(rownum) + ' records were read from ' + self.file_input_name))
+        # ======================================================================================================
+
+        total_records = str(sum(1 for record in file_reader))  # Naming a reference to display to user.
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.info, self.xmsg(total_records) + ' records were read from ' + self.file_path)
         self.output_anchor.close()  # Close outgoing connections.
         return True
 
@@ -125,7 +129,7 @@ class AyxPlugin:
         :return: False if the string literal entered for the file extension is not csv, otherwise True.
         """
 
-        filename, file_extension = os.path.splitext(self.file_input_name)
+        filename, file_extension = os.path.splitext(self.file_path)
         if file_extension.lower() == '.csv':
             return True
         return False
