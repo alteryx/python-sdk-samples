@@ -96,6 +96,8 @@ class AyxPlugin:
                     output_record = a_record.finalize_record()  # Asking for a record.
                     self.output_anchor.push_record(output_record)
 
+                    # TODO: The progress update to the downstream tool, based on time elapsed, should go here.
+
         self.output_anchor.close()  # Close outgoing connections.
 
     def xmsg(self, msg_string: str):
@@ -119,7 +121,6 @@ class IncomingInterface:
         """
         Constructor for IncomingInterface.
         :param parent: AyxPlugin
-        :param rename_prefix: The prefix string entered by the user, if any.
         """
 
         # Default properties
@@ -155,7 +156,6 @@ class IncomingInterface:
         Preserving the state of the incoming record data, since the reference to a record dies beyond this point.
         Called when an input record is being sent to the plugin.
         :param in_record: The data for the incoming record.
-        :return: False if method calling limit (record_cnt) is hit.
         """
 
         self.record_list.append(self.record_info_in.construct_record_creator())
@@ -168,7 +168,8 @@ class IncomingInterface:
         :param d_percent: Value between 0.0 and 1.0.
         """
 
-        self.d_progress_percentage = d_percent
+        self.d_progress_percentage = d_percent  # Stored for future use for updating the input progress.
+        #TODO: self.parent.process_update_input_progress()
 
     def ii_close(self):
         """

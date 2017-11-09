@@ -248,7 +248,6 @@ class IncomingInterface:
         Preserving the state of the incoming record data, since the reference to a record dies beyond this point.
         Called when an input record is being sent to the plugin.
         :param in_record: The data for the incoming record.
-        :return: False if method calling limit (record_cnt) is hit.
         """
 
         self.record_list.append(self.record_info_in.construct_record_creator())
