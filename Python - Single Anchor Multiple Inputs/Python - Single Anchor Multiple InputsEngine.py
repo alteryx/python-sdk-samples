@@ -112,8 +112,8 @@ class AyxPlugin:
 
 class IncomingInterface:
     """
-    This class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be\
-    utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
+    This optional class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to
+    be utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
     Prefixed with "ii", the Alteryx engine will expect the below four interface methods to be defined.
     """
 
