@@ -1,5 +1,10 @@
-import AlteryxPythonSDK
-import xml.etree.ElementTree as ET
+"""
+AyxPlugin (required) has-a IncomingInterface (optional).
+Although defining IncomingInterface is optional, the interface methods are needed if an upstream tool exists.
+"""
+
+import AlteryxPythonSDK as Sdk
+import xml.etree.ElementTree as Et
 import os
 import csv
 
@@ -35,13 +40,13 @@ class AyxPlugin:
         """
 
         # Getting the user-entered file path string from the GUI, to use as output path.
-        root = ET.fromstring(str_xml)
+        root = Et.fromstring(str_xml)
         self.str_file_path = root.find('fileOutputPath').text if root.find('fileOutputPath').text else ''
 
         # If there is no error message string returned, set flag to True if validation passes
         error_msg = self.msg_str(self.str_file_path)
         if error_msg != '':
-            self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg(error_msg))
+            self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg(error_msg))
         else:
             self.is_valid = True
 
@@ -73,7 +78,7 @@ class AyxPlugin:
         :return: True for success, False for failure.
         """
 
-        self.alteryx_engine.output_message(self.n_tool_id, AlteryxPythonSDK.EngineMessageType.error, self.xmsg('Missing Incoming Connection'))
+        self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Missing Incoming Connection'))
         return False
 
     def pi_close(self, b_has_errors: bool):
@@ -115,23 +120,23 @@ class AyxPlugin:
         """
 
         msg_str = ''
-        if os.access(file_path, os.F_OK):  # Must be a new file
+        if os.access(file_path, os.F_OK):
             msg_str = file_path + ' already exists. Enter a different path.'
-        elif len(file_path) > 259:  # Check length of filename
+        elif len(file_path) > 259:
             msg_str = 'Maximum path length is 259'
-        elif any((char in set('/;?*"<>|')) for char in file_path):  # Check for special characters in filename
+        elif any((char in set('/;?*"<>|')) for char in file_path):
             msg_str = 'These characters are not allowed in the filename: /;?*"<>|'
-        elif len(file_path) == 0:  # Show error if filename is blank
+        elif len(file_path) == 0:
             msg_str = 'Enter a filename'
-        elif not file_path.endswith('.csv'): # File extension must be .csv
+        elif not file_path.endswith('.csv'):
             msg_str = 'File extension must be .csv'
         return msg_str
 
 
 class IncomingInterface:
     """
-    This class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be\
-    utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
+    This optional class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to
+    be utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
     Prefixed with "ii", the Alteryx engine will expect the below four interface methods to be defined.
     """
 
@@ -202,10 +207,14 @@ class IncomingInterface:
         Called when the incoming connection has finished passing all of its records.
         """
 
-        # First element for each list will always be the field names.
-        if len(self.field_lists[0]) > 1 and self.parent.is_valid:
-            self.parent.write_lists_to_csv(self.parent.str_file_path, self.field_lists)
-
-        # Outputting message that the file was written
         if len(self.parent.str_file_path) > 0 and self.parent.is_valid:
-            self.parent.alteryx_engine.output_message(self.parent.n_tool_id, AlteryxPythonSDK.Status.file_output, self.parent.xmsg(self.parent.str_file_path + "|" + self.parent.str_file_path + " was created."))
+            # First element for each list will always be the field names.
+            if len(self.field_lists[0]) > 1:
+                self.parent.write_lists_to_csv(self.parent.str_file_path, self.field_lists)
+
+            # Outputting the link message that the file was written
+            self.parent.alteryx_engine.output_message(
+                self.parent.n_tool_id,
+                Sdk.Status.file_output,
+                self.parent.xmsg("{} | {} was created.").format(self.parent.str_file_path, self.parent.str_file_path)
+            )

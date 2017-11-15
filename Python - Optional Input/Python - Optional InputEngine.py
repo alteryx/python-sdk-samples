@@ -1,3 +1,8 @@
+"""
+AyxPlugin (required) has-a IncomingInterface (optional).
+Although defining IncomingInterface is optional, the interface methods are needed if an upstream tool exists.
+"""
+
 import AlteryxPythonSDK as Sdk
 import xml.etree.ElementTree as Et
 
@@ -50,7 +55,7 @@ class AyxPlugin:
         if self.column_name is None:
             self.display_error_msg('Field name cannot be empty. Please enter a field name.')
         elif len(self.column_name) > 255:
-            self.display_error_msg('Field name cannot be greater then 255 characters.')
+            self.display_error_msg('Field name cannot be greater than 255 characters.')
 
         # Assigning the appropriate Alteryx field type.
         if field_type == 'Int16':
@@ -94,6 +99,9 @@ class AyxPlugin:
         """
 
         if not self.is_initialized:
+            return False
+
+        if self.alteryx_engine.get_init_var(self.n_tool_id, 'UpdateOnly') == True:
             return False
 
         # Save a reference to the RecordInfo passed into this function in the global namespace, so we can access it later.
@@ -159,7 +167,7 @@ class AyxPlugin:
 
 class IncomingInterface:
     """
-    This class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be\
+    This optional class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be
     utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
     Prefixed with "ii", the Alteryx engine will expect the below four interface methods to be defined.
     """

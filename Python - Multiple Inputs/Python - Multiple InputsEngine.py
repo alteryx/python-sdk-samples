@@ -1,3 +1,8 @@
+"""
+AyxPlugin (required) has-a IncomingInterface (optional).
+Although defining IncomingInterface is optional, the interface methods are needed if an upstream tool exists.
+"""
+
 import AlteryxPythonSDK as Sdk
 import xml.etree.ElementTree as Et
 import itertools as it
@@ -23,17 +28,19 @@ class AyxPlugin:
         self.output_anchor_mgr = output_anchor_mgr
 
         # Custom properties
-        self.left_input = self.right_input = None
-        self.left_prefix = self.right_prefix = ''
+        self.left_input = None
+        self.right_input = None
+        self.left_prefix = ''
+        self.right_prefix = ''
         self.output_anchor = None
 
     def pi_init(self, str_xml: str):
         """
+        Getting the user-entered prefixes from the GUI, and the output anchor from the XML file.
         Called when the Alteryx engine is ready to provide the tool configuration from the GUI.
         :param str_xml: The raw XML from the GUI.
         """
 
-        # Getting the user-entered prefixes from the GUI, and the output anchor from the XML file.
         self.left_prefix = Et.fromstring(str_xml).find('LeftPrefix').text
         self.right_prefix = Et.fromstring(str_xml).find('RightPrefix').text
         self.output_anchor = self.output_anchor_mgr.get_output_anchor('Output')
@@ -94,9 +101,10 @@ class AyxPlugin:
         else:
             self.display_error_message('Both left and right inputs must have connections')
 
-    def init_record_info_out(self, child: object, record_info_out: object):
+    @staticmethod
+    def init_record_info_out(child: object, record_info_out: object):
         """
-        A non-interface helper that handles building out the layout for record_info_out.
+        A non-interface helper for process_output() that handles building out the layout for record_info_out.
         :param child: An incoming connection.
         :param record_info_out: The outgoing record info object.
         :return: Updated initialization of record_info_out.
@@ -108,10 +116,34 @@ class AyxPlugin:
         )
         return record_info_out
 
-    def setup_record_copier(self, child: object, record_info_out: object, start_index: int):
+    @staticmethod
+    def swap_outgoing_order(left_input: object, right_input: object):
         """
-        A non-interface helper that maps the appropriate fields to their designated positions in record_info_out.
+        A non-interface helper for process_output() that assigns the mapping order based on number of records.
+        :param left_input: the object from the left incoming connection
+        :param right_input: the object from the right incoming connection
+        :return: New names for the incoming connections.
+        """
+
+        min_n_records = min(len(left_input.record_list), len(right_input.record_list))
+        max_n_records = max(len(left_input.record_list), len(right_input.record_list))
+
+        # Having the shortest list be the first to output, so set_dest_to_null is applied only for the first copy,\
+        # when dealing with an uneven record pair. This swap process will eventually be replaced in subsequent releases.
+        if min_n_records != max_n_records:
+            first_half_output = left_input if min_n_records == len(left_input.record_list) else right_input
+            second_half_output = right_input if first_half_output == left_input else left_input
+        else:
+            first_half_output = left_input
+            second_half_output = right_input
+        return first_half_output, second_half_output
+
+    @staticmethod
+    def setup_record_copier(child: object, record_info_out: object, start_index: int):
+        """
+        A non-interface helper for process_output() that maps the appropriate fields to their designated positions.
         :param child: Incoming connection object.
+        :param record_info_out: The outgoing record layout.
         :param start_index: The starting field position of an incoming connection object.
         :return: The starting field position for the next incoming connection object.
         """
@@ -124,44 +156,32 @@ class AyxPlugin:
 
     def process_output(self):
         """
-        A non-interface helper responsible for creating the record_info_out object, mapping the records,
-        pushing the records out, and updating this tool's displayed progress, directly or via helper functions.
+        A non-interface method responsible for pushing the records based on the joined record layout.
         """
 
-        # Naming the aggregations to reference in the following processes.
-        min_nrecords = min(len(self.left_input.record_list), len(self.right_input.record_list))
-        max_nrecords = max(len(self.left_input.record_list), len(self.right_input.record_list))
-
-        # Having the shortest list be the first to output, so set_dest_to_null is applied only for the first copy,\
-        # when dealing with an uneven record pair. This swap process will eventually be replaced in subsequent releases.
-        if min_nrecords != max_nrecords:
-            first_input = self.left_input if min_nrecords == len(self.left_input.record_list) else self.right_input
-            second_input = self.right_input if first_input == self.left_input else self.left_input
-        else:
-            first_input = self.left_input
-            second_input = self.right_input
+        # Determining the mapping order based on length of the incoming data streams.
+        first_half_output, second_half_output = self.swap_outgoing_order(self.left_input, self.right_input)
 
         # Having the helper initialize the RecordInfo object for the outgoing stream.
-        record_info_out = self.init_record_info_out(first_input, Sdk.RecordInfo(self.alteryx_engine))
-        record_info_out = self.init_record_info_out(second_input, record_info_out)
+        record_info_out = self.init_record_info_out(first_half_output, Sdk.RecordInfo(self.alteryx_engine))
+        record_info_out = self.init_record_info_out(second_half_output, record_info_out)
 
         self.output_anchor.init(record_info_out)  # Lets the downstream tools know of the outgoing record metadata.
 
         # Having the helper function handle the field index mapping from both incoming streams, into record_info_out.
-        start_index = self.setup_record_copier(first_input, record_info_out, 0)
-        self.setup_record_copier(second_input, record_info_out, start_index)
+        start_index = self.setup_record_copier(first_half_output, record_info_out, 0)
+        self.setup_record_copier(second_half_output, record_info_out, start_index)
 
         record_creator = record_info_out.construct_record_creator()  # Creating a new record_creator for the joined records.
 
-        # Using zip_longest() to allow for uneven incoming streams. Returns an iterator.
-        for input_pair in it.zip_longest(first_input.record_list, second_input.record_list):
+        for input_pair in it.zip_longest(first_half_output.record_list, second_half_output.record_list):
 
-            # Copying the record into the record creator. NULL values will be used to fill for the uneven number of records.
+            # Copying the record into the record creator. NULL values will be used to fill for the difference.
             if input_pair[0] is not None:
-                first_input.record_copier.copy(record_creator, input_pair[0].finalize_record())
+                first_half_output.record_copier.copy(record_creator, input_pair[0].finalize_record())
             else:
-                first_input.record_copier.set_dest_to_null(record_creator)
-            second_input.record_copier.copy(record_creator, input_pair[1].finalize_record())
+                first_half_output.record_copier.set_dest_to_null(record_creator)
+            second_half_output.record_copier.copy(record_creator, input_pair[1].finalize_record())
 
             # Asking for a record to push downstream, then resetting the record to prevent unexpected results.
             output_record = record_creator.finalize_record()
@@ -180,7 +200,7 @@ class AyxPlugin:
         if self.right_input is not None and self.left_input is not None:
             # We're assuming receiving the input data accounts for half the progress.
             input_percent = (self.right_input.d_progress_percentage + self.left_input.d_progress_percentage) / 2
-            self.alteryx_engine.output_tool_progress(self.n_tool_id, input_percent / 2 )
+            self.alteryx_engine.output_tool_progress(self.n_tool_id, input_percent / 2)
 
     def display_error_message(self, msg_string: str):
         """
@@ -202,8 +222,8 @@ class AyxPlugin:
 
 class IncomingInterface:
     """
-    This class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be\
-    utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
+    This optional class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to
+    be utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
     Prefixed with "ii", the Alteryx engine will expect the below four interface methods to be defined.
     """
 

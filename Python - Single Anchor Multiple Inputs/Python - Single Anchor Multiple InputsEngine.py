@@ -1,3 +1,8 @@
+"""
+AyxPlugin (required) has-a IncomingInterface (optional).
+Although defining IncomingInterface is optional, the interface methods are needed if an upstream tool exists.
+"""
+
 import AlteryxPythonSDK as Sdk
 
 
@@ -90,11 +95,17 @@ class AyxPlugin:
         # Verifying that the first incoming connection's record layout is the same as subsequent incoming connections'
         for an_input in self.all_inputs:
             if not self.all_inputs[0].record_info_in.equal_types(an_input.record_info_in, False):
-                self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Record layout (e.g. size, type) must be the same across all inputs.'))
+                self.alteryx_engine.output_message(
+                    self.n_tool_id,
+                    Sdk.EngineMessageType.error,
+                    self.xmsg('Record layout (e.g. size, type) must be the same across all inputs.')
+                )
             else:
                 for a_record in an_input.record_list:
                     output_record = a_record.finalize_record()  # Asking for a record.
                     self.output_anchor.push_record(output_record)
+
+                    # TODO: The progress update to the downstream tool, based on time elapsed, should go here.
 
         self.output_anchor.close()  # Close outgoing connections.
 
@@ -110,8 +121,8 @@ class AyxPlugin:
 
 class IncomingInterface:
     """
-    This class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to be\
-    utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
+    This optional class is returned by pi_add_incoming_connection, and it implements the incoming interface methods, to
+    be utilized by the Alteryx engine to communicate with a plugin when processing an incoming connection.
     Prefixed with "ii", the Alteryx engine will expect the below four interface methods to be defined.
     """
 
@@ -119,7 +130,6 @@ class IncomingInterface:
         """
         Constructor for IncomingInterface.
         :param parent: AyxPlugin
-        :param rename_prefix: The prefix string entered by the user, if any.
         """
 
         # Default properties
@@ -155,7 +165,6 @@ class IncomingInterface:
         Preserving the state of the incoming record data, since the reference to a record dies beyond this point.
         Called when an input record is being sent to the plugin.
         :param in_record: The data for the incoming record.
-        :return: False if method calling limit (record_cnt) is hit.
         """
 
         self.record_list.append(self.record_info_in.construct_record_creator())
@@ -168,7 +177,8 @@ class IncomingInterface:
         :param d_percent: Value between 0.0 and 1.0.
         """
 
-        self.d_progress_percentage = d_percent
+        self.d_progress_percentage = d_percent  # Stored for future use for updating the input progress.
+        #TODO: self.parent.process_update_input_progress()
 
     def ii_close(self):
         """
