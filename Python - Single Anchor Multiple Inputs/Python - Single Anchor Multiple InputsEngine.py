@@ -1,3 +1,8 @@
+"""
+AyxPlugin (required) has-a IncomingInterface (optional).
+Although defining IncomingInterface is optional, the interface methods are needed if an upstream tool exists.
+"""
+
 import AlteryxPythonSDK as Sdk
 
 
@@ -90,7 +95,11 @@ class AyxPlugin:
         # Verifying that the first incoming connection's record layout is the same as subsequent incoming connections'
         for an_input in self.all_inputs:
             if not self.all_inputs[0].record_info_in.equal_types(an_input.record_info_in, False):
-                self.alteryx_engine.output_message(self.n_tool_id, Sdk.EngineMessageType.error, self.xmsg('Record layout (e.g. size, type) must be the same across all inputs.'))
+                self.alteryx_engine.output_message(
+                    self.n_tool_id,
+                    Sdk.EngineMessageType.error,
+                    self.xmsg('Record layout (e.g. size, type) must be the same across all inputs.')
+                )
             else:
                 for a_record in an_input.record_list:
                     output_record = a_record.finalize_record()  # Asking for a record.

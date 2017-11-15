@@ -1,3 +1,8 @@
+"""
+AyxPlugin (required) has-a IncomingInterface (optional).
+Although defining IncomingInterface is optional, the interface methods are needed if an upstream tool exists.
+"""
+
 import AlteryxPythonSDK as Sdk
 import xml.etree.ElementTree as Et
 import csv
